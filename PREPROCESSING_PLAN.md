@@ -1,7 +1,7 @@
 # Preprocessing & Methodology Plan
 
 **Project:** Schematics NPC DSC 2026 - Bird Chirp Openset Classification
-**Version:** 1.1 (revised: 5 critical fixes from cross-audit)
+**Version:** 1.2 (revised: 32 kHz default SR, ImageNet 2D CNN backbones, 256-d bottleneck OOD embedding)
 **Date:** 2026-10-15
 **Maturity:** Proposal (belum dieksekusi, menunggu validasi empiris)
 
@@ -17,7 +17,7 @@ Klasifikasi audio 4-kelas (3 known + 1 Unknown) dengan karakteristik:
 - **Field recording noise:** Clipping 40-55%, silence ~10%, noise lingkungan hutan tropis [E-015]
 - **Distinctive spectral signatures:** Kutilang tonal 2-4 kHz, Bondol broadband 2-6 kHz, Cendrawasih bimodal 0-2 kHz + 6-8 kHz [E-016]
 - **Redundant stereo:** Korelasi antar-channel 0.724-0.800, delta RMS ~0.002 [E-018]
-- **Negligible ultrasonic content:** Band 16-24 kHz hanya 0.11-1.22% energi total [E-017]
+- **Negligible ultrasonic content:** Band 16-24 kHz hanya 0.11-1.22% energi total, namun band 8-16 kHz membawa hingga 9.08% energi harmonik Cendrawasih [E-017]
 
 ---
 
@@ -55,11 +55,11 @@ output = (ch0 + ch1) / 2
 
 | Parameter | Nilai | Justifikasi |
 |---|---|---|
-| Target SR (pretrained backbone) | 16.000 Hz | Standar input AST/BEATs/EfficientAT |
-| Target SR (custom CNN) | 32.000 Hz | Mempertahankan harmonik 8-16 kHz (hingga 9.08% energi Cendrawasih) [E-017, D-005] |
+| Target SR (Default - 2D CNN) | 32.000 Hz | Mempertahankan harmonik 8-16 kHz (hingga 9.08% energi Cendrawasih) [E-017, D-005]. Arsitektur 2D CNN (EfficientNet/ConvNeXt/ResNet) fleksibel terhadap panjang frame temporal |
+| Target SR (Ablasi / Audio-specific) | 16.000 Hz | Digunakan khusus untuk eksperimen ablasi ABL-05 atau jika menguji EfficientAT (`mn10_as`) |
 | Metode | `scipy.signal.resample_poly(up, down)` dengan polyphase anti-aliasing filter | [FIX-B] `librosa.resample` (kaiser_best) masih valid sebagai alternatif. `resample_poly` dipilih karena menghindari Gibbs phenomenon / ringing overshoot pada rekaman yang sudah clipping (peak > 1.0 terdeteksi di test set, E-015). Untuk 48k->32k: `resample_poly(x, up=2, down=3)`. Untuk 48k->16k: `resample_poly(x, up=1, down=3)` |
 
-`target_sr` adalah parameter pipeline, bukan hardcoded. Default 16 kHz saat menggunakan pretrained backbone.
+`target_sr` adalah parameter pipeline, bukan hardcoded. **Default diset ke 32 kHz** untuk memaksimalkan informasi frekuensi tinggi pada kelas minoritas Cendrawasih.
 
 ### 1.3 Peak Normalization
 
@@ -80,20 +80,22 @@ x_norm = x / max(|x|)
 | Audio > 10s (train) | Random crop 10s | Augmentasi implisit posisi temporal |
 | Audio > 10s (test) | Center crop 10s | Deterministik dan reproducible |
 
-Jumlah sampel pada 16 kHz: 160.000. Pada 32 kHz: 320.000.
+Jumlah sampel pada 32 kHz (default): 320.000. Pada 16 kHz (ablasi): 160.000.
 
 ### 1.5 Log-Mel Spectrogram
 
-| Parameter | Nilai (16 kHz) | Nilai (32 kHz) | Justifikasi |
+| Parameter | Nilai (32 kHz - Default) | Nilai (16 kHz - Ablasi) | Justifikasi |
 |---|---|---|---|
-| n_fft | 1024 (~64 ms) | 2048 (~64 ms) | Resolusi frekuensi cukup untuk memisahkan band 2-4 kHz Kutilang dari 4-6 kHz Bondol [E-016] |
-| hop_length | 320 (~20 ms) | 512 (~16 ms) | 75% overlap, resolusi temporal memadai untuk pola repetitif kicauan |
+| n_fft | 2048 (~64 ms) | 1024 (~64 ms) | Resolusi frekuensi cukup untuk memisahkan band 2-4 kHz Kutilang dari 4-6 kHz Bondol [E-016] |
+| hop_length | 512 (~16 ms) | 320 (~20 ms) | 75% overlap, resolusi temporal memadai untuk pola repetitif kicauan |
 | n_mels | 128 | 128 | Standar untuk audio classification, resolusi mel cukup untuk 3 kelas dengan signature spektral berbeda |
 | fmin | 200 Hz | 200 Hz | Memotong low-frequency rumble (angin, getaran tanah, hum sensor) yang tidak informatif |
-| fmax | 8000 Hz | 16000 Hz | Disesuaikan Nyquist; mempertahankan seluruh band informatif [E-017] |
+| fmax | 16000 Hz | 8000 Hz | Disesuaikan Nyquist; pada 32 kHz mempertahankan seluruh band informatif termasuk 8-16 kHz [E-017] |
 | Konversi dB | power_to_db, ref=max, top_db=80 | Idem | Kompresi range dinamis untuk representasi visual dan input neural network |
 
-**Dimensi output (16 kHz):** 128 x 501 (128 mel bins x ceil(160000/320) time frames).
+**Dimensi output:**
+- **32 kHz (Default):** `128 x 626` (128 mel bins x ceil(320000/512) time frames).
+- **16 kHz (Ablasi):** `128 x 501` (128 mel bins x ceil(160000/320) time frames).
 
 ### 1.6 Per-Sample Normalization
 
@@ -101,22 +103,22 @@ Jumlah sampel pada 16 kHz: 160.000. Pada 32 kHz: 320.000.
 S_norm = (S_dB - mean(S_dB)) / (std(S_dB) + 1e-6)
 ```
 
-Normalisasi z-score per spektrogram individual. Meredam variasi gain mikrofon lapangan tanpa memerlukan statistik global dataset (fold-safe by design).
+Normalisasi z-score per spektrogram individual. Meredam variasi gain mikrofon lapangan tanpa memerlukan statistik global dataset (fold-safe by design). **Penting:** Jangan menerapkan normalisasi mean/std RGB ImageNet (`[0.485, 0.456, 0.406]`) setelah tahap ini agar tidak merusak skala Z-score per sampel.
 
 ### 1.7 Urutan Eksekusi Pipeline dalam `Dataset.__getitem__`
 
 ```
 Raw Stereo FLAC
-  --> 1.1 Mono Downmix
-  --> 1.2 Resample (polyphase anti-aliased)
-  --> 1.3 Peak Normalize [-1, 1]
-  --> 1.4 Duration Standardize (reflect-pad / random crop)
-  --> [Train only] 2.2 Waveform Mixup
-  --> [Train only] 2.3 Random Gain Jitter
-  --> [Train only] 2.4 Additive Gaussian Noise
-  --> 1.5 Log-Mel Spectrogram
-  --> [Train only] 2.1 SpecAugment (on spectrogram)
-  --> 1.6 Per-Sample Z-Score Normalization
+--> 1.1 Mono Downmix
+--> 1.2 Resample (polyphase anti-aliased, default 32 kHz)
+--> 1.3 Peak Normalize [-1, 1]
+--> 1.4 Duration Standardize (reflect-pad / random crop)
+--> [Train only] 2.2 Waveform Mixup
+--> [Train only] 2.3 Random Gain Jitter
+--> [Train only] 2.4 Additive Gaussian Noise
+--> 1.5 Log-Mel Spectrogram
+--> [Train only] 2.1 SpecAugment (on spectrogram)
+--> 1.6 Per-Sample Z-Score Normalization
 ```
 
 Urutan ini memastikan: (a) Gain Jitter mengubah SNR riil sebelum mel extraction sehingga efeknya tidak terhapus oleh Z-score, (b) Mixup terjadi di domain waveform (campuran akustik koheren), (c) SpecAugment diterapkan pada spectrogram setelah mel extraction.
@@ -185,31 +187,33 @@ Semua augmentasi diterapkan secara stokastik per batch saat training. Tidak pern
 
 **Model:** LightGBM dengan `class_weight='balanced'` atau `scale_pos_weight` per kelas.
 
-**Validasi:** 4-fold GroupKFold OOF, metrik Macro F1.
+**Validasi:** 4-fold StratifiedGroupKFold OOF, metrik Global Macro F1.
 
 ### Track B: Deep Learning (GPU)
 
-**Option B1: Pretrained Audio Transformer (Rekomendasi Utama)**
+[D-007] Mengingat ukuran dataset yang kecil ($N=1.826$, Cendrawasih $N=83$ [E-007]), arsitektur Transformer murni (ViT/AST ~87M, BEATs ~90M) **dieliminasi** karena risiko *overfitting* parah dan *curse of dimensionality* pada ruang fitur OOD. Sebagai gantinya, digunakan arsitektur **ImageNet-pretrained 2D CNN** yang memiliki *inductive bias* spasial kuat dan efisiensi parameter tinggi:
 
-| Aspek | Spesifikasi |
-|---|---|
-| Kandidat backbone | EfficientAT (mn10_as) / AST (MIT) / BEATs |
-| Input | Log-Mel spectrogram 128 x T pada 16 kHz |
-| Transfer protocol | LP-FT 2-phase (corpus: `cv_trans_lp_ft_two_phase_adaptation`) |
-| Phase 1 (LP) | Freeze backbone, train linear head, 5-10 epoch, lr=1e-3 |
-| Phase 2 (FT) | Unfreeze all, fine-tune end-to-end, lr=1e-5, 20-30 epoch |
-| Output | 3-class softmax logits + penultimate layer embedding (untuk OOD detection) |
-| Catatan | Weights pretrained pada AudioSet = parameter model, bukan data eksternal [A-004] |
+| Prioritas | Model & Sumber Korpus | Parameter | Spesifikasi & Justifikasi |
+|---|---|---|---|
+| **Utama (B1)** | **EfficientNet-B0** (`cv_arch_efficientnet_compound_scaling`) | ~5.3M | Hanya gunakan varian B0 (bukan V2-S ~21.5M) agar rasio parameter/sampel optimal di $N=1.826$. *Depthwise separable conv* sangat efisien membaca korelasi harmonik waktu-frekuensi spektrogram $128 \times 626$ pada 32 kHz |
+| **Diversitas / Ensemble (B2)** | **ConvNeXt-Tiny** (`cv_arch_convnext_modern_convnet`) | ~28M | Kernel depthwise $7 \times 7$ menangkap modulasi frekuensi kicau Kutilang (2-4 kHz) dan sebaran broadband Bondol Jawa (2-6 kHz) [E-016]. Digunakan dengan regularisasi DropPath=0.2 sebagai kandidat *ensemble blend* |
+| **Pembanding Arsitektural (B3)** | **ResNet-34 + Attention** (`cv_arch_resnet_deep_residual` & `cv_arch_cbam_channel_spatial_attention`) | ~21M | Atensi kanal & spasial menekan *noise* latar belakang hutan (hujan, serangga) [E-015]. Prioritaskan varian `timm` yang atensinya sudah *pretrained* (`seresnet34` / `eca_resnet34d`), atau pastikan modul CBAM *unfrozen* sejak Fase 1 LP-FT |
+| **Opsional Audio (B4)** | **EfficientAT `mn10_as`** | ~4.8M | Hanya dieksplorasi pada 16 kHz jika membutuhkan tambahan diversitas modalitas untuk ensemble setelah B1-B3 selesai |
 
-**Option B2: Custom Lightweight CNN (Fallback)**
+**Adaptasi Input & Arsitektur Bottleneck Head (Seragam untuk Semua Backbone):**
 
-| Aspek | Spesifikasi |
-|---|---|
-| Arsitektur | 4-5 conv blocks (Conv2d-BN-ReLU-MaxPool) |
-| Input | Log-Mel spectrogram 128 x T pada 32 kHz |
-| Pooling | Global Average Pooling ke 256-dim embedding |
-| Head | Linear 256 ke 3 kelas |
-| Kapan dipakai | Jika pretrained backbone dilarang atau terlalu berat untuk budget komputasi |
+1. **Adaptasi Kanal Input:** Gunakan `in_chans=1` pada `timm.create_model(..., pretrained=True, in_chans=1)` yang merata-ratakan bobot konvolusi RGB ke 1-kanal (hemat memori dibanding duplikasi 3-kanal). Jika menggunakan duplikasi 3-kanal `.repeat(3, 1, 1)`, dilarang memakai normalisasi mean/std ImageNet karena input sudah berupa Z-score per sampel (Fase 1.6).
+2. **Bottleneck Projection untuk OOD Embedding:** Dimensi fitur asli setelah Global Average Pooling (GAP) terlalu besar ($d=1280$ pada EfficientNet-B0, $d=768$ pada ConvNeXt-Tiny) untuk jumlah sampel per fold ($N \approx 1.369$), yang memicu *curse of dimensionality* pada perhitungan jarak kNN. Oleh karena itu, seluruh model menggunakan struktur *head* seragam:
+
+```
+GAP (d) --> Linear(d, 256) --> BatchNorm1d --> SiLU --> Dropout(0.3) --> Linear(256, 3)
+```
+- **Output Klasifikasi:** 3-class logits dari `Linear(256, 3)`.
+- **Output OOD Embedding:** Vektor **256-dimensi** (sebelum Dropout dan Linear terakhir) yang di-L2 normalize untuk perhitungan jarak kNN (`k=20`). Penyeragaman ke 256-dim juga memungkinkan penggabungan jarak kNN lintas model saat ensemble.
+
+**Protokol Adaptasi: LP-FT 2-Fase (`cv_trans_lp_ft_two_phase_adaptation`):**
+- **Phase 1 (Linear Probing - 5 Epoch):** Bekukan (*freeze*) seluruh *backbone* konvolusi, latih hanya *bottleneck head* (`Linear(d, 256)` hingga `Linear(256, 3)`) dengan `lr=1e-3`. (Catatan khusus B3: jika memakai CBAM *random init*, modul CBAM wajib ikut di-*unfreeze* di Fase 1). Mencegah *feature distortion* pada bobot pretrained akibat gradien awal yang besar.
+- **Phase 2 (Fine-Tuning - 20-25 Epoch):** Buka seluruh layer (*unfreeze all*), latih *end-to-end* dengan *differential learning rate* (`lr_backbone=1e-4` turun ke `1e-5`, `lr_head=5e-4`). Korpus mencatat LP-FT meningkatkan akurasi dan ketahanan OOD sebesar $+2.0\%$ hingga $+6.0\%$.
 
 **Loss Function (Revised):**
 
@@ -255,11 +259,11 @@ energy = -T * log(sum(exp(logits / T)))
 - Secara teori lebih baik dari MSP karena memanfaatkan distribusi seluruh logit, bukan hanya argmax.
 - Semakin rendah energy, semakin kemungkinan in-distribution.
 
-**Layer 3: kNN Distance pada Embedding (Sun et al., ICML 2022)**
+**Layer 3: kNN Distance pada 256-d Bottleneck Embedding (Sun et al., ICML 2022)**
 ```
-knn_dist = mean(top_k_distances(embedding, train_embeddings, k=20))
+knn_dist = mean(top_k_distances(embedding_256d, train_embeddings_256d, k=20))
 ```
-- Bangun index L2-normalized penultimate embedding dari training set.
+- Bangun index L2-normalized **256-d bottleneck embedding** dari training set.
 - Hitung jarak rata-rata ke 20-nearest neighbor.
 - Sampel dengan jarak besar kemungkinan OOD.
 - Sumber korpus: `cv_ood_knn_embedding`.
@@ -284,7 +288,7 @@ Normalisasi: min-max scaling berdasarkan distribusi OOF in-distribution scores.
 **Protokol pengganti: Pseudo-OOD Injection pada Model 3-Kelas**
 
 1. Latih model 3-kelas pada 4-fold StratifiedGroupKFold (sama seperti Fase 3).
-2. Kumpulkan OOF logits dan embeddings dari keempat fold (N=1826 prediksi).
+2. Kumpulkan OOF logits dan 256-d embeddings dari keempat fold (N=1826 prediksi).
 3. Untuk kalibrasi threshold, gunakan **2 sumber pseudo-OOD**:
    - **Acoustic background noise:** Segmen audio train dengan silence ratio tinggi (>50%) atau RMS sangat rendah, diperlakukan sebagai proxy Unknown.
    - **Synthetic OOD via CutMix/spectral perturbation:** Campurkan potongan spektrogram dari 2 kelas berbeda dengan rasio 50:50, menghasilkan sinyal yang bukan milik kelas manapun.
@@ -341,8 +345,8 @@ submissions/sub_NNN_YYYYMMDD_HHMM/
 | Rubrik | Bobot | Aspek yang Mendukung |
 |---|---|---|
 | Evaluasi & Validasi | 30% | 4-fold StratifiedGroupKFold + Pseudo-OOD Injection threshold calibration + Global OOF Macro F1 + submission assertion + ablasi augmentasi |
-| Modeling | 25% | 2-track (classical baseline vs deep learning) + LP-FT transfer + ensemble OOD scoring berlapis |
-| Preprocessing & FE | 20% | Setiap keputusan terikat evidence ID (E-xxx). Mel-spectrogram parameter dijustifikasi oleh analisis spektral kuantitatif |
+| Modeling | 25% | 2-track (LightGBM baseline vs ImageNet 2D CNN: EfficientNet-B0, ConvNeXt-Tiny, ResNet-34+Attention) + LP-FT 2-phase transfer + 256-d bottleneck ensemble OOD scoring |
+| Preprocessing & FE | 20% | Setiap keputusan terikat evidence ID (E-xxx). Pemilihan default 32 kHz dan mel-spectrogram parameter dijustifikasi oleh analisis spektral kuantitatif |
 | EDA | 15% | Cell 1-7: distribusi kelas, akustik, spektral, stereo, mel visualization. Artefak visual tersimpan |
 | Penulisan | 10% | Semua artefak dan log eksperimen terstruktur di PROJECT_STATE.md |
 
@@ -353,11 +357,11 @@ submissions/sub_NNN_YYYYMMDD_HHMM/
 | Cell | Deskripsi | Dependensi | Compute |
 |---|---|---|---|
 | 8 | 4-Fold StratifiedGroupKFold partition | metadata.csv | CPU |
-| 9 | Preprocessing pipeline function | Cell 8 | CPU |
+| 9 | Preprocessing pipeline function (default 32 kHz) | Cell 8 | CPU |
 | 10 | Classical ML baseline (LightGBM) | Cell 9 | CPU |
-| 11 | Deep learning model setup | Cell 9 | GPU |
-| 12 | Training loop + OOF embedding collection | Cell 11 | GPU |
-| 13 | OOD detection: Energy + kNN + Pseudo-OOD Injection | Cell 12 | CPU/GPU |
+| 11 | Deep learning model setup (EfficientNet-B0 / ConvNeXt-Tiny / ResNet-34 + 256-d bottleneck) | Cell 9 | GPU |
+| 12 | LP-FT 2-Phase training loop + OOF 256-d embedding collection | Cell 11 | GPU |
+| 13 | OOD detection: Energy + kNN (256-d) + Pseudo-OOD Injection | Cell 12 | CPU/GPU |
 | 14 | Threshold optimization (Nelder-Mead) | Cell 13 | CPU |
 | 15 | Test inference + submission | All | GPU |
 
@@ -370,8 +374,8 @@ submissions/sub_NNN_YYYYMMDD_HHMM/
 | ABL-01 | Dengan vs tanpa SpecAugment | SpecAugment meningkatkan generalisasi OOF | Macro F1 OOF |
 | ABL-02 | Dengan vs tanpa Mixup | Mixup mengatasi imbalance Cendrawasih | F1 per-kelas Cendrawasih |
 | ABL-03 | MSP saja vs Energy saja vs kNN saja vs Ensemble | Ensemble OOD scoring unggul | Macro F1 OOF (4 kelas) |
-| ABL-04 | LP-FT vs Direct fine-tune | LP-FT mempertahankan fitur OOD-aware | Macro F1 OOF + AUROC OOD |
-| ABL-05 | 16 kHz vs 32 kHz | 32 kHz tidak memberikan keuntungan signifikan pada pretrained backbone | Macro F1 OOF |
+| ABL-04 | LP-FT vs Direct fine-tune | LP-FT mempertahankan fitur OOD-aware (+2-6% OOD) | Macro F1 OOF + AUROC OOD |
+| ABL-05 | 32 kHz (default) vs 16 kHz | 32 kHz meningkatkan F1 Cendrawasih pada EfficientNet-B0 karena menangkap harmonik 8-16 kHz (9.08% energi) [E-017] | F1 Cendrawasih + Macro F1 OOF |
 | ABL-06 | Label smoothing 0.05 vs 0.0 | Label smoothing memperbaiki kalibrasi OOD | ECE + Macro F1 OOF |
 | ABL-07 | Focal+CB vs plain CE+class_weight | Class-Balanced Focal Loss unggul pada kelas minoritas | F1 Cendrawasih + Macro F1 OOF |
 | ABL-08 | reflect-pad vs wrap-around vs zero-pad | Metode padding mempengaruhi performa pada audio pendek | Macro F1 OOF pada subset durasi < 8s |
@@ -382,7 +386,7 @@ submissions/sub_NNN_YYYYMMDD_HHMM/
 
 | Risiko | Dampak | Mitigasi |
 |---|---|---|
-| Pretrained weights dianggap data eksternal oleh panitia | Diskualifikasi | Siapkan Track B2 (custom CNN from scratch) sebagai fallback. Lampirkan identitas model di notebook [Constraint kompetisi] |
-| Cendrawasih hanya 83 sampel, fold validasi bisa berisi 3-35 sampel | Metrik per-fold tidak stabil | Gunakan Global OOF Macro F1 (gabungan 1826 sampel) [FIX-A]. Mixup + class-balanced focal loss sebagai mitigasi |
+| Pretrained weights dianggap data eksternal oleh panitia | Diskualifikasi | Menggunakan ImageNet weights (domain visual, bukan data audio eksternal) [A-004] dan menyiapkan training from scratch sebagai fallback. Lampirkan identitas model di notebook |
+| Cendrawasih hanya 83 sampel, fold validasi bisa berisi 3-35 sampel | Metrik per-fold tidak stabil | Gunakan Global OOF Macro F1 (gabungan 1826 sampel) [FIX-A]. Gunakan backbone ringan EfficientNet-B0 (~5.3M) + Mixup + Class-Balanced Focal Loss [D-007] |
 | Threshold Unknown tidak terkalibrasi (tanpa ground truth) | Macro F1 Unknown rendah | Pseudo-OOD Injection pada model 3-kelas + Nelder-Mead optimization pada OOF [FIX-D] |
-| Overfitting pada embedding space kecil | kNN OOD detector gagal generalisasi | L2 normalization wajib, k=20 memberikan smoothing lokal |
+| Curse of dimensionality pada ruang embedding kNN OOD | Jarak kNN tidak diskriminatif pada $d=1280$ | Reduksi dimensi fitur ke 256-d melalui bottleneck projection layer + L2 normalization wajib (`k=20`) [D-007] |
