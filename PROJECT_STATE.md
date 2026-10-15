@@ -7,7 +7,7 @@
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
 **Primary notebook:** experiment 1.ipynb
-**Last completed cell:** Cell 13
+**Last completed cell:** Cell 14
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
 
@@ -153,6 +153,7 @@
 | E-022 | Track B1 EfficientNet-B0 Global OOF Macro F1 | 0.8392; Cendrawasih F1 0.6914 (+0.0286 vs LightGBM); Fold 0 F1 0.9394; 256-d bottleneck embeddings extracted | Cell 12 | LP-FT 2-phase on 4-Fold StratifiedGroupKFold | Observed |
 | E-023 | Track A + Track B1 Linear Opinion Pool synergy | Blend F1 0.8818 at w_B1=0.51 (+0.0276 vs LGBM, +0.0426 vs B1); Bondol 0.9677, Cendrawasih 0.7152, Kutilang 0.9627 | Cell 13 | LOP grid search on 4-Fold OOF | Observed |
 | E-024 | Open-Set OOD detector AUROC benchmark (ABL-03) | 256-d kNN AUROC 0.9970 vs MSP 0.9283 vs Energy 0.8209; Ensemble OOD achieves AUROC 0.9987 | Cell 13 | In-Distribution vs 270 Pseudo-OOD chimera | Observed |
+| E-025 | Nelder-Mead 4-class open-set optimization | Global 4-Class Macro F1 = 0.9099 (Unknown F1=0.9963, ID false reject=0.11%, recall=100.0%); tau=1.6756, w_b1=0.48 | Cell 14 | 4-class OOF + Pseudo-OOD Nelder-Mead | Observed |
 
 ## Methodology Design
 
@@ -190,6 +191,7 @@ Not Applicable at initial project planning phase.
 | train_fold_b1_effnet_b0_emb256d.pt | Reference in-distribution embeddings per fold untuk kNN OOD | Passed |
 | checkpoints_b1_effnet_b0/ | Checkpoint bobot model terbaik tiap fold hasil LP-FT | Passed |
 | oof_ood_calibration_bundle.npy | Bundle skor OOD (MSP, Energy, kNN 256-d) dan probabilitas OOF | Passed |
+| ood_calibration_lock.json | Konfigurasi bobot ensemble dan threshold OOD 4-kelas terkunci | Passed |
 | notebook-exp-1-coy.md | Rekonstruksi dokumentasi lengkap 12 cell kode dan output runtime | Passed |
 
 ## Operational Monitoring
@@ -216,4 +218,4 @@ Not Applicable at initial project planning phase.
 
 ## Exact Next Action
 
-Cell 14: Run Nelder-Mead optimization for 4-class open-set threshold and blend weights, then Cell 15 for 814 test inference and sub_001 submission bundle.
+Cell 15: Run test set inference (Track A + Track B1 4-fold ensemble + OOD rejection) and package sub_001 bundled submission.
