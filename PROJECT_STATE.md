@@ -258,4 +258,4 @@ Not Applicable at initial project planning phase.
 
 ## Exact Next Action
 
-Analyze sub_004 peak (0.59183): execute sub_005 using Macro-F1-aligned weights (boosting ConvNeXt to ~0.40 and Cendrawasih guard threshold) to target >0.61 on final daily submission.
+All 5 daily submissions exhausted (sub_001 0.54401, sub_002 0.58315, sub_003 0.58313, sub_004 0.59183 peak + 1 team mate morning sub). Export all artifacts to zip, document day 1 findings, and prepare offline experiments (ablation studies ABL-01 to ABL-08) and competition report drafting for tomorrow.
