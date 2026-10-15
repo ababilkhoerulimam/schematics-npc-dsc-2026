@@ -6,7 +6,7 @@
 **Current phase:** Planning -> Feature Engineering & Partitioning
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
-**Primary notebook:** experiment 1.ipynb
+**Primary notebook:** schematics-day-1.ipynb
 **Last completed cell:** Cell 19
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
@@ -199,7 +199,7 @@ Not Applicable at initial project planning phase.
 | eda_acoustic_profiles.png | Visualisasi 3-panel profil akustik dan separabilitas spektral untuk laporan | Passed |
 | eda_mel_spectrograms.png | Visualisasi mel-spectrogram komparatif 3 spesies untuk bab Preprocessing laporan | Passed |
 | PREPROCESSING_PLAN.md | Arsitektur preprocessing & methodology v1.2 (32 kHz default, EfficientNet-B0/ConvNeXt-Tiny/ResNet-34, 256-d OOD bottleneck) | Passed |
-| experiment 1_kaggle.ipynb | Salinan notebook exp 1 dengan path dataset Kaggle input | Passed |
+| schematics-day-1.ipynb | Notebook master terintegrasi 23 sel (EDA, Preprocessing, LGBM, B1-B4 DL, 5M Ensemble) | Passed |
 | metadata_with_folds.csv | Dataset train metadata dengan kolom partisi 4-Fold StratifiedGroupKFold | Passed |
 | preprocess_config.json | Konfigurasi pipeline preprocessing dan model backbones v1.2 terkunci | Passed |
 | track_a_X_train_32k.npy | Matriks fitur tabular 792-dimensi (N=1826) terekstraksi | Passed |
@@ -231,7 +231,7 @@ Not Applicable at initial project planning phase.
 | submissions/sub_002_*/ | Bundel submission sub_002 (experiment 2.csv, metrics.json) | Passed |
 | submissions/sub_003_*/ | Bundel submission sub_003 (experiment 3.csv, metrics.json) | Passed |
 | submissions/sub_004_*/ | Bundel submission sub_004 (experiment 4.csv) | Passed |
-| notebook-exp-1-coy.md | Rekonstruksi dokumentasi lengkap 12 cell kode dan output runtime | Passed |
+| schematics_day1_all_artifacts/ | Folder ekstraksi seluruh model weights, metrics, OOF numpy arrays Day 1 | Passed |
 
 ## Operational Monitoring
 
