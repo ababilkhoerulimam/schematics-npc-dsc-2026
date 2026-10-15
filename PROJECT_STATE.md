@@ -7,7 +7,7 @@
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
 **Primary notebook:** experiment 1.ipynb
-**Last completed cell:** Cell 17
+**Last completed cell:** Cell 18
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
 
@@ -51,7 +51,7 @@
 | Data quality and preparation | Completed | Cell 1-8, metadata_with_folds.csv | 4-Fold StratifiedGroupKFold locked, zero group leakage verified, audio specs clean |
 | EDA or statistical analysis | Completed | Cell 1-7 | Class balance, acoustic dynamics, spectral signatures, stereo correlation, high-freq audit, mel-spectrograms |
 | Feature engineering | Completed | Cell 9-10 | 32 kHz default log-mel & 792-dim tabular feature matrix extracted and cached |
-| Modeling and validation | Completed | Cell 10-17 | Track A (0.8542), Track B1 (0.8392), Track B2 ConvNeXt (0.8908), Track B3 SE-ResNeXt (0.8560, Cendra 0.7391) |
+| Modeling and validation | Completed | Cell 10-18 | Full 5-model portfolio trained: LGBM (0.8542), B1 EffNet (0.8392), B2 ConvNeXt (0.8908), B3 SE-ResNeXt (0.8560), B4 Swin (0.8489) |
 | Explanation and error analysis | Not Started | None | Pending OOF residual and misclassification audit |
 | Methodology design | Completed | PREPROCESSING_PLAN.md v1.2 | 6-phase architecture with 8 ablation experiments, LP-FT 2-phase, and 256-d bottleneck OOD |
 | Delivery and export QA | In Progress | Cell 15-15c | sub_001 (LB 0.54401), sub_002 (LB 0.58315), sub_003 (LB 0.58313) evaluated |
@@ -170,6 +170,7 @@
 | E-031 | Public Leaderboard validation of sub_003 | Macro F1 = 0.58313 (delta vs sub_002: -0.00002); proves plateau region between 28% and 36% Unknown; establishes optimal Unknown boundary at ~32-36% | Kaggle LB | Kaggle Public LB evaluation | Observed |
 | E-032 | Track B2 ConvNeXt-Tiny Global OOF Macro F1 | 0.8908 (+0.0516 vs B1 0.8392, +0.0366 vs Track A 0.8542); Cendrawasih F1 jumped to 0.8316 (+0.1402 vs B1); 7x7 depthwise convs validated | Cell 16 | LP-FT 2-phase on 4-Fold StratifiedGroupKFold | Observed |
 | E-033 | Track B3 SE-ResNeXt-50 32x4d Global OOF Macro F1 | 0.8560; Fold 1 perfect Cendrawasih F1 1.0000 (Fold Macro F1 0.9983); Global Cendrawasih F1 0.7391 (+0.0477 vs B1 0.6914); channel attention validated | Cell 17 | LP-FT 2-phase on 4-Fold StratifiedGroupKFold | Observed |
+| E-034 | Track B4 Swin-Tiny Transformer Global OOF Macro F1 | 0.8489; Cendrawasih F1 0.7291; Fold 0 F1 0.9747; completes 5-family diverse portfolio | Cell 18 | LP-FT 2-phase on 4-Fold StratifiedGroupKFold | Observed |
 
 ## Methodology Design
 
@@ -214,6 +215,10 @@ Not Applicable at initial project planning phase.
 | oof_b3_se_resnext50_probs.npy | Prediksi probabilitas OOF Track B3 SE-ResNeXt-50 (F1 0.8560) | Passed |
 | oof_b3_se_resnext50_emb256d.npy | Representasi embedding 256-d L2-normalized OOF B3 | Passed |
 | track_b3_metrics.json | Ringkasan metrik evaluasi OOF Track B3 SE-ResNeXt-50 | Passed |
+| checkpoints_b4_swin_tiny/ | Checkpoint bobot Swin-Tiny terbaik tiap fold hasil LP-FT | Passed |
+| oof_b4_swin_tiny_probs.npy | Prediksi probabilitas OOF Track B4 Swin-Tiny (F1 0.8489) | Passed |
+| oof_b4_swin_tiny_emb256d.npy | Representasi embedding 256-d L2-normalized OOF B4 | Passed |
+| track_b4_metrics.json | Ringkasan metrik evaluasi OOF Track B4 Swin-Tiny | Passed |
 | oof_ood_calibration_bundle.npy | Bundle skor OOD (MSP, Energy, kNN 256-d) dan probabilitas OOF | Passed |
 | ood_calibration_lock.json | Konfigurasi bobot ensemble dan threshold OOD 4-kelas terkunci | Passed |
 | experiment 1.csv | File submission pertama (814 baris, 4 kelas) siap submit ke Kaggle | Passed |
@@ -249,4 +254,4 @@ Not Applicable at initial project planning phase.
 
 ## Exact Next Action
 
-Cell 18: Build Quad-Ensemble Blend (Track A LGBM + B1 EffNet + B2 ConvNeXt + B3 SE-ResNeXt) with Multi-Embedding kNN OOD Rejection for sub_004 (experiment 4.csv).
+Cell 19: Build Full 5-Model Diverse Ensemble (Track A LGBM + B1 EffNet + B2 ConvNeXt + B3 SE-ResNeXt + B4 Swin) with Multi-Embedding kNN OOD Rejection for sub_004 (experiment 4.csv).
