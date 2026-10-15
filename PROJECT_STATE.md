@@ -172,6 +172,7 @@
 | E-033 | Track B3 SE-ResNeXt-50 32x4d Global OOF Macro F1 | 0.8560; Fold 1 perfect Cendrawasih F1 1.0000 (Fold Macro F1 0.9983); Global Cendrawasih F1 0.7391 (+0.0477 vs B1 0.6914); channel attention validated | Cell 17 | LP-FT 2-phase on 4-Fold StratifiedGroupKFold | Observed |
 | E-034 | Track B4 Swin-Tiny Transformer Global OOF Macro F1 | 0.8489; Cendrawasih F1 0.7291; Fold 0 F1 0.9747; completes 5-family diverse portfolio | Cell 18 | LP-FT 2-phase on 4-Fold StratifiedGroupKFold | Observed |
 | E-035 | sub_004 5-Model Ensemble and Test Inference | NLL-weighted blend (LGBM 0.683, ConvNeXt 0.207, Swin 0.111); OOF Macro F1=0.8670; Unknown 307 (37.71%), Cendrawasih 76 (9.34%), Kutilang 227, Bondol 204 | Cell 19 | 5-model NLL blend + fold-safe kNN OOD | Observed |
+| E-036 | Public Leaderboard validation of sub_004 | Macro F1 = 0.59183 (+0.00868 vs sub_002 0.58315, +0.04782 vs sub_001); new competition high; validates multimodal tabular-DL ensemble synergy | Kaggle LB | Kaggle Public LB evaluation | Observed |
 
 ## Methodology Design
 
@@ -257,4 +258,4 @@ Not Applicable at initial project planning phase.
 
 ## Exact Next Action
 
-Submit experiment 4.csv to Kaggle (sub_004), record Public Leaderboard score, and compare against sub_002 (0.58315) and sub_003 (0.58313).
+Analyze sub_004 peak (0.59183): execute sub_005 using Macro-F1-aligned weights (boosting ConvNeXt to ~0.40 and Cendrawasih guard threshold) to target >0.61 on final daily submission.
