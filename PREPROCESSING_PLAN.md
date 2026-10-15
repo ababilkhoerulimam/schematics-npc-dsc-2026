@@ -103,6 +103,24 @@ S_norm = (S_dB - mean(S_dB)) / (std(S_dB) + 1e-6)
 
 Normalisasi z-score per spektrogram individual. Meredam variasi gain mikrofon lapangan tanpa memerlukan statistik global dataset (fold-safe by design).
 
+### 1.7 Urutan Eksekusi Pipeline dalam `Dataset.__getitem__`
+
+```
+Raw Stereo FLAC
+  --> 1.1 Mono Downmix
+  --> 1.2 Resample (polyphase anti-aliased)
+  --> 1.3 Peak Normalize [-1, 1]
+  --> 1.4 Duration Standardize (reflect-pad / random crop)
+  --> [Train only] 2.2 Waveform Mixup
+  --> [Train only] 2.3 Random Gain Jitter
+  --> [Train only] 2.4 Additive Gaussian Noise
+  --> 1.5 Log-Mel Spectrogram
+  --> [Train only] 2.1 SpecAugment (on spectrogram)
+  --> 1.6 Per-Sample Z-Score Normalization
+```
+
+Urutan ini memastikan: (a) Gain Jitter mengubah SNR riil sebelum mel extraction sehingga efeknya tidak terhapus oleh Z-score, (b) Mixup terjadi di domain waveform (campuran akustik koheren), (c) SpecAugment diterapkan pada spectrogram setelah mel extraction.
+
 ---
 
 ## Fase 2: Augmentasi (Train Split Saja)
@@ -274,7 +292,7 @@ Normalisasi: min-max scaling berdasarkan distribusi OOF in-distribution scores.
    - In-distribution: OOF predictions yang benar (confident correct).
    - Pseudo-OOD: sampel dari langkah 3.
 5. Pilih threshold $\tau$ yang memaksimalkan Macro F1 pada campuran in-distribution + pseudo-OOD.
-6. **Fallback sederhana:** Jika pseudo-OOD injection tidak stabil, gunakan persentil ke-5 distribusi energy score in-distribution sebagai threshold (sampel dengan energy lebih rendah dari 95% data training dianggap Unknown).
+6. **Fallback sederhana:** Jika pseudo-OOD injection tidak stabil, gunakan persentil ke-95 distribusi energy score in-distribution sebagai threshold. Karena `energy = -T * log(sum(exp(logits/T)))`, sampel in-distribution memiliki energy rendah (sangat negatif) dan sampel OOD memiliki energy tinggi (mendekati nol), maka klasifikasi Unknown jika `energy > percentile_95(in_distribution_energy)`.
 
 **Keunggulan vs LOCO:**
 - Tidak perlu melatih model tambahan.
@@ -322,7 +340,7 @@ submissions/sub_NNN_YYYYMMDD_HHMM/
 
 | Rubrik | Bobot | Aspek yang Mendukung |
 |---|---|---|
-| Evaluasi & Validasi | 30% | 4-fold StratifiedGroupKFold + LOCO pseudo-OOD + OOF threshold optimization + submission assertion + ablasi augmentasi |
+| Evaluasi & Validasi | 30% | 4-fold StratifiedGroupKFold + Pseudo-OOD Injection threshold calibration + Global OOF Macro F1 + submission assertion + ablasi augmentasi |
 | Modeling | 25% | 2-track (classical baseline vs deep learning) + LP-FT transfer + ensemble OOD scoring berlapis |
 | Preprocessing & FE | 20% | Setiap keputusan terikat evidence ID (E-xxx). Mel-spectrogram parameter dijustifikasi oleh analisis spektral kuantitatif |
 | EDA | 15% | Cell 1-7: distribusi kelas, akustik, spektral, stereo, mel visualization. Artefak visual tersimpan |
@@ -339,7 +357,7 @@ submissions/sub_NNN_YYYYMMDD_HHMM/
 | 10 | Classical ML baseline (LightGBM) | Cell 9 | CPU |
 | 11 | Deep learning model setup | Cell 9 | GPU |
 | 12 | Training loop + OOF embedding collection | Cell 11 | GPU |
-| 13 | OOD detection: Energy + kNN + LOCO | Cell 12 | CPU/GPU |
+| 13 | OOD detection: Energy + kNN + Pseudo-OOD Injection | Cell 12 | CPU/GPU |
 | 14 | Threshold optimization (Nelder-Mead) | Cell 13 | CPU |
 | 15 | Test inference + submission | All | GPU |
 
@@ -365,6 +383,6 @@ submissions/sub_NNN_YYYYMMDD_HHMM/
 | Risiko | Dampak | Mitigasi |
 |---|---|---|
 | Pretrained weights dianggap data eksternal oleh panitia | Diskualifikasi | Siapkan Track B2 (custom CNN from scratch) sebagai fallback. Lampirkan identitas model di notebook [Constraint kompetisi] |
-| Cendrawasih hanya 83 sampel, fold validasi bisa berisi 3-35 sampel | Metrik per-fold tidak stabil | Gunakan rata-rata 4-fold dan monitor variance. Mixup + class weight sebagai mitigasi |
-| Threshold Unknown tidak terkalibrasi (tanpa ground truth) | Macro F1 Unknown rendah | LOCO protocol 12-skenario + Nelder-Mead optimization pada OOF |
+| Cendrawasih hanya 83 sampel, fold validasi bisa berisi 3-35 sampel | Metrik per-fold tidak stabil | Gunakan Global OOF Macro F1 (gabungan 1826 sampel) [FIX-A]. Mixup + class-balanced focal loss sebagai mitigasi |
+| Threshold Unknown tidak terkalibrasi (tanpa ground truth) | Macro F1 Unknown rendah | Pseudo-OOD Injection pada model 3-kelas + Nelder-Mead optimization pada OOF [FIX-D] |
 | Overfitting pada embedding space kecil | kNN OOD detector gagal generalisasi | L2 normalization wajib, k=20 memberikan smoothing lokal |
