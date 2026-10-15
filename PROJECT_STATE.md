@@ -7,7 +7,7 @@
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
 **Primary notebook:** experiment 1.ipynb
-**Last completed cell:** Cell 10
+**Last completed cell:** Cell 12
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
 
@@ -150,6 +150,7 @@
 | E-019 | 4-fold StratifiedGroupKFold partition | Zero group leakage; 1 minority group/fold; val sizes 503, 462, 422, 439; Cendrawasih counts: 35, 29, 16, 3 | Cell 8 | StratifiedGroupKFold | Observed |
 | E-020 | Preprocessing & mel-spectrogram pipeline verification | 32kHz tensor (1, 128, 626), 16kHz tensor (1, 128, 501), per-sample z-score (mean 0.0, std 1.0), load time ~70ms | Cell 9 | BirdChirpDataset unit audit | Observed |
 | E-021 | Track A LightGBM 4-Fold Global OOF Macro F1 | 0.8542 (Bondol 0.9556, Kutilang 0.9444, Cendrawasih 0.6627); Fold 3 cendra_f1 dropped to 0.1935 validating FIX-A | Cell 10 | 4-fold StratifiedGroupKFold on 792 mel features | Observed |
+| E-022 | Track B1 EfficientNet-B0 Global OOF Macro F1 | 0.8392; Cendrawasih F1 0.6914 (+0.0286 vs LightGBM); Fold 0 F1 0.9394; 256-d bottleneck embeddings extracted | Cell 12 | LP-FT 2-phase on 4-Fold StratifiedGroupKFold | Observed |
 
 ## Methodology Design
 
@@ -182,6 +183,10 @@ Not Applicable at initial project planning phase.
 | track_a_X_train_32k.npy | Matriks fitur tabular 792-dimensi (N=1826) terekstraksi | Passed |
 | oof_track_a_lgbm.csv | Prediksi probabilitas OOF Track A LightGBM (Global Macro F1 0.8542) | Passed |
 | track_a_metrics.json | Ringkasan metrik evaluasi OOF Track A LightGBM | Passed |
+| oof_track_b1_effnet_b0.csv | Prediksi probabilitas dan logit OOF Track B1 EfficientNet-B0 | Passed |
+| oof_b1_effnet_b0_emb256d.npy | Representasi embedding 256-d L2-normalized OOF (N=1826) | Passed |
+| train_fold_b1_effnet_b0_emb256d.pt | Reference in-distribution embeddings per fold untuk kNN OOD | Passed |
+| checkpoints_b1_effnet_b0/ | Checkpoint bobot model terbaik tiap fold hasil LP-FT | Passed |
 | notebook-exp-1-coy.md | Rekonstruksi dokumentasi lengkap 12 cell kode dan output runtime | Passed |
 
 ## Operational Monitoring
@@ -208,4 +213,4 @@ Not Applicable at initial project planning phase.
 
 ## Exact Next Action
 
-Cell 11: Execute Track B Deep Learning setup (SpecAugment2D, BirdChirpNet with 256-d bottleneck, ClassBalancedFocalLoss) and run dry-run forward pass audit.
+Cell 13: Execute Fase 4 Open-Set Unknown Detection (MSP, Energy, 256-d kNN, Pseudo-OOD Injection) and calibrate Track A + Track B1 ensemble blending.
