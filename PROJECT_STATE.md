@@ -158,6 +158,7 @@
 | E-027 | Public Leaderboard anchor score (sub_001) | Macro F1 = 0.54401 on 30% public LB; rank 17 (team: disuruh ryu daftar); indicates test set has distinct Unknown or domain distribution | Kaggle LB | Kaggle Public LB evaluation | Observed |
 | E-028 | sub_002 threshold probe and Cendrawasih FP guard | Cendrawasih dropped 112 -> 35 (4.30%, matching train 4.55%); Unknown increased 98 -> 298 (36.61%); tau_p90=0.6450 | Cell 15b | Class-conditional kNN (k=5) + Cendrawasih guard on 814 test audio | Observed |
 | E-029 | Public Leaderboard validation of sub_002 | Macro F1 = 0.58315 (+0.03914 vs sub_001 0.54401); validates Cendrawasih FP guard and ~36% Unknown proportion hypothesis | Kaggle LB | Kaggle Public LB evaluation | Observed |
+| E-030 | sub_003 sweet-spot probe generation | 28.01% Unknown (228/814), Cendrawasih 59 (7.25%), Kutilang 274 (33.66%), Bondol 253 (31.08%); p92.0 quantile threshold | Cell 15c | 3-way distribution comparison on 814 test audio | Observed |
 
 ## Methodology Design
 
@@ -198,8 +199,10 @@ Not Applicable at initial project planning phase.
 | ood_calibration_lock.json | Konfigurasi bobot ensemble dan threshold OOD 4-kelas terkunci | Passed |
 | experiment 1.csv | File submission pertama (814 baris, 4 kelas) siap submit ke Kaggle | Passed |
 | experiment 2.csv | File submission kedua (814 baris, Cendrawasih guard, 36.61% Unknown) | Passed |
+| experiment 3.csv | File submission ketiga (814 baris, titik manis p92.0, 28.01% Unknown) | Passed |
 | submissions/sub_001_*/ | Bundel submission sub_001 (experiment 1.csv, test_predictions_detailed.csv, metrics.json) | Passed |
 | submissions/sub_002_*/ | Bundel submission sub_002 (experiment 2.csv, metrics.json) | Passed |
+| submissions/sub_003_*/ | Bundel submission sub_003 (experiment 3.csv, metrics.json) | Passed |
 | notebook-exp-1-coy.md | Rekonstruksi dokumentasi lengkap 12 cell kode dan output runtime | Passed |
 
 ## Operational Monitoring
@@ -227,4 +230,4 @@ Not Applicable at initial project planning phase.
 
 ## Exact Next Action
 
-Analyze sub_002 gain (+0.03914 to 0.58315): design sub_003 threshold grid (testing p92.0 ~28% Unknown vs p90.0 ~36% Unknown) or train Track B2 (ConvNeXt-Tiny) to expand ensemble diversity.
+Submit experiment 3.csv to Kaggle, record Public Leaderboard score to observe if sweet-spot threshold (~28% Unknown) beats sub_002 (0.58315).
