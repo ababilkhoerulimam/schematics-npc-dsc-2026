@@ -7,7 +7,7 @@
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
 **Primary notebook:** experiment 1.ipynb
-**Last completed cell:** Cell 18
+**Last completed cell:** Cell 19
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
 
@@ -171,6 +171,7 @@
 | E-032 | Track B2 ConvNeXt-Tiny Global OOF Macro F1 | 0.8908 (+0.0516 vs B1 0.8392, +0.0366 vs Track A 0.8542); Cendrawasih F1 jumped to 0.8316 (+0.1402 vs B1); 7x7 depthwise convs validated | Cell 16 | LP-FT 2-phase on 4-Fold StratifiedGroupKFold | Observed |
 | E-033 | Track B3 SE-ResNeXt-50 32x4d Global OOF Macro F1 | 0.8560; Fold 1 perfect Cendrawasih F1 1.0000 (Fold Macro F1 0.9983); Global Cendrawasih F1 0.7391 (+0.0477 vs B1 0.6914); channel attention validated | Cell 17 | LP-FT 2-phase on 4-Fold StratifiedGroupKFold | Observed |
 | E-034 | Track B4 Swin-Tiny Transformer Global OOF Macro F1 | 0.8489; Cendrawasih F1 0.7291; Fold 0 F1 0.9747; completes 5-family diverse portfolio | Cell 18 | LP-FT 2-phase on 4-Fold StratifiedGroupKFold | Observed |
+| E-035 | sub_004 5-Model Ensemble and Test Inference | NLL-weighted blend (LGBM 0.683, ConvNeXt 0.207, Swin 0.111); OOF Macro F1=0.8670; Unknown 307 (37.71%), Cendrawasih 76 (9.34%), Kutilang 227, Bondol 204 | Cell 19 | 5-model NLL blend + fold-safe kNN OOD | Observed |
 
 ## Methodology Design
 
@@ -224,9 +225,11 @@ Not Applicable at initial project planning phase.
 | experiment 1.csv | File submission pertama (814 baris, 4 kelas) siap submit ke Kaggle | Passed |
 | experiment 2.csv | File submission kedua (814 baris, Cendrawasih guard, 36.61% Unknown) | Passed |
 | experiment 3.csv | File submission ketiga (814 baris, titik manis p92.0, 28.01% Unknown) | Passed |
+| experiment 4.csv | File submission keempat (814 baris, 5-model ensemble NLL blend, 37.71% Unknown) | Passed |
 | submissions/sub_001_*/ | Bundel submission sub_001 (experiment 1.csv, test_predictions_detailed.csv, metrics.json) | Passed |
 | submissions/sub_002_*/ | Bundel submission sub_002 (experiment 2.csv, metrics.json) | Passed |
 | submissions/sub_003_*/ | Bundel submission sub_003 (experiment 3.csv, metrics.json) | Passed |
+| submissions/sub_004_*/ | Bundel submission sub_004 (experiment 4.csv) | Passed |
 | notebook-exp-1-coy.md | Rekonstruksi dokumentasi lengkap 12 cell kode dan output runtime | Passed |
 
 ## Operational Monitoring
@@ -254,4 +257,4 @@ Not Applicable at initial project planning phase.
 
 ## Exact Next Action
 
-Cell 19: Build Full 5-Model Diverse Ensemble (Track A LGBM + B1 EffNet + B2 ConvNeXt + B3 SE-ResNeXt + B4 Swin) with Multi-Embedding kNN OOD Rejection for sub_004 (experiment 4.csv).
+Submit experiment 4.csv to Kaggle (sub_004), record Public Leaderboard score, and compare against sub_002 (0.58315) and sub_003 (0.58313).
