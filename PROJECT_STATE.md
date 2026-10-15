@@ -125,6 +125,14 @@
 - **Evidence:** E-001 ($N=1.826$), E-007 (Cendrawasih $N=83$), dan korpus `cv_arch_efficientnet_compound_scaling`, `cv_trans_lp_ft_two_phase_adaptation`, `cv_ood_knn_embedding`.
 - **Revisit when:** Hanya jika diperlukan tambahan diversitas modalitas dari EfficientAT (`mn10_as`, ~4.8M).
 
+### D-008: Selection of Track B4 Architecture: Swin-Tiny Shifted Window Attention over Audio Transformers
+
+- **Chosen:** Menetapkan **Swin Transformer Tiny** (`swin_tiny_patch4_window7_224`, ~28.3M params) sebagai kandidat Track B4 penutup diversitas ensemble, menggantikan EfficientAT (AudioSet 16kHz).
+- **Alternatives considered:** EfficientAT (`mn10_as`, memotong resolusi ke 16 kHz dan membuang 9.08% harmonik Cendrawasih 8-16kHz), ViT murni (`vit_base_patch16_224`, ditolak korpus `cv_arch_vit_vision_transformer` karena ketiadaan inductive bias di dataset kecil <100K memicu overfitting parah).
+- **Why:** Korpus `cv_arch_swin_shifted_window_attention` dan `cv_arch_hybrid_cnn_transformer_dual_path` menetapkan bahwa representasi *non-local multi-head self-attention* bersifat ortogonal dan komplementer sempurna terhadap konvolusi lokal CNN. Spektrogram bioakustik memiliki relasi harmonik vertikal (kicauan dasar di 2-4 kHz berpasangan dengan harmonik di 6-8 kHz) yang ditangkap secara komputasional oleh *Shifted Window Attention (W-MSA & SW-MSA)*, melengkapi 3 keluarga CNN kita (Depthwise B1, Large-Kernel B2, Channel-Attention B3).
+- **Evidence:** Korpus `cv_arch_swin_shifted_window_attention`, `cv_arch_hybrid_cnn_transformer_dual_path`, dan Cell 7 PSD harmonik 8-16kHz (`E-017`).
+- **Revisit when:** Resolusi spektrogram ($128 \times 626$) memicu interpolasi relative position bias yang tidak stabil di timm.
+
 ## Evidence Ledger
 
 | ID | Claim or Result | Value | Evidence Source | Evaluation Context | Status |

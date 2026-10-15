@@ -198,7 +198,7 @@ Semua augmentasi diterapkan secara stokastik per batch saat training. Tidak pern
 | **Utama (B1)** | **EfficientNet-B0** (`cv_arch_efficientnet_compound_scaling`) | ~5.3M | Hanya gunakan varian B0 (bukan V2-S ~21.5M) agar rasio parameter/sampel optimal di $N=1.826$. *Depthwise separable conv* sangat efisien membaca korelasi harmonik waktu-frekuensi spektrogram $128 \times 626$ pada 32 kHz |
 | **Diversitas / Ensemble (B2)** | **ConvNeXt-Tiny** (`cv_arch_convnext_modern_convnet`) | ~28M | Kernel depthwise $7 \times 7$ menangkap modulasi frekuensi kicau Kutilang (2-4 kHz) dan sebaran broadband Bondol Jawa (2-6 kHz) [E-016]. Digunakan dengan regularisasi DropPath=0.2 sebagai kandidat *ensemble blend* |
 | **Pembanding Arsitektural (B3)** | **SE-ResNeXt-50 32x4d** (`se_resnext50_32x4d`, ~27.5M) | ~27.5M | Menggabungkan cardinality 32-path multi-branch dengan Squeeze-and-Excitation channel attention (Champion 1 Paddy Field Segmentation IoU 0.9103). Bobot resmi ImageNet terintegrasi penuh di timm |
-| **Opsional Audio (B4)** | **EfficientAT `mn10_as`** | ~4.8M | Hanya dieksplorasi pada 16 kHz jika membutuhkan tambahan diversitas modalitas untuk ensemble setelah B1-B3 selesai |
+| **Opsional Audio / Transformer (B4)** | **Swin Transformer Tiny** (`swin_tiny_patch4_window7_224`, ~28.3M) | ~28.3M | [D-008] Hierarchical Vision Transformer dengan Shifted Window Attention (W-MSA & SW-MSA) (Korpus `cv_arch_swin_shifted_window_attention`). Memberi representasi relasi harmonik vertikal non-lokal yang komplementer terhadap konvolusi lokal CNN |
 
 **Adaptasi Input & Arsitektur Bottleneck Head (Seragam untuk Semua Backbone):**
 
