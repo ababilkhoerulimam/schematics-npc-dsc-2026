@@ -1,7 +1,7 @@
 # Preprocessing & Methodology Plan
 
 **Project:** Schematics NPC DSC 2026 - Bird Chirp Openset Classification
-**Version:** 1.0
+**Version:** 1.1 (revised: 5 critical fixes from cross-audit)
 **Date:** 2026-10-15
 **Maturity:** Proposal (belum dieksekusi, menunggu validasi empiris)
 
@@ -34,6 +34,8 @@ Klasifikasi audio 4-kelas (3 known + 1 Unknown) dengan karakteristik:
 - Zero group overlap antar train-val split.
 - Distribusi label per fold proporsional.
 
+**Peringatan Kardinalitas [FIX-A]:** Cendrawasih memiliki grup berukuran 3, 16, 29, 35 [E-014]. Fold yang mendapat grup N=3 hanya punya 3 sampel validasi Cendrawasih, menyebabkan 1 kesalahan prediksi menjatuhkan F1 Cendrawasih fold tersebut ~33.3%. Oleh karena itu, Macro F1 **WAJIB** dihitung secara Global OOF (kumpulkan seluruh 1826 prediksi OOF, hitung Macro F1 sekaligus), **BUKAN** rata-rata F1 per fold.
+
 ---
 
 ## Fase 1: Preprocessing Pipeline
@@ -55,7 +57,7 @@ output = (ch0 + ch1) / 2
 |---|---|---|
 | Target SR (pretrained backbone) | 16.000 Hz | Standar input AST/BEATs/EfficientAT |
 | Target SR (custom CNN) | 32.000 Hz | Mempertahankan harmonik 8-16 kHz (hingga 9.08% energi Cendrawasih) [E-017, D-005] |
-| Metode | `librosa.resample` (kaiser_best) | Anti-aliasing filter bawaan |
+| Metode | `scipy.signal.resample_poly(up, down)` dengan polyphase anti-aliasing filter | [FIX-B] `librosa.resample` (kaiser_best) masih valid sebagai alternatif. `resample_poly` dipilih karena menghindari Gibbs phenomenon / ringing overshoot pada rekaman yang sudah clipping (peak > 1.0 terdeteksi di test set, E-015). Untuk 48k->32k: `resample_poly(x, up=2, down=3)`. Untuk 48k->16k: `resample_poly(x, up=1, down=3)` |
 
 `target_sr` adalah parameter pipeline, bukan hardcoded. Default 16 kHz saat menggunakan pretrained backbone.
 
@@ -67,7 +69,7 @@ x_norm = x / max(|x|)
 
 | Parameter | Nilai | Justifikasi |
 |---|---|---|
-| Method | Per-sample peak normalization ke [-1, 1] | 40-55% rekaman mengalami clipping digital >= 0.99 [E-015]. Normalisasi menyeragamkan dynamic range tanpa mengubah distribusi spektral relatif |
+| Method | Per-sample peak normalization ke [-1, 1] | 40-55% rekaman mengalami clipping digital >= 0.99 [E-015]. [FIX-C] Normalisasi peak menyeragamkan variasi gain mikrofon-burung (gain invariance) dan memotong noise floor ekstrem. **BUKAN** untuk menghilangkan distorsi non-linear clipping yang sudah terjadi di perangkat sensor. FFT adalah operasi linier: F{a*x(t)} = a*F{x(t)}, sehingga mengalikan sinyal ter-clip dengan skalar tidak menghapus harmonik distorsi clipping |
 | Alternatif ditolak | Soft peak -1.0 dBFS | Membutuhkan konversi dB yang menambah kompleksitas tanpa keuntungan terukur |
 
 ### 1.4 Standardisasi Durasi (10.0 Detik)
@@ -145,6 +147,8 @@ Semua augmentasi diterapkan secara stokastik per batch saat training. Tidak pern
 | Time stretching | Mengubah durasi dan rate temporal kicauan, merusak pola repetisi yang menjadi fitur pembeda |
 | Pitch shifting | Menggeser frekuensi fundamental kicauan, merusak identitas spektral spesies [E-016] |
 | Random EQ/filtering | Berisiko menghapus band frekuensi yang justru menjadi pembeda utama antar spesies |
+| HorizontalFlip pada spectrogram | [FIX-E] Sumbu X = waktu: membalik urutan kicauan secara temporal tidak bermakna secara akustik dan menghasilkan pola yang tidak pernah terjadi di alam |
+| VerticalFlip pada spectrogram | [FIX-E] Sumbu Y = frekuensi: membalik frekuensi rendah-tinggi menghancurkan seluruh signature spektral spesies |
 
 ---
 
@@ -189,14 +193,16 @@ Semua augmentasi diterapkan secara stokastik per batch saat training. Tidak pern
 | Head | Linear 256 ke 3 kelas |
 | Kapan dipakai | Jika pretrained backbone dilarang atau terlalu berat untuk budget komputasi |
 
-**Loss Function:**
+**Loss Function (Revised):**
 
 ```
-loss = LabelSmoothingCrossEntropy(epsilon=0.1, weight=class_weights)
+loss = FocalLoss(gamma=2.0, alpha=class_balanced_weights) + LabelSmoothing(epsilon=0.05)
 ```
 
-- Label smoothing menurunkan overconfidence (corpus: `cv_opt_label_smoothing_calibration`), krusial agar distribusi softmax probability lebih terkalibrasi untuk OOD detection di Fase 4.
-- `class_weights` inversely proportional to class frequency: mengatasi IR = 13.54 [E-011].
+- [FIX-F] **Class-Balanced Focal Loss** menggantikan plain Label Smoothing CE. Focal Loss ($\gamma=2.0$) secara aktif menurunkan kontribusi gradien dari sampel mudah (Bondol Jawa yang dominan), memfokuskan training pada sampel sulit dan kelas minoritas.
+- **Class-Balanced Effective Number Weighting** (Cui et al., CVPR 2019): $w_c = \frac{1 - \beta}{1 - \beta^{n_c}}$ dengan $\beta = 0.99$. Menghasilkan bobot yang lebih halus daripada inverse frequency untuk IR = 13.54 [E-011].
+- Label smoothing diturunkan ke $\epsilon = 0.05$ (dari 0.1) agar tidak mengaburkan sinyal pembeda antar kelas yang sudah sedikit (Cendrawasih N=83).
+- Ablasi wajib: Focal+CB vs plain CE+class_weight vs Focal tanpa CB.
 
 **Optimizer & Scheduler:**
 
@@ -210,7 +216,9 @@ loss = LabelSmoothingCrossEntropy(epsilon=0.1, weight=class_weights)
 
 ## Fase 4: Open-Set Unknown Detection
 
-### 4.1 Arsitektur Berlapis
+### 4.1 Arsitektur Berlapis (pada Model 3-Kelas Final)
+
+[FIX-D] Seluruh OOD scoring dilakukan pada **model 3-kelas yang sama** yang dipakai untuk prediksi final. Tidak ada model 2-kelas terpisah. Ini menghindari masalah distribusi logit yang tidak kompatibel antar model dengan jumlah kelas berbeda.
 
 Tiga metode OOD scoring dijalankan paralel, lalu digabung:
 
@@ -251,15 +259,27 @@ else:
 
 Normalisasi: min-max scaling berdasarkan distribusi OOF in-distribution scores.
 
-### 4.3 Threshold Calibration: Leave-One-Class-Out (LOCO)
+### 4.3 Threshold Calibration [FIX-D: Revised Protocol]
 
-Karena kelas Unknown tidak punya label di train, kalibrasi threshold dilakukan dengan LOCO:
+[FIX-D] **LOCO 12-model protocol DIBATALKAN.** Masalah: model 2-kelas menghasilkan distribusi logit/energy yang secara matematis tidak kompatibel dengan model 3-kelas final ($E(x) = -T \ln \sum_{i=1}^K e^{z_i/T}$ bergantung pada $K$). Melatih 12 model tambahan juga tidak efisien secara komputasi.
 
-1. Pada setiap fold, tahan satu kelas known sebagai pseudo-Unknown.
-2. Train model pada 2 kelas remaining.
-3. Evaluasi: apakah OOD detector menolak kelas yang ditahan?
-4. **3 rotasi** (tahan Bondol, tahan Kutilang, tahan Cendrawasih) x **4 fold** = 12 skenario.
-5. Pilih threshold yang memaksimalkan rata-rata Macro F1 di semua 12 skenario.
+**Protokol pengganti: Pseudo-OOD Injection pada Model 3-Kelas**
+
+1. Latih model 3-kelas pada 4-fold StratifiedGroupKFold (sama seperti Fase 3).
+2. Kumpulkan OOF logits dan embeddings dari keempat fold (N=1826 prediksi).
+3. Untuk kalibrasi threshold, gunakan **2 sumber pseudo-OOD**:
+   - **Acoustic background noise:** Segmen audio train dengan silence ratio tinggi (>50%) atau RMS sangat rendah, diperlakukan sebagai proxy Unknown.
+   - **Synthetic OOD via CutMix/spectral perturbation:** Campurkan potongan spektrogram dari 2 kelas berbeda dengan rasio 50:50, menghasilkan sinyal yang bukan milik kelas manapun.
+4. Hitung distribusi energy score dan kNN distance pada:
+   - In-distribution: OOF predictions yang benar (confident correct).
+   - Pseudo-OOD: sampel dari langkah 3.
+5. Pilih threshold $\tau$ yang memaksimalkan Macro F1 pada campuran in-distribution + pseudo-OOD.
+6. **Fallback sederhana:** Jika pseudo-OOD injection tidak stabil, gunakan persentil ke-5 distribusi energy score in-distribution sebagai threshold (sampel dengan energy lebih rendah dari 95% data training dianggap Unknown).
+
+**Keunggulan vs LOCO:**
+- Tidak perlu melatih model tambahan.
+- Distribusi logit/energy konsisten dengan model 3-kelas final.
+- Pseudo-OOD dapat dikontrol volumenya untuk menyesuaikan sensitivity.
 
 ### 4.4 Optimasi Threshold Final
 
@@ -334,7 +354,9 @@ submissions/sub_NNN_YYYYMMDD_HHMM/
 | ABL-03 | MSP saja vs Energy saja vs kNN saja vs Ensemble | Ensemble OOD scoring unggul | Macro F1 OOF (4 kelas) |
 | ABL-04 | LP-FT vs Direct fine-tune | LP-FT mempertahankan fitur OOD-aware | Macro F1 OOF + AUROC OOD |
 | ABL-05 | 16 kHz vs 32 kHz | 32 kHz tidak memberikan keuntungan signifikan pada pretrained backbone | Macro F1 OOF |
-| ABL-06 | Label smoothing 0.1 vs 0.0 | Label smoothing memperbaiki kalibrasi OOD | ECE + Macro F1 OOF |
+| ABL-06 | Label smoothing 0.05 vs 0.0 | Label smoothing memperbaiki kalibrasi OOD | ECE + Macro F1 OOF |
+| ABL-07 | Focal+CB vs plain CE+class_weight | Class-Balanced Focal Loss unggul pada kelas minoritas | F1 Cendrawasih + Macro F1 OOF |
+| ABL-08 | reflect-pad vs wrap-around vs zero-pad | Metode padding mempengaruhi performa pada audio pendek | Macro F1 OOF pada subset durasi < 8s |
 
 ---
 
