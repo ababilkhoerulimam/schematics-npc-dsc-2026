@@ -7,7 +7,7 @@
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
 **Primary notebook:** experiment 1.ipynb
-**Last completed cell:** Cell 8
+**Last completed cell:** Cell 9
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
 
@@ -50,8 +50,8 @@
 | Planning | Completed | Guidebook, repo, PREPROCESSING_PLAN.md v1.2 | Aturan kompetisi, rubrik 65/35, larangan data eksternal, arsitektur preprocessing & CNN locked |
 | Data quality and preparation | Completed | Cell 1-8, metadata_with_folds.csv | 4-Fold StratifiedGroupKFold locked, zero group leakage verified, audio specs clean |
 | EDA or statistical analysis | Completed | Cell 1-7 | Class balance, acoustic dynamics, spectral signatures, stereo correlation, high-freq audit, mel-spectrograms |
-| Feature engineering | In Progress | Cell 9 | Developing 32 kHz mel-spectrogram transformation pipeline |
-| Modeling and validation | Not Started | None | Pending LightGBM baseline and ImageNet 2D CNN (EfficientNet-B0, ConvNeXt-Tiny, ResNet-34) |
+| Feature engineering | Completed | Cell 9 | 32 kHz default & 16 kHz ablation log-mel pipeline verified, unit audit passed |
+| Modeling and validation | In Progress | Cell 10 | Building Track A Classical ML baseline (LightGBM on mel summary stats) |
 | Explanation and error analysis | Not Started | None | Pending OOF residual and misclassification audit |
 | Methodology design | Completed | PREPROCESSING_PLAN.md v1.2 | 6-phase architecture with 8 ablation experiments, LP-FT 2-phase, and 256-d bottleneck OOD |
 | Delivery and export QA | Not Started | None | Format berkas penamaan DatSci_NamaTim_ dipersiapkan |
@@ -148,6 +148,7 @@
 | E-017 | High-frequency power audit | 16-24kHz contains only 0.11-1.22% power; 8-16kHz holds up to 9.08% power in Cendrawasih; 0-8kHz contains >90.7% power | Cell 7 | 48kHz Welch PSD | Observed |
 | E-018 | Stereo channel consistency | High inter-channel correlation (0.724-0.800) and minimal RMS delta (0.002-0.003) support mono downmixing | Cell 7 | Soundfile stereo audit | Observed |
 | E-019 | 4-fold StratifiedGroupKFold partition | Zero group leakage; 1 minority group/fold; val sizes 503, 462, 422, 439; Cendrawasih counts: 35, 29, 16, 3 | Cell 8 | StratifiedGroupKFold | Observed |
+| E-020 | Preprocessing & mel-spectrogram pipeline verification | 32kHz tensor (1, 128, 626), 16kHz tensor (1, 128, 501), per-sample z-score (mean 0.0, std 1.0), load time ~70ms | Cell 9 | BirdChirpDataset unit audit | Observed |
 
 ## Methodology Design
 
@@ -202,4 +203,4 @@ Not Applicable at initial project planning phase.
 
 ## Exact Next Action
 
-Cell 9: Implement and verify reproducible audio preprocessing & mel-spectrogram extraction pipeline function (default 32 kHz, polyphase resampling, peak norm, duration standardization, robust z-score scaling).
+Cell 10: Build and evaluate Track A Classical ML baseline (LightGBM on mel-spectrogram summary features across 4-fold StratifiedGroupKFold, evaluate Global OOF Macro F1).
