@@ -7,7 +7,7 @@
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
 **Primary notebook:** experiment 1.ipynb
-**Last completed cell:** Cell 15
+**Last completed cell:** Cell 16
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
 
@@ -51,10 +51,10 @@
 | Data quality and preparation | Completed | Cell 1-8, metadata_with_folds.csv | 4-Fold StratifiedGroupKFold locked, zero group leakage verified, audio specs clean |
 | EDA or statistical analysis | Completed | Cell 1-7 | Class balance, acoustic dynamics, spectral signatures, stereo correlation, high-freq audit, mel-spectrograms |
 | Feature engineering | Completed | Cell 9-10 | 32 kHz default log-mel & 792-dim tabular feature matrix extracted and cached |
-| Modeling and validation | Completed | Cell 10-14 | Track A LGBM (0.8542), Track B1 EffNet (0.8392), Blend (0.8814), 4-Class OOF (0.9099) |
+| Modeling and validation | Completed | Cell 10-16 | Track A (0.8542), Track B1 (0.8392), Track B2 ConvNeXt (0.8908, Cendrawasih 0.8316) |
 | Explanation and error analysis | Not Started | None | Pending OOF residual and misclassification audit |
 | Methodology design | Completed | PREPROCESSING_PLAN.md v1.2 | 6-phase architecture with 8 ablation experiments, LP-FT 2-phase, and 256-d bottleneck OOD |
-| Delivery and export QA | In Progress | Cell 15 | sub_001 (experiment 1.csv) exported and verified on 814 test samples |
+| Delivery and export QA | In Progress | Cell 15-15c | sub_001 (LB 0.54401), sub_002 (LB 0.58315), sub_003 (LB 0.58313) evaluated |
 | Operational monitoring | Not Applicable | None | Batch Kaggle competition submission |
 
 ## Assumptions Register
@@ -160,6 +160,7 @@
 | E-029 | Public Leaderboard validation of sub_002 | Macro F1 = 0.58315 (+0.03914 vs sub_001 0.54401); validates Cendrawasih FP guard and ~36% Unknown proportion hypothesis | Kaggle LB | Kaggle Public LB evaluation | Observed |
 | E-030 | sub_003 sweet-spot probe generation | 28.01% Unknown (228/814), Cendrawasih 59 (7.25%), Kutilang 274 (33.66%), Bondol 253 (31.08%); p92.0 quantile threshold | Cell 15c | 3-way distribution comparison on 814 test audio | Observed |
 | E-031 | Public Leaderboard validation of sub_003 | Macro F1 = 0.58313 (delta vs sub_002: -0.00002); proves plateau region between 28% and 36% Unknown; establishes optimal Unknown boundary at ~32-36% | Kaggle LB | Kaggle Public LB evaluation | Observed |
+| E-032 | Track B2 ConvNeXt-Tiny Global OOF Macro F1 | 0.8908 (+0.0516 vs B1 0.8392, +0.0366 vs Track A 0.8542); Cendrawasih F1 jumped to 0.8316 (+0.1402 vs B1); 7x7 depthwise convs validated | Cell 16 | LP-FT 2-phase on 4-Fold StratifiedGroupKFold | Observed |
 
 ## Methodology Design
 
@@ -196,6 +197,10 @@ Not Applicable at initial project planning phase.
 | oof_b1_effnet_b0_emb256d.npy | Representasi embedding 256-d L2-normalized OOF (N=1826) | Passed |
 | train_fold_b1_effnet_b0_emb256d.pt | Reference in-distribution embeddings per fold untuk kNN OOD | Passed |
 | checkpoints_b1_effnet_b0/ | Checkpoint bobot model terbaik tiap fold hasil LP-FT | Passed |
+| checkpoints_b2_convnext_tiny/ | Checkpoint bobot ConvNeXt-Tiny terbaik tiap fold hasil LP-FT | Passed |
+| oof_b2_convnext_tiny_probs.npy | Prediksi probabilitas OOF Track B2 ConvNeXt-Tiny (F1 0.8908) | Passed |
+| oof_b2_convnext_tiny_emb256d.npy | Representasi embedding 256-d L2-normalized OOF B2 | Passed |
+| track_b2_metrics.json | Ringkasan metrik evaluasi OOF Track B2 ConvNeXt-Tiny | Passed |
 | oof_ood_calibration_bundle.npy | Bundle skor OOD (MSP, Energy, kNN 256-d) dan probabilitas OOF | Passed |
 | ood_calibration_lock.json | Konfigurasi bobot ensemble dan threshold OOD 4-kelas terkunci | Passed |
 | experiment 1.csv | File submission pertama (814 baris, 4 kelas) siap submit ke Kaggle | Passed |
@@ -231,4 +236,4 @@ Not Applicable at initial project planning phase.
 
 ## Exact Next Action
 
-Analyze threshold plateau (0.58315 vs 0.58313): lock optimal Unknown ratio at ~32-36%, transition from threshold-tuning to model diversity (Track B2: ConvNeXt-Tiny training) or training ABL-01 (SpecAugment ablation).
+Cell 17: Build Tri-Model Ensemble (Track A LGBM + Track B1 EffNet-B0 + Track B2 ConvNeXt-Tiny) + Multi-Embedding kNN OOD Rejection for sub_004 (experiment 4.csv).
