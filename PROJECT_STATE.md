@@ -182,6 +182,7 @@ Not Applicable at initial project planning phase.
 | track_a_X_train_32k.npy | Matriks fitur tabular 792-dimensi (N=1826) terekstraksi | Passed |
 | oof_track_a_lgbm.csv | Prediksi probabilitas OOF Track A LightGBM (Global Macro F1 0.8542) | Passed |
 | track_a_metrics.json | Ringkasan metrik evaluasi OOF Track A LightGBM | Passed |
+| notebook-exp-1-coy.md | Rekonstruksi dokumentasi lengkap 12 cell kode dan output runtime | Passed |
 
 ## Operational Monitoring
 
