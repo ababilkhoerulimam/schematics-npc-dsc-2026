@@ -7,7 +7,7 @@
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
 **Primary notebook:** experiment 1.ipynb
-**Last completed cell:** Cell 7
+**Last completed cell:** Cell 8
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
 
@@ -48,9 +48,9 @@
 | Stage | Status | Evidence / Cell | Notes |
 |---|---|---|---|
 | Planning | Completed | Guidebook, repo, PREPROCESSING_PLAN.md v1.2 | Aturan kompetisi, rubrik 65/35, larangan data eksternal, arsitektur preprocessing & CNN locked |
-| Data quality and preparation | In Progress | Cell 1-7 | Metadata explored, audio specs verified, class balance and source_group audited |
+| Data quality and preparation | Completed | Cell 1-8, metadata_with_folds.csv | 4-Fold StratifiedGroupKFold locked, zero group leakage verified, audio specs clean |
 | EDA or statistical analysis | Completed | Cell 1-7 | Class balance, acoustic dynamics, spectral signatures, stereo correlation, high-freq audit, mel-spectrograms |
-| Feature engineering | Not Started | None | Pending mel-spectrogram extraction pipeline (32 kHz default) |
+| Feature engineering | In Progress | Cell 9 | Developing 32 kHz mel-spectrogram transformation pipeline |
 | Modeling and validation | Not Started | None | Pending LightGBM baseline and ImageNet 2D CNN (EfficientNet-B0, ConvNeXt-Tiny, ResNet-34) |
 | Explanation and error analysis | Not Started | None | Pending OOF residual and misclassification audit |
 | Methodology design | Completed | PREPROCESSING_PLAN.md v1.2 | 6-phase architecture with 8 ablation experiments, LP-FT 2-phase, and 256-d bottleneck OOD |
@@ -147,6 +147,7 @@
 | E-016 | Spectral power band signatures | Kutilang dominant in 2-4kHz (57.2%); Bondol broad in 2-6kHz (64.5%); Cendrawasih high in 0-2kHz (44.0%) and 6-8kHz (14.7%) | Cell 5 | Welch PSD decomposition | Observed |
 | E-017 | High-frequency power audit | 16-24kHz contains only 0.11-1.22% power; 8-16kHz holds up to 9.08% power in Cendrawasih; 0-8kHz contains >90.7% power | Cell 7 | 48kHz Welch PSD | Observed |
 | E-018 | Stereo channel consistency | High inter-channel correlation (0.724-0.800) and minimal RMS delta (0.002-0.003) support mono downmixing | Cell 7 | Soundfile stereo audit | Observed |
+| E-019 | 4-fold StratifiedGroupKFold partition | Zero group leakage; 1 minority group/fold; val sizes 503, 462, 422, 439; Cendrawasih counts: 35, 29, 16, 3 | Cell 8 | StratifiedGroupKFold | Observed |
 
 ## Methodology Design
 
@@ -174,6 +175,8 @@ Not Applicable at initial project planning phase.
 | eda_mel_spectrograms.png | Visualisasi mel-spectrogram komparatif 3 spesies untuk bab Preprocessing laporan | Passed |
 | PREPROCESSING_PLAN.md | Arsitektur preprocessing & methodology v1.2 (32 kHz default, EfficientNet-B0/ConvNeXt-Tiny/ResNet-34, 256-d OOD bottleneck) | Passed |
 | experiment 1_kaggle.ipynb | Salinan notebook exp 1 dengan path dataset Kaggle input | Passed |
+| metadata_with_folds.csv | Dataset train metadata dengan kolom partisi 4-Fold StratifiedGroupKFold | Passed |
+| preprocess_config.json | Konfigurasi pipeline preprocessing dan model backbones v1.2 terkunci | Passed |
 
 ## Operational Monitoring
 
@@ -199,4 +202,4 @@ Not Applicable at initial project planning phase.
 
 ## Exact Next Action
 
-Cell 8: Execute 4-Fold StratifiedGroupKFold partition on `source_group` with zero group leakage verification, save `metadata_with_folds.csv` and `preprocess_config.json` (with `target_sr=32000` as default).
+Cell 9: Implement and verify reproducible audio preprocessing & mel-spectrogram extraction pipeline function (default 32 kHz, polyphase resampling, peak norm, duration standardization, robust z-score scaling).
