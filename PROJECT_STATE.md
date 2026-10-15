@@ -155,6 +155,7 @@
 | E-024 | Open-Set OOD detector AUROC benchmark (ABL-03) | 256-d kNN AUROC 0.9970 vs MSP 0.9283 vs Energy 0.8209; Ensemble OOD achieves AUROC 0.9987 | Cell 13 | In-Distribution vs 270 Pseudo-OOD chimera | Observed |
 | E-025 | Nelder-Mead 4-class open-set optimization | Global 4-Class Macro F1 = 0.9099 (Unknown F1=0.9963, ID false reject=0.11%, recall=100.0%); tau=1.6756, w_b1=0.48 | Cell 14 | 4-class OOF + Pseudo-OOD Nelder-Mead | Observed |
 | E-026 | Test set inference and sub_001 submission distribution | 814 samples: Kutilang 302 (37.10%), Bondol Jawa 302 (37.10%), Cendrawasih 112 (13.76%), Unknown 98 (12.04%); tau=0.7939 (ID p95 fallback) | Cell 15 | Track A (0.52) + Track B1 (0.48) 4-Fold ensemble on 814 test audio | Observed |
+| E-027 | Public Leaderboard anchor score (sub_001) | Macro F1 = 0.54401 on 30% public LB; rank 17 (team: disuruh ryu daftar); indicates test set has distinct Unknown or domain distribution | Kaggle LB | Kaggle Public LB evaluation | Observed |
 
 ## Methodology Design
 
@@ -212,6 +213,7 @@ Not Applicable at initial project planning phase.
 - Zero labeled Unknown audio in train: requires novelty detection, energy-based scoring, kNN on 256-d bottleneck embeddings, and pseudo-OOD injection to tune rejection thresholds.
 - Environmental noise (rain, wind, insects) can cause false confidence or corrupt open-set distance metrics.
 - Extreme group cardinality imbalance in Cendrawasih (groups of 3, 16, 29, 35) makes per-fold Macro F1 noisy; mitigated by enforcing Global OOF Macro F1 evaluation.
+- Domain shift / Unknown proportion mismatch: Public LB score 0.54401 vs OOF 0.9099 indicates test set likely contains a higher proportion of Unknown species or severe recording background shift.
 - Pelanggaran aturan diskualifikasi (data tambahan luar atau full AutoML) dapat membatalkan submission.
 
 ## Open Questions
@@ -221,4 +223,4 @@ Not Applicable at initial project planning phase.
 
 ## Exact Next Action
 
-Submit experiment 1.csv to Kaggle, record Public Leaderboard score in sub_001 metrics.json and PROJECT_STATE.md, then begin Track B2 (ConvNeXt-Tiny) or ablation studies for competition report.
+Analyze gap between OOF (0.9099) and Public LB (0.54401): run threshold probe (tau_p92 predicting ~24% Unknown) to test Unknown proportion hypothesis, and inspect test set spectral drift.
