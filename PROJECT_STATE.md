@@ -159,6 +159,7 @@
 | E-028 | sub_002 threshold probe and Cendrawasih FP guard | Cendrawasih dropped 112 -> 35 (4.30%, matching train 4.55%); Unknown increased 98 -> 298 (36.61%); tau_p90=0.6450 | Cell 15b | Class-conditional kNN (k=5) + Cendrawasih guard on 814 test audio | Observed |
 | E-029 | Public Leaderboard validation of sub_002 | Macro F1 = 0.58315 (+0.03914 vs sub_001 0.54401); validates Cendrawasih FP guard and ~36% Unknown proportion hypothesis | Kaggle LB | Kaggle Public LB evaluation | Observed |
 | E-030 | sub_003 sweet-spot probe generation | 28.01% Unknown (228/814), Cendrawasih 59 (7.25%), Kutilang 274 (33.66%), Bondol 253 (31.08%); p92.0 quantile threshold | Cell 15c | 3-way distribution comparison on 814 test audio | Observed |
+| E-031 | Public Leaderboard validation of sub_003 | Macro F1 = 0.58313 (delta vs sub_002: -0.00002); proves plateau region between 28% and 36% Unknown; establishes optimal Unknown boundary at ~32-36% | Kaggle LB | Kaggle Public LB evaluation | Observed |
 
 ## Methodology Design
 
@@ -230,4 +231,4 @@ Not Applicable at initial project planning phase.
 
 ## Exact Next Action
 
-Submit experiment 3.csv to Kaggle, record Public Leaderboard score to observe if sweet-spot threshold (~28% Unknown) beats sub_002 (0.58315).
+Analyze threshold plateau (0.58315 vs 0.58313): lock optimal Unknown ratio at ~32-36%, transition from threshold-tuning to model diversity (Track B2: ConvNeXt-Tiny training) or training ABL-01 (SpecAugment ablation).
