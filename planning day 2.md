@@ -194,106 +194,152 @@ Each experiment directly populates specific rubric requirements in the 10-page f
   * Comprehensive ablation table (ABL-01 through ABL-08).
   * OOD AUROC curves comparing MSP (0.9283), Energy (0.8209), and 256-d kNN (0.9970).
   * Confusion matrix progression across submission iterations.
-## 10. Rencana Eksekusi Cell-by-Cell Notebook Day 2 (Reproducible & Identical)
 
-Agar rekonstruksi notebook berjalan tanpa ambiguitas dan menghasilkan output numerik yang 100% konsisten, berikut spesifikasi rinci setiap cell dari Cell 1 hingga Cell 17:
+## 10. Rencana Eksekusi Lengkap Cell-by-Cell Notebook Day 2 (End-to-End Master)
 
-### Cell 1: Environment Setup, Deterministic Seeds, & Hardware Config
-* **Operasi:** Inisialisasi pustaka (`torch`, `torchaudio`, `timm`, `librosa`, `soundfile`, `lightgbm`, `xgboost`), deklarasi seed deterministik (42) pada PyTorch, CuDNN, NumPy, dan Python stdlib.
-* **Input / Jalur:** Deteksi otomatis environment (`/kaggle/input` vs lokal `C:/Github/schematics-npc-dsc-2026`).
-* **Output / Verifikasi:** Print status GPU (`cuda:0`, nama perangkat, alokasi VRAM), CPU worker threads (2), dan konfirmasi direktori kerja.
+Notebook master Day 2 dirancang berjalan secara mandiri dan utuh dari nol (Cell 1) hingga submission final (Cell 23). Struktur ini mengintegrasikan seluruh tahapan EDA deep-dive Day 1, penambahan uji formal Kruskal-Wallis & Confounder Effect Size (Jere), Preprocessing v2.0 (VAD + Spectral Subtraction + Active RMS), Dual-Tree Tabular (LightGBM + XGBoost), Retraining Deep Learning (ConvNeXt-Tiny + Swin-Tiny), Multi-View Ensembling, Dynamic Gating, 3-Crop TTA, hingga Two-Stage Cascaded OOD.
 
-### Cell 2: Metadata Audit, Partisi 4-Fold, & Confounder Verification
-* **Operasi:** Membaca `metadata.csv` (1,826 train) dan `sample_submission.csv` (814 test). Memuat `metadata_with_folds.csv` (4-Fold StratifiedGroupKFold pada `source_group`).
-* **Verifikasi Temuan Jere:** Menghitung ulang dan mencetak tabel kontingensi `source_group` x `label`, serta ringkasan uji Kruskal-Wallis Confounder Effect Size (Bondol $\eta^2 = 0.2366$, Kutilang $\eta^2 = 0.0396$).
-* **Output:** Distribusi fold per kelas (Fold 0: 35 Cendra; Fold 1: 29 Cendra; Fold 2: 16 Cendra; Fold 3: 3 Cendra).
+---
 
-### Cell 3: Audio Preprocessing Engine v2.0 (The Audio DSP Core)
-* **Operasi:** Membangun modul fungsi preprocessing sinyal v2.0:
-  1. `resample_poly_32k(wav, orig_sr=48000, target_sr=32000)`: Polyphase FIR filter anti-aliasing.
-  2. `butter_highpass_300hz(wav, sr=32000, cutoff=300, order=4)`: Filter peredam gemuruh angin frekuensi rendah.
-  3. `active_frame_rms_norm(wav, threshold_db=-40, target_rms=0.12)`: Normalisasi gain frame aktif dengan soft $\tanh$ limiter untuk memitigasi 55% rekaman clipping.
-  4. `compute_vad_window_indices(wav, sr=32000, win_len=10.0, band=(2000, 8000), mode='deterministic', jitter_sec=1.5, seed=42)`:
-     - Mode `deterministic` (untuk validasi, test set, dan tabular): Memilih 10s dengan energi RMS pita 2-8 kHz tertinggi.
-     - Mode `jittered` (untuk training DL): Memilih titik tengah $t_{\text{peak}}$, lalu mengizinkan pergeseran acak $\pm 1.5\text{s}$ di sekitar $t_{\text{peak}}$ antar epoch.
-  5. `stationary_spectral_subtraction(spec_db, q=10)`: Pengurangan magnitudo noise stasioner $P_{10}$ dengan decibel half-wave rectification $\max(S_{\text{dB}} - P_{10}, 0.0)$.
-* **Output:** Modul fungsi teruji, siap dipanggil oleh pipeline tabular dan PyTorch dataset.
+### Bagian I: Fondasi Lingkungan, Metadata, & Deep Bioacoustic EDA (Cell 1 s.d. Cell 8)
 
-### Cell 4: Unit Verification & Visualisasi Preprocessing v2.0
-* **Operasi:** Menguji fungsi Preprocessing v2.0 pada 3 sampel representatif (Bondol, Cendrawasih ter-clipping, dan Test bernoise).
-* **Verifikasi:** Plot visualisasi waveform sebelum vs sesudah normalisasi aktif, serta spektrogram sebelum vs sesudah spectral subtraction. Memeriksa dimensi tensor `(1, 128, 626)`, nilai rata-rata Z-score ~0.000, standar deviasi ~1.000, dan nol NaN/inf.
-* **Output:** Gambar `eda_preprocessing_v2_verification.png` tersimpan.
+* **Cell 1: Environment Setup, Deterministic Seeds, & Hardware Config**
+  * *Operasi:* Impor dependensi (`torch`, `torchaudio`, `timm`, `librosa`, `soundfile`, `lightgbm`, `xgboost`, `scipy`, `sklearn`), penentuan seed deterministik tunggal (42) pada PyTorch, CuDNN benchmark/deterministic, NumPy, dan Python stdlib.
+  * *Jalur:* Autodeteksi lingkungan eksekusi (Kaggle `/kaggle/input/competitions/schematics-2026` vs lokal `C:/Github/schematics-npc-dsc-2026`).
+  * *Output:* Konfirmasi alokasi GPU (`cuda:0`, nama perangkat, VRAM bebas) dan direktori kerja.
 
-### Cell 5: Ekstraksi Fitur Tabular v2.0 (~818 Dimensi)
-* **Operasi:** Ekstraksi fitur bioakustik resolusi tinggi pada 1,826 train dan 814 test audio:
-  - 512 fitur: Statistik Log-Mel 128 bin (mean, std, p10, p90).
-  - 256 fitur: Delta dan Delta-2 spectral dynamics (mean, std).
-  - 24 fitur: Deskriptor spektral (Centroid, Bandwidth, Rolloff, Flatness, ZCR, RMS - masing-masing 4 statistik).
-  - 12 fitur: Tiga Rasio Bimodal & Harmonik Tinggi Cendrawasih ($0.3\text{--}2\text{ kHz}$ vs $2\text{--}6\text{ kHz}$, $8\text{--}16\text{ kHz}$ vs $0.3\text{--}8\text{ kHz}$, dan produk bimodal).
-  - 8 fitur: Autokorelasi temporal ritme pulsa pada 4 mel-bin dominan (lag 0.1s s.d. 0.8s).
-  - 6 fitur: Hardware distortion descriptors (`clipping_ratio`, `crest_factor`, active-to-total ratio).
-* **Output:** Caching file `track_a_X_train_32k_v2.npy` (1826, ~818) dan `track_a_X_test_32k_v2.npy` (814, ~818).
+* **Cell 2: Metadata Schema Audit & Target Distribution**
+  * *Operasi:* Membaca `metadata.csv` (1,826 baris train) dan `sample_submission.csv` (814 baris test).
+  * *Audit Data:* Verifikasi 0 missing values, cross-tabulation 3 spesies train (Bondol Jawa: 1,124 / 61.56%, Kutilang: 619 / 33.90%, Cendrawasih: 83 / 4.55%), menghitung Imbalance Ratio ($IR = 13.54$).
+  * *Output:* Log distribusi kelas dan rasio perbandingan kelas.
 
-### Cell 6: Track A1 - LightGBM GBDT Training (4-Fold)
-* **Operasi:** Melatih 4 model LightGBM pada partisi 4-Fold StratifiedGroupKFold (`class_weight='balanced'`, `n_estimators=1000`, `learning_rate=0.03`, early stopping 50).
-* **Output:** Menyimpan `oof_track_a1_lgbm_v2.csv`, probabilitas test `test_p_lgbm_v2.npy`, dan mencetak Global OOF Macro F1 serta F1 per kelas.
+* **Cell 3: Source Group Nesting, Duration KS-Test, & Deduplication**
+  * *Operasi:* Verifikasi nesting 15 `source_group` terhadap label (100% nested per spesies: 7 Bondol, 4 Kutilang, 4 Cendrawasih). Uji Kolmogorov-Smirnov pada durasi train vs test (KS stat 0.0302, $p = 0.6695$, membuktikan zero temporal domain shift).
+  * *Deduplikasi:* Audit hash SHA256 waveform (1,826 train unik 100%, 814 test unik 100%, 0 overlap train-test).
+  * *Output:* Konfirmasi ketiadaan duplikasi dan kesetaraan distribusi durasi (~10.04s).
 
-### Cell 7: Track A2 - XGBoost GPU Training (4-Fold)
-* **Operasi:** Melatih 4 model XGBoost dengan metode histogram GPU (`tree_method='hist'`, `max_depth=6`, `subsample=0.8`, `colsample_bytree=0.8`, `learning_rate=0.03`, sample weight invers frekuensi kelas).
-* **Output:** Menyimpan `oof_track_a2_xgboost_v2.csv`, probabilitas test `test_p_xgb_v2.npy`, dan mencetak Global OOF Macro F1 serta F1 per kelas.
+* **Cell 4: Acoustic Health & Hardware Distortion Audit (Clipping & Dynamic Range)**
+  * *Operasi:* Mendeteksi saturasi sensor mikrofon lapangan (persentase rekaman dengan peak amplitudo $\ge 0.99$). Menghitung ZCR rata-rata per spesies dan rasio keheningan (*silence ratio* pada threshold $-40\text{ dBFS}$).
+  * *Temuan:* 40% s.d. 55% file train dan test mengalami digital clipping (peak hingga 1.004). ZCR Kutilang 0.2899 (tonal), Bondol 0.3483, Cendrawasih 0.3699.
+  * *Output:* Rangkuman tabel diagnostik kesehatan sinyal mentah.
 
-### Cell 8: Dual-Tree Tabular Evaluation & 50-50 Blend
-* **Operasi:** Evaluasi komparatif LightGBM vs XGBoost. Menghitung korelasi prediksi antar-pohon dan menguji kombinasi 50% LightGBM (leaf-wise) + 50% XGBoost (depth-wise).
-* **Output:** Matriks probabilitas tabular gabungan `oof_p_tabular_v2.npy` dan `test_p_tabular_v2.npy`. Verifikasi peningkatan Macro F1 OOF tabular.
+* **Cell 5: Power Spectral Density (Welch PSD) & Uji Separabilitas Bioakustik Formal**
+  * *Operasi:* Menghitung Welch PSD (nperseg=2048) pada rekaman mono. Membagi spektrum menjadi 4 pita frekuensi: Sub-low ($0\text{--}2\text{ kHz}$), Mid-low ($2\text{--}4\text{ kHz}$), Mid-high ($4\text{--}6\text{ kHz}$), dan High ($6\text{--}8\text{ kHz}$).
+  * *Integrasi Temuan Jere:* Uji non-parametrik Kruskal-Wallis antar spesies pada Mid-band ($H = 455.45, p = 1.26 \times 10^{-99}$), High-band ($H = 391.45, p = 9.94 \times 10^{-86}$), dan Dominant Frequency ($H = 191.14, p = 3.12 \times 10^{-42}$).
+  * *Output:* Bukti matematis pembeda spektral tajam: Kutilang dominan di 2-4 kHz (57.2%), Cendrawasih bimodal di 0-2 kHz (44.0%) dan 6-8 kHz (14.7%).
 
-### Cell 9: Deep Learning GPU Frontend & BirdChirpNet v2 Architecture
-* **Operasi:** Definisi modul PyTorch STFT GPU frontend dengan filter decibel half-wave spectral subtraction. Membangun kelas arsitektur modular `BirdChirpNetV2` (mendukung ConvNeXt-Tiny dan Swin-Tiny, GeM pooling $p=3.0$, bottleneck head 256-d L2-normalized).
-* **Loss Function:** Mengonfigurasi `ClassBalancedFocalLoss` ($\gamma=2.0, \beta=0.99, \text{smoothing}=0.05$).
-* **Output:** Verifikasi parameter trainable dan forward-pass tensor audio `(32, 320000)` $\to$ logit `(32, 3)` dan embedding `(32, 256)`.
+* **Cell 6: Audit Efek Perancu Source Group (Kruskal-Wallis Eta-Squared)**
+  * *Operasi:* Menghitung besaran varians energi akustik yang terikat pada klaster sesi perekaman di dalam spesies yang sama (formula $\eta^2 = \max(0, (H - k + 1) / (n - k))$).
+  * *Bukti Confounder:* Bondol Jawa memiliki $H = 270.32, p = 1.855 \times 10^{-55}, \mathbf{\eta^2 = 0.2366}$ (23.66% varians akustik murni akibat mikrofon/sesi perekam!). Kutilang $\eta^2 = 0.0396$.
+  * *Output:* Justifikasi formal laporan teknis mengapa K-Fold biasa haram dan Stratified Group K-Fold mutlak wajib.
 
-### Cell 10: Track B2 Retraining - ConvNeXt-Tiny with Jittered VAD (4-Fold)
-* **Operasi:** Melatih ConvNeXt-Tiny (~28.0M params) dengan protokol LP-FT 2-phase (5 epoch LP + 18 epoch FT) menggunakan `Energy-Biased Jittered Cropping` ($\pm 1.5\text{s}$).
-* **Output:** Menyimpan model weights di `checkpoints_b2_v2_convnext_tiny/`, probabilitas OOF `oof_b2_v2_probs.npy`, embedding OOF `oof_b2_v2_emb256d.npy`, dan reference train embeddings `train_fold_b2_v2_emb256d.pt`.
+* **Cell 7: Visualisasi Publikasi Komprehensif (3-Panel EDA)**
+  * *Operasi:* Membuat gambar komparatif visualisasi publication-grade: Panel 1 (Distribusi kelas & struktur nesting source group), Panel 2 (Kurva rata-rata Welch PSD 4 pita per spesies), Panel 3 (Scatter separasi akustik 2D: ZCR vs Spectral Centroid).
+  * *Output:* Menyimpan gambar beresolusi tinggi `eda_acoustic_profiles.png` untuk Bab EDA laporan.
 
-### Cell 11: Track B4 Retraining - Swin-Tiny Shifted Window Attention (4-Fold)
-* **Operasi:** Melatih Swin-Tiny (~28.3M params) pada spektrogram hasil Preprocessing v2.0 menggunakan protokol LP-FT 2-phase.
-* **Output:** Menyimpan model weights di `checkpoints_b4_v2_swin_tiny/`, probabilitas OOF `oof_b4_v2_probs.npy`, dan embedding OOF `oof_b4_v2_emb256d.npy`.
+* **Cell 8: Pre-Processing Audit (High-Frequency Energy, Stereo Correlation, & Mel-Spectrograms)**
+  * *Operasi:* Audit spektral frekuensi tinggi 48 kHz native (membuktikan energi $>8\text{ kHz}$ hanya $<9.3\%$, pita $16\text{--}24\text{ kHz}$ hanya $<1.22\%$, sehingga downsample 32 kHz aman mutlak). Audit korelasi kanal stereo (0.724 s.d. 0.800 membuktikan mono downmix lossless).
+  * *Visualisasi:* Plot mel-spektrogram representatif per kelas beserta audio kandidat Unknown.
+  * *Output:* Menyimpan gambar `eda_mel_spectrograms.png`.
 
-### Cell 12: Cross-Preprocessing Multi-View Integration
-* **Operasi:** Memuat probabilitas OOF dan test set dari checkpoint Day 1 **SE-ResNeXt-50 (Track B3)** dan **EfficientNet-B0 (Track B1)**. Menggabungkan model yang dilatih pada Preprocessing v1.0 (raw Log-Mel) dan Preprocessing v2.0 (spectrally subtracted Log-Mel) untuk membentuk portofolio multi-view 5 keluarga arsitektur.
-* **Output:** Matriks probabilitas OOF terintegrasi 5 model.
+---
 
-### Cell 13: Closed-Set Macro-Weighted Loss Alignment
-* **Operasi:** Mengoptimalkan bobot ensemble menggunakan Class-Harmonic NLL optimization (bukan unweighted NLL) via algoritma Nelder-Mead.
-* **Tujuan:** Memastikan bobot model spesialis Cendrawasih (ConvNeXt-Tiny) tidak tertekan ke nol, menjaga F1 Cendrawasih OOF tetap $\ge 0.80$.
-* **Output:** Vektor bobot optimal $w_{\text{opt}}$, probabilitas OOF ensemble, dan Global OOF Macro F1 tertutup 3-kelas.
+### Bagian II: Preprocessing v2.0 & Partisi Bebas Leakage (Cell 9 s.d. Cell 11)
 
-### Cell 14: SNR-Dynamic Gated Blending
-* **Operasi:** Menghitung Indeks Kualitas Sinyal $\text{SNR}_{\text{proxy}}(x_i) \in [0, 1]$ dari Spectral Flatness dan active RMS.
-* **Formula Gating:** Menginterpolasi bobot Tabular Dual-Tree ($w_{\text{Tab}}$) dan Deep Learning ($w_{\text{DL}}$) secara dinamis per sampel audio.
-* **Output:** Skor evaluasi OOF dinamis (`dynamic_gating_oof_macro_f1`).
+* **Cell 9: Penguncian Partisi 4-Fold StratifiedGroupKFold on `source_group`**
+  * *Operasi:* Menjalankan partisi 4-Fold `StratifiedGroupKFold` pada 1,826 audio train dengan target stratifikasi kelas dan pengelompokan `source_group`.
+  * *Verifikasi Nol Kebocoran:* Alokasi 4 grup Cendrawasih tepat 1 grup per fold (Fold 0: 35 sampel, Fold 1: 29 sampel, Fold 2: 16 sampel, Fold 3: 3 sampel). Zero group overlap antar fold.
+  * *Output:* Menyimpan `metadata_with_folds.csv` dan mengunci parameter ke `preprocess_config.json`.
 
-### Cell 15: 3-Crop Test-Time Augmentation (TTA) Test Inference
-* **Operasi:** Menjalankan inferensi test set pada 814 rekaman menggunakan 3-Crop Multi-Window:
-  - Window Left ($0.0\text{s} \to 10.0\text{s}$).
-  - Window Center (tengah rekaman).
-  - Window Right ($L - 10.0\text{s} \to L$).
-* **Agregasi:** Confidence-weighted softmax pooling untuk probabilitas kelas, dan L2-normalized mean pooling untuk vektor embedding 256-d.
-* **Output:** Matriks probabilitas uji TTA dan matriks embedding uji TTA per fold.
+* **Cell 10: Audio Preprocessing Engine v2.0 (The Audio DSP Core)**
+  * *Operasi:* Membangun modul pemrosesan sinyal v2.0:
+    1. `resample_poly_32k`: Anti-aliasing polyphase FIR filter (anti-Gibbs ringing pada sinyal clipping).
+    2. `butter_highpass_300hz`: Butterworth filter orde-4 memotong gemuruh angin $<300\text{ Hz}$.
+    3. `active_frame_rms_norm`: Normalisasi energi frame aktif ($>-40\text{ dBFS}$) dengan kompresi soft $\tanh$ limiter.
+    4. `compute_vad_window_indices`: Sliding window 10.0s berbasis densitas energi vokal $2\text{--}8\text{ kHz}$ (mode deterministik untuk tabular/validasi; mode jittered $\pm 1.5\text{s}$ untuk training DL).
+    5. `stationary_spectral_subtraction`: Pengurangan noise floor kuantil ke-10 dengan decibel half-wave rectification $\max(S_{\text{dB}} - P_{10}, 0.0)$.
+  * *Output:* Modul fungsi pipeline sinyal audio terverifikasi.
 
-### Cell 16: Two-Stage Cascaded OOD Rejection Engine
-* **Operasi:**
-  - *Stage 1 (Global OOD Filter):* Menghitung jarak Cosine kNN-5 pada embedding ConvNeXt-Tiny 256-d, digabung dengan Gated Softmax Entropy. Menetapkan ambang $\tau_{\text{global}}$ untuk menangkap ~34% s.d. 37% Unknown.
-  - *Stage 2 (Adaptive Prototype Shrinkage Cendrawasih):* Mengunci radius penerimaan kelas Cendrawasih pada persentil ke-84 data training. Calon Cendrawasih yang berada di luar radius dialihkan ke Unknown.
-* **Output:** Audit sebaran prediksi 4 kelas dan verifikasi jumlah Unknown.
+* **Cell 11: Unit Verification & Visualisasi Preprocessing v2.0**
+  * *Operasi:* Eksekusi pipeline v2.0 pada 3 sampel uji (Bondol bersih, Cendrawasih ter-clipping, dan Test bernoise).
+  * *Pemeriksaan:* Dimensi tensor spektrogram tepat `(1, 128, 626)`, Z-score rata-rata 0.000, standar deviasi 1.000, nilai minimum $\ge 0.0$, nol NaN/inf.
+  * *Output:* Menyimpan plot perbandingan visual `eda_day2_preprocessing_v2_verification.png`.
 
-### Cell 17: Final Submission Assembly, Verification, & Bundling
-* **Operasi:** Menyusun DataFrame submission final (`file_id`, `label`).
-* **Pemeriksaan Kualitas Ketat:**
-  1. Jumlah baris tepat 814.
-  2. Kolom persis `file_id` dan `label`.
-  3. `file_id` cocok 100% dengan `sample_submission.csv`.
-  4. Tidak ada nilai NaN atau string kosong.
-  5. Label hanya terdiri dari 4 string resmi: `Bondol Jawa`, `Cendrawasih`, `Kutilang`, `Unknown`.
-* **Penyimpanan Bundel:** Menyimpan `submission.csv`, `metrics.json` (parameter, sebaran, OOF F1, ambang batas), dan salinan notebook ke `submissions/sub_XXX_<timestamp>/`.
-* **Output:** Tautan unduh interaktif `FileLink("submission.csv")`.
+---
+
+### Bagian III: Feature Engineering & Dual-Tree Tabular Engine (Cell 12 s.d. Cell 15)
+
+* **Cell 12: Ekstraksi Fitur Tabular Bioakustik v2.0 (~818 Dimensi)**
+  * *Operasi:* Ekstraksi matriks fitur kaya informasi bioakustik pada 1,826 train dan 814 test audio:
+    - 512 fitur: Statistik Log-Mel 128 bin (mean, std, p10, p90).
+    - 256 fitur: Delta dan Delta-2 spectral dynamics (mean, std).
+    - 24 fitur: Deskriptor spektral (Centroid, Bandwidth, Rolloff, Flatness, ZCR, RMS - masing-masing 4 statistik).
+    - 12 fitur: Tiga Rasio Bimodal & Harmonik Tinggi Cendrawasih ($0.3\text{--}2\text{ kHz}$ vs $2\text{--}6\text{ kHz}$, $8\text{--}16\text{ kHz}$ vs $0.3\text{--}8\text{ kHz}$, dan produk bimodal).
+    - 8 fitur: Autokorelasi temporal ritme pulsa pada 4 mel-bin dominan (lag 0.1s s.d. 0.8s).
+    - 6 fitur: Hardware distortion descriptors (`clipping_ratio`, `crest_factor`, active-to-total ratio).
+  * *Output:* Menyimpan file cache `track_a_X_train_32k_v2.npy` (1826, 818) dan `track_a_X_test_32k_v2.npy` (814, 818).
+
+* **Cell 13: Track A1 - LightGBM GBDT Training (4-Fold)**
+  * *Operasi:* Melatih 4 model LightGBM pada partisi 4-Fold StratifiedGroupKFold (`class_weight='balanced'`, `n_estimators=1000`, `learning_rate=0.03`, early stopping 50).
+  * *Output:* Menyimpan `oof_track_a1_lgbm_v2.csv`, probabilitas test `test_p_lgbm_v2.npy`, dan mencetak Global OOF Macro F1 serta F1 per kelas.
+
+* **Cell 14: Track A2 - XGBoost GPU Training (4-Fold)**
+  * *Operasi:* Melatih 4 model XGBoost dengan metode histogram GPU (`tree_method='hist'`, `max_depth=6`, `subsample=0.8`, `colsample_bytree=0.8`, `learning_rate=0.03`, sample weight invers frekuensi kelas).
+  * *Output:* Menyimpan `oof_track_a2_xgboost_v2.csv`, probabilitas test `test_p_xgb_v2.npy`, dan mencetak Global OOF Macro F1 serta F1 per kelas.
+
+* **Cell 15: Dual-Tree Tabular Evaluation & 50-50 Blend**
+  * *Operasi:* Evaluasi komparatif LightGBM (leaf-wise) vs XGBoost (depth-wise). Menggabungkan probabilitas 50% LightGBM + 50% XGBoost untuk menekan varians keputusan pada kelas minoritas Cendrawasih.
+  * *Output:* Menyimpan probabilitas gabungan `oof_p_tabular_v2.npy` dan `test_p_tabular_v2.npy`.
+
+---
+
+### Bagian IV: Deep Learning Retraining on Cleaned Manifolds (Cell 16 s.d. Cell 18)
+
+* **Cell 16: Deep Learning GPU Frontend & BirdChirpNet v2 Architecture**
+  * *Operasi:* Modul PyTorch STFT GPU frontend terintegrasi dengan spectral subtraction. Kelas arsitektur `BirdChirpNetV2` (mendukung ConvNeXt-Tiny dan Swin-Tiny, GeM pooling adaptif $p=3.0$, bottleneck head 256-d L2-normalized).
+  * *Loss Function:* `ClassBalancedFocalLoss` ($\gamma=2.0, \beta=0.99, \text{smoothing}=0.05$).
+  * *Output:* Inisialisasi model siap latih dan verifikasi forward pass tensor audio `(32, 320000)`.
+
+* **Cell 17: Track B2 Retraining - ConvNeXt-Tiny with Jittered VAD (4-Fold)**
+  * *Operasi:* Melatih ulang ConvNeXt-Tiny (~28.0M params) dengan protokol LP-FT 2-phase (5 epoch Linear Probing + 18 epoch Fine-Tuning) menggunakan `Energy-Biased Jittered Cropping` ($\pm 1.5\text{s}$). Waveform di-cache di RAM.
+  * *Output:* Menyimpan model weights di `checkpoints_b2_v2_convnext_tiny/`, probabilitas OOF `oof_b2_v2_probs.npy`, embedding OOF `oof_b2_v2_emb256d.npy`, dan reference train embeddings `train_fold_b2_v2_emb256d.pt`.
+
+* **Cell 18: Track B4 Retraining - Swin-Tiny Shifted Window Attention (4-Fold)**
+  * *Operasi:* Melatih ulang Swin-Tiny (~28.3M params) pada spektrogram hasil Preprocessing v2.0 menggunakan protokol LP-FT 2-phase.
+  * *Output:* Menyimpan model weights di `checkpoints_b4_v2_swin_tiny/`, probabilitas OOF `oof_b4_v2_probs.npy`, dan embedding OOF `oof_b4_v2_emb256d.npy`.
+
+---
+
+### Bagian V: Multi-View Ensembling, Dynamic Gating, TTA, & OOD Rejection (Cell 19 s.d. Cell 23)
+
+* **Cell 19: Cross-Preprocessing Multi-View Integration & Macro-Loss Alignment**
+  * *Operasi:* Memuat probabilitas OOF dan test set dari checkpoint Day 1 **SE-ResNeXt-50 (Track B3)** dan **EfficientNet-B0 (Track B1)**. Menggabungkan model yang dilatih pada Preprocessing v1.0 dan v2.0.
+  * *Macro Alignment:* Mengoptimalkan bobot 5 model menggunakan Class-Harmonic Loss via Nelder-Mead (bukan NLL unweighted) untuk menjamin F1 Cendrawasih tetap $\ge 0.80$.
+  * *Output:* Bobot optimal ensemble $w_{\text{opt}}$ dan skor Global OOF Macro F1 3-kelas tertutup.
+
+* **Cell 20: SNR-Dynamic Gated Blending**
+  * *Operasi:* Menghitung Indeks Kualitas Sinyal $\text{SNR}_{\text{proxy}}(x_i) \in [0, 1]$ dari Spectral Flatness dan active RMS.
+  * *Gating Dinamis:* Menginterpolasi bobot Tabular Dual-Tree ($w_{\text{Tab}}$) dan Deep Learning ($w_{\text{DL}}$) secara dinamis per sampel audio.
+  * *Output:* Skor evaluasi OOF dinamis (`dynamic_gating_oof_macro_f1`).
+
+* **Cell 21: 3-Crop Test-Time Augmentation (TTA) Test Inference**
+  * *Operasi:* Inferensi test set pada 814 rekaman menggunakan 3-Crop Multi-Window (Left $0\text{--}10\text{s}$, Center, Right $(L-10)\text{--}L$) untuk seluruh model deep learning aktif.
+  * *Agregasi:* Confidence-weighted softmax pooling untuk probabilitas kelas dan L2-normalized mean pooling untuk vektor embedding 256-d.
+  * *Output:* Matriks probabilitas uji TTA dan matriks embedding uji TTA per fold.
+
+* **Cell 22: Two-Stage Cascaded OOD Rejection Engine**
+  * *Operasi:*
+    - *Stage 1 (Global OOD Filter):* Menghitung jarak Cosine kNN-5 pada embedding ConvNeXt-Tiny 256-d, digabung dengan Gated Softmax Entropy. Menetapkan ambang $\tau_{\text{global}}$ untuk menangkap ~34% s.d. 37% Unknown.
+    - *Stage 2 (Adaptive Prototype Shrinkage Cendrawasih):* Mengunci radius penerimaan kelas Cendrawasih pada persentil ke-84 data training. Calon Cendrawasih yang berada di luar radius dialihkan ke Unknown.
+  * *Output:* Audit sebaran prediksi 4 kelas dan verifikasi jumlah Unknown.
+
+* **Cell 23: Final Submission Assembly, Verification, & Bundling**
+  * *Operasi:* Menyusun DataFrame submission final (`file_id`, `label`).
+  * *Pemeriksaan Integritas:*
+    1. Tepat 814 baris.
+    2. Kolom persis `file_id` dan `label`.
+    3. `file_id` cocok 100% dengan `sample_submission.csv`.
+    4. Bebas NaN / null.
+    5. Label hanya terdiri dari 4 kelas resmi: `Bondol Jawa`, `Cendrawasih`, `Kutilang`, `Unknown`.
+  * *Penyimpanan Bundel:* Menyimpan `submission.csv`, `metrics.json`, dan notebook ke folder `submissions/sub_XXX_<timestamp>/`.
+  * *Output:* Tautan unduh interaktif `FileLink("submission.csv")`.
