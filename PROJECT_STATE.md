@@ -7,7 +7,7 @@
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
 **Primary notebook:** schematics-day-1.ipynb (Day 1 archive) / Day 2 Master Notebook
-**Last completed cell:** Cell 19 (Day 2 Master Execution)
+**Last completed cell:** Cell 26 (Day 2 Master Execution - Submissions sub_005 and sub_006 Bundled)
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
 
@@ -186,6 +186,11 @@
 | E-039 | Triad-Tree Tabular Benchmark & Dual Blend Synergy (v2.0) | Standalone: LGBM 0.8475, XGBoost 0.8408, CatBoost 0.8322. 50/50 Dual Blend LGBM+XGBoost mencapai Global OOF Macro F1 = 0.8486 (Bondol 0.9497, Cendra 0.6552, Kutilang 0.9411); mengungguli seluruh standalone tree | Day 2 Master Cell 13-16 | 4-Fold StratifiedGroupKFold pada 818 fitur v2.0 | Observed |
 | E-040 | Retrained ConvNeXt-Tiny v2.0 Breakthrough Performance | Global OOF Macro F1 melonjak ke 0.9323 (+0.0415 vs v1.0 0.8908); Cendrawasih F1 meroket ke 0.9448 (+0.1132 vs v1.0 0.8316); Fold 1 perfect 1.0000; memvalidasi VAD windowing dan spectral subtraction | Day 2 Master Cell 18 | 4-Fold LP-FT 2-phase pada audio Preprocessing v2.0 | Observed |
 | E-041 | Retrained Swin-Tiny Transformer v2.0 Performance Surge | Global OOF Macro F1 melonjak ke 0.9098 (+0.0609 vs v1.0 0.8489); Cendrawasih F1 naik tajam ke 0.8671 (+0.1380 vs v1.0 0.7291); membuktikan shifted window attention pada spektrogram bersih | Day 2 Master Cell 19 | 4-Fold LP-FT 2-phase pada audio Preprocessing v2.0 | Observed |
+| E-042 | Retrained SE-ResNeXt-50 32x4d v2.0 Performance Surge | Global OOF Macro F1 melonjak ke 0.9005 (+0.0445 vs v1.0 0.8560); Cendrawasih F1 naik tajam ke 0.8588 (+0.1197 vs v1.0 0.7391); memvalidasi channel attention pada spektrogram bersih | Day 2 Master Cell 20 | 4-Fold LP-FT 2-phase pada audio Preprocessing v2.0 | Observed |
+| E-043 | Retrained EfficientNet-B0 v2.0 Performance Surge | Global OOF Macro F1 naik ke 0.8721 (+0.0329 vs v1.0 0.8392); Cendrawasih F1 naik ke 0.7692 (+0.0778 vs v1.0 0.6914); model teringan (~5.3M params) selesai terlatih | Day 2 Master Cell 21 | 4-Fold LP-FT 2-phase pada audio Preprocessing v2.0 | Observed |
+| E-044 | Acoustic Noise-Conditioned Dynamic Gating Breakthrough (v2.0) | Global OOF Macro F1 melesat ke 0.9380 (Harmonic NLL: 0.1938); Bondol F1=0.9495, Cendrawasih F1=0.9390 (Presisi 95.06%, 77 TP, 4 FP), Kutilang F1=0.9256; Two-Way Shield memveto 53 FP Tabular dan 37 FP Swin; melampaui seluruh single model | Day 2 Master Cell 23 | Grid Search SNR Gating (w_conv=0.8, w_swin=0.2, w_max=0.45, gamma=1.0) | Observed |
+| E-045 | 3-Crop Test-Time Augmentation (TTA) Verification | 419 dari 814 sampel test (>10s) dievaluasi dengan 3-crop multi-window (VAD + Left + Right); agreement rate 98.53% vs 1-crop; memulihkan +8 kandidat vokal di tepi rekaman; inferensi 8 fold tuntas dalam 76.3s | Day 2 Master Cell 24 | Confidence-Weighted Pooling pada ConvNeXt-Tiny & Swin-Tiny | Observed |
+| E-046 | Two-Stage Cascaded OOD Rejection & Test Distribution Locked | Ambang batas terkalibrasi p91.5 (tau=0.5473) menghasilkan Unknown sub_005 = 308 (37.84%) dan sub_006 = 351 (43.12%); Stage 2 Cendrawasih Prototype Shrinkage (tau=0.4214) memotong 37 ekses FP (129 -> 92 core, 11.30%); perbedaan 43 sampel terisolasi sempurna untuk pembuktian ablasi Ide 1 vs Ide 1+2 | Day 2 Master Cell 25-26 | In-Fold Cosine kNN-5 + Gated Uncertainty + Entropy Fusion | Observed |
 
 ## Methodology Design
 
