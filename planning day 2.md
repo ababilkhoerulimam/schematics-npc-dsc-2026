@@ -115,7 +115,7 @@ Apply a 4th-order Butterworth high-pass filter at 300 Hz (or set $f_{\min} = 300
 
 ---
 
-## 6. Fase 4: Closed-Set Optimization & SNR-Dynamic Gated Blending
+## 6. Fase 4: Acoustic Noise-Conditioned Dynamic Gating (Ekuivalen Progressive Weighting)
 
 ### Macro-Weighted Loss Alignment
 Replace unweighted NLL optimization with Class-Harmonic NLL optimization:
@@ -198,7 +198,7 @@ Each experiment directly populates specific rubric requirements in the 10-page f
 
 ## 10. Rencana Eksekusi Lengkap Cell-by-Cell Notebook Day 2 (End-to-End Master)
 
-Notebook master Day 2 dirancang berjalan secara mandiri dan utuh dari nol (Cell 1) hingga submission final (Cell 24). Struktur ini mengintegrasikan seluruh tahapan EDA deep-dive Day 1, penambahan uji formal Kruskal-Wallis & Confounder Effect Size (Jere), Preprocessing v2.0 (VAD + Spectral Subtraction + Active RMS), Dual-Tree Tabular (LightGBM + XGBoost), Retraining Deep Learning (ConvNeXt-Tiny + Swin-Tiny), Multi-View Ensembling, Dynamic Gating, 3-Crop TTA, hingga Two-Stage Cascaded OOD.
+Notebook master Day 2 dirancang berjalan secara mandiri dan utuh dari nol (Cell 1) hingga submission final (Cell 25). Struktur ini mengintegrasikan seluruh tahapan EDA deep-dive Day 1, penambahan uji formal Kruskal-Wallis & Confounder Effect Size (Jere), Preprocessing v2.0 (VAD + Spectral Subtraction + Active RMS), Dual-Tree Tabular (LightGBM + XGBoost), Retraining Deep Learning (ConvNeXt-Tiny + Swin-Tiny), Multi-View Ensembling, Dynamic Gating, 3-Crop TTA, hingga Two-Stage Cascaded OOD.
 
 ---
 
@@ -298,47 +298,57 @@ Notebook master Day 2 dirancang berjalan secara mandiri dan utuh dari nol (Cell 
 
 ---
 
-### Bagian IV: Deep Learning Retraining on Cleaned Manifolds (Cell 17 s.d. Cell 19)
+### Bagian IV: Deep Learning Retraining on Cleaned Manifolds (Cell 17 s.d. Cell 21)
 
 * **Cell 17: Deep Learning GPU Frontend & BirdChirpNet v2 Architecture**
-  * *Operasi:* Modul PyTorch STFT GPU frontend terintegrasi dengan spectral subtraction. Kelas arsitektur `BirdChirpNetV2` (mendukung ConvNeXt-Tiny dan Swin-Tiny, GeM pooling adaptif $p=3.0$, bottleneck head 256-d L2-normalized).
-  * *Loss Function:* `ClassBalancedFocalLoss` ($\gamma=2.0, \beta=0.99, \text{smoothing}=0.05$).
+  * *Operasi:* Modul PyTorch STFT GPU frontend terintegrasi dengan spectral subtraction. Kelas arsitektur `BirdChirpNetV2` (mendukung ConvNeXt-Tiny, Swin-Tiny, SE-ResNeXt-50, EffNet-B0, GeM pooling adaptif $p=3.0$, bottleneck head 256-d L2-normalized).
+  * *Loss Function:* `ClassBalancedFocalLoss` ($\gamma=2.0, eta=0.99, 	ext{smoothing}=0.05$).
   * *Output:* Inisialisasi model siap latih dan verifikasi forward pass tensor audio `(32, 320000)`.
 
 * **Cell 18: Track B2 Retraining - ConvNeXt-Tiny with Jittered VAD (4-Fold)**
-  * *Operasi:* Melatih ulang ConvNeXt-Tiny (~28.0M params) dengan protokol LP-FT 2-phase (5 epoch Linear Probing + 18 epoch Fine-Tuning) menggunakan `Energy-Biased Jittered Cropping` ($\pm 1.5\text{s}$). Waveform di-cache di RAM.
-  * *Output:* Menyimpan model weights di `checkpoints_b2_v2_convnext_tiny/`, probabilitas OOF `oof_b2_v2_probs.npy`, embedding OOF `oof_b2_v2_emb256d.npy`, dan reference train embeddings `train_fold_b2_v2_emb256d.pt`.
+  * *Operasi:* Melatih ulang ConvNeXt-Tiny (~28.0M params) dengan protokol LP-FT 2-phase (5 epoch Linear Probing + 18 epoch Fine-Tuning) menggunakan `Energy-Biased Jittered Cropping` ($\pm 1.5	ext{s}$). Waveform di-cache di RAM.
+  * *Output:* Menyimpan model weights di `checkpoints_b2_v2_convnext_tiny/`, probabilitas OOF `oof_b2_v2_probs.npy` (Global OOF Macro F1 = 0.9323, Cendrawasih = 0.9448), embedding OOF `oof_b2_v2_emb256d.npy`, dan reference train embeddings `train_fold_b2_v2_emb256d.pt`.
 
 * **Cell 19: Track B4 Retraining - Swin-Tiny Shifted Window Attention (4-Fold)**
   * *Operasi:* Melatih ulang Swin-Tiny (~28.3M params) pada spektrogram hasil Preprocessing v2.0 menggunakan protokol LP-FT 2-phase.
-  * *Output:* Menyimpan model weights di `checkpoints_b4_v2_swin_tiny/`, probabilitas OOF `oof_b4_v2_probs.npy`, dan embedding OOF `oof_b4_v2_emb256d.npy`.
+  * *Output:* Menyimpan model weights di `checkpoints_b4_v2_swin_tiny/`, probabilitas OOF `oof_b4_v2_probs.npy` (Global OOF Macro F1 = 0.9098, Cendrawasih = 0.8671), dan embedding OOF `oof_b4_v2_emb256d.npy`.
+
+* **Cell 20: Track B3 Retraining - SE-ResNeXt-50 32x4d with Channel Attention (4-Fold)**
+  * *Operasi:* Melatih ulang SE-ResNeXt-50 32x4d (`legacy_seresnext50_32x4d.in1k`, ~27.6M params) dengan mekanisme *Squeeze-and-Excitation channel attention* pada spektrogram Preprocessing v2.0 menggunakan protokol LP-FT 2-phase.
+  * *Output:* Menyimpan model weights di `checkpoints_b3_v2_se_resnext50/`, probabilitas OOF `oof_b3_v2_probs.npy`, embedding OOF `oof_b3_v2_emb256d.npy`, dan inferensi test set 1-crop `test_b3_v2_probs_1crop.npy`.
+
+* **Cell 21: Track B1 Retraining - EfficientNet-B0 Depthwise Convolutions (4-Fold)**
+  * *Operasi:* Melatih ulang EfficientNet-B0 (~5.3M params) dengan konvolusi terpisah kedalaman (*depthwise separable convolutions*) pada audio Preprocessing v2.0 menggunakan protokol LP-FT 2-phase.
+  * *Output:* Menyimpan model weights di `checkpoints_b1_v2_effnet_b0/`, probabilitas OOF `oof_b1_v2_probs.npy`, embedding OOF `oof_b1_v2_emb256d.npy`, dan inferensi test set 1-crop `test_b1_v2_probs_1crop.npy`.
 
 ---
 
-### Bagian V: Multi-View Ensembling, Dynamic Gating, TTA, & OOD Rejection (Cell 20 s.d. Cell 24)
+### Bagian V: Acoustic Noise-Conditioned Dynamic Gating, TTA, & Cascaded OOD (Cell 22 s.d. Cell 25)
 
-* **Cell 20: Cross-Preprocessing Multi-View Integration & Macro-Loss Alignment**
-  * *Operasi:* Memuat probabilitas OOF dan test set dari checkpoint Day 1 **SE-ResNeXt-50 (Track B3)** dan **EfficientNet-B0 (Track B1)**. Menggabungkan model yang dilatih pada Preprocessing v1.0 dan v2.0.
-  * *Macro Alignment:* Mengoptimalkan bobot ensemble menggunakan Class-Harmonic Loss via Nelder-Mead (bukan NLL unweighted) untuk menjamin F1 Cendrawasih tetap $\ge 0.80$.
-  * *Output:* Bobot optimal ensemble $w_{\text{opt}}$ dan skor Global OOF Macro F1 3-kelas tertutup.
+* **Cell 22: Acoustic Noise-Conditioned Dynamic Gating (Ekuivalen Langsung Progressive Weighting)**
+  * *Premis Fisik:*
+    - Model Tabular Triad (LGBM + XGB + CatBoost) mengandalkan statistik agregat global; sangat presisi pada rekaman jernih (High-SNR, flatness rendah), namun terdistorsi oleh derau hujan/angin kontinu.
+    - Model Deep Learning (ConvNeXt, Swin, SE-ResNeXt, EffNet) melihat spektrogram sebagai citra 2D spasial; sangat tangguh menyaring garis vokal burung meskipun tertutup desis latar belakang (noise-invariant spatial filter).
+  * *Mekanisme Interpolasi Dinamis Kontinu:*
+    Menghitung $	ext{SNR}_{	ext{proxy}}(x_i) \in [0, 1]$ dari Spectral Flatness dan active RMS.
+    $$w_{	ext{Tab}}(x_i) = w_{\min} + (w_{\max} - w_{\min}) \cdot \left(	ext{SNR}_{	ext{proxy}}(x_i)ight)^\gamma$$
+    $$w_{	ext{DL}}(x_i) = 1.0 - w_{	ext{Tab}}(x_i)$$
+    - Audio jernih ($	ext{SNR}_{	ext{proxy}} 	o 1$): $w_{	ext{Tab}}$ naik hingga 0.50 (memanfaatkan presisi tinggi fitur fisik).
+    - Audio berderau lebat ($	ext{SNR}_{	ext{proxy}} 	o 0$): $w_{	ext{DL}}$ mendominasi hingga 0.85 - 0.90 (didominasi ConvNeXt-Tiny dan Swin-Tiny).
+  * *Output:* Matriks probabilitas OOF tertutup dinamis `oof_p_gated_master.npy` dan test set `test_p_gated_master.npy`.
 
-* **Cell 21: SNR-Dynamic Gated Blending**
-  * *Operasi:* Menghitung Indeks Kualitas Sinyal $\text{SNR}_{\text{proxy}}(x_i) \in [0, 1]$ dari Spectral Flatness dan active RMS.
-  * *Gating Dinamis:* Menginterpolasi bobot Tabular Triad-Tree ($w_{\text{Tab}}$) dan Deep Learning ($w_{\text{DL}}$) secara dinamis per sampel audio.
-  * *Output:* Skor evaluasi OOF dinamis (`dynamic_gating_oof_macro_f1`).
-
-* **Cell 22: 3-Crop Test-Time Augmentation (TTA) Test Inference**
-  * *Operasi:* Inferensi test set pada 814 rekaman menggunakan 3-Crop Multi-Window (Left $0\text{--}10\text{s}$, Center, Right $(L-10)\text{--}L$) untuk seluruh model deep learning aktif.
+* **Cell 23: 3-Crop Test-Time Augmentation (TTA) on Test Set**
+  * *Operasi:* Inferensi multi-window 10.0s (Left $0	ext{--}10	ext{s}$, Center, Right $(L-10)	ext{--}L$) pada seluruh model Deep Learning aktif untuk 814 rekaman data uji.
   * *Agregasi:* Confidence-weighted softmax pooling untuk probabilitas kelas dan L2-normalized mean pooling untuk vektor embedding 256-d.
-  * *Output:* Matriks probabilitas uji TTA dan matriks embedding uji TTA per fold.
+  * *Output:* Matriks probabilitas uji TTA teragregasi dan matriks embedding uji TTA per fold.
 
-* **Cell 23: Two-Stage Cascaded OOD Rejection Engine**
+* **Cell 24: Two-Stage Cascaded OOD Rejection Engine**
   * *Operasi:*
-    - *Stage 1 (Global OOD Filter):* Menghitung jarak Cosine kNN-5 pada embedding ConvNeXt-Tiny 256-d, digabung dengan Gated Softmax Entropy. Menetapkan ambang $\tau_{\text{global}}$ untuk menangkap ~34% s.d. 37% Unknown.
+    - *Stage 1 (Global OOD Filter):* Menghitung jarak Cosine kNN-5 pada embedding ConvNeXt-Tiny v2.0 256-d, digabung dengan Gated Softmax Entropy. Menetapkan ambang $	au_{	ext{global}}$ untuk menangkap ~34% s.d. 37% Unknown.
     - *Stage 2 (Adaptive Prototype Shrinkage Cendrawasih):* Mengunci radius penerimaan kelas Cendrawasih pada persentil ke-84 data training. Calon Cendrawasih yang berada di luar radius dialihkan ke Unknown.
   * *Output:* Audit sebaran prediksi 4 kelas dan verifikasi jumlah Unknown.
 
-* **Cell 24: Final Submission Assembly, Verification, & Bundling**
+* **Cell 25: Final Submission Assembly, Verification, & Bundling (sub_005)**
   * *Operasi:* Menyusun DataFrame submission final (`file_id`, `label`).
   * *Pemeriksaan Integritas:*
     1. Tepat 814 baris.
@@ -346,5 +356,5 @@ Notebook master Day 2 dirancang berjalan secara mandiri dan utuh dari nol (Cell 
     3. `file_id` cocok 100% dengan `sample_submission.csv`.
     4. Bebas NaN / null.
     5. Label hanya terdiri dari 4 kelas resmi: `Bondol Jawa`, `Cendrawasih`, `Kutilang`, `Unknown`.
-  * *Penyimpanan Bundel:* Menyimpan `submission.csv`, `metrics.json`, dan notebook ke folder `submissions/sub_XXX_<timestamp>/`.
+  * *Penyimpanan Bundel:* Menyimpan `submission.csv`, `metrics.json`, dan notebook ke folder `submissions/sub_005_<timestamp>/`.
   * *Output:* Tautan unduh interaktif `FileLink("submission.csv")`.

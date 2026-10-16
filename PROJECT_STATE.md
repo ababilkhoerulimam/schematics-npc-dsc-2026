@@ -7,7 +7,7 @@
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
 **Primary notebook:** schematics-day-1.ipynb (Day 1 archive) / Day 2 Master Notebook
-**Last completed cell:** Cell 14 (Day 2 Master Execution)
+**Last completed cell:** Cell 19 (Day 2 Master Execution)
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
 
@@ -183,6 +183,9 @@
 | E-036 | Public Leaderboard validation of sub_004 | Macro F1 = 0.59183 (+0.00868 vs sub_002 0.58315, +0.04782 vs sub_001); new competition high; validates multimodal tabular-DL ensemble synergy | Kaggle LB | Kaggle Public LB evaluation | Observed |
 | E-037 | Audit Confounder Source Group Jere (Kruskal-Wallis Eta-squared) | Source group menjelaskan eta^2 = 0.2386 (23.86%) varians akustik Bondol Jawa (H=272.52, p=6.273e-56) dan 6.43% Kutilang (p=3.086e-09); bukti formal kebocoran mikrofon jika tanpa StratifiedGroupKFold | notebook jere Cell 5 / Day 2 Master Cell 6 | Kruskal-Wallis non-parametrik & Eta-squared effect size | Observed |
 | E-038 | Karakteristik Bioakustik Kandidat Unknown pada Fitur Welch PSD (Jere) | Sampel uji OOD kNN > P95 (14.25%) memiliki frekuensi dominan anjlok ke 1,359 Hz (vs in-dist 2,930 Hz) dan energi low-band <1 kHz melonjak 10.64% -> 19.33%; konfirmasi anomali spektral | notebook jere Cell 6 | Welch PSD (nperseg=2048) & k-NN (k=5) pada 8 fitur DSP | Observed |
+| E-039 | Triad-Tree Tabular Benchmark & Dual Blend Synergy (v2.0) | Standalone: LGBM 0.8475, XGBoost 0.8408, CatBoost 0.8322. 50/50 Dual Blend LGBM+XGBoost mencapai Global OOF Macro F1 = 0.8486 (Bondol 0.9497, Cendra 0.6552, Kutilang 0.9411); mengungguli seluruh standalone tree | Day 2 Master Cell 13-16 | 4-Fold StratifiedGroupKFold pada 818 fitur v2.0 | Observed |
+| E-040 | Retrained ConvNeXt-Tiny v2.0 Breakthrough Performance | Global OOF Macro F1 melonjak ke 0.9323 (+0.0415 vs v1.0 0.8908); Cendrawasih F1 meroket ke 0.9448 (+0.1132 vs v1.0 0.8316); Fold 1 perfect 1.0000; memvalidasi VAD windowing dan spectral subtraction | Day 2 Master Cell 18 | 4-Fold LP-FT 2-phase pada audio Preprocessing v2.0 | Observed |
+| E-041 | Retrained Swin-Tiny Transformer v2.0 Performance Surge | Global OOF Macro F1 melonjak ke 0.9098 (+0.0609 vs v1.0 0.8489); Cendrawasih F1 naik tajam ke 0.8671 (+0.1380 vs v1.0 0.7291); membuktikan shifted window attention pada spektrogram bersih | Day 2 Master Cell 19 | 4-Fold LP-FT 2-phase pada audio Preprocessing v2.0 | Observed |
 
 ## Methodology Design
 
@@ -209,7 +212,7 @@ Not Applicable at initial project planning phase.
 | eda_acoustic_profiles.png | Visualisasi 3-panel profil akustik dan separabilitas spektral untuk laporan | Passed |
 | eda_mel_spectrograms.png | Visualisasi mel-spectrogram komparatif 3 spesies untuk bab Preprocessing laporan | Passed |
 | schematics_day1_all_artifacts/planning day 1.md | Spesifikasi metodologi dan rencana eksperimen Day 1 (diarsipkan) | Passed |
-| planning day 2.md | Spesifikasi teknis Day 2 v2.0 (VAD, Triad-Tree, SNR-Gating, 3-Crop TTA, Two-Stage OOD, Full 24-Cell Master Blueprint) | Passed |
+| planning day 2.md | Spesifikasi teknis Day 2 v2.0 (VAD, Triad-Tree, 4 DL Backbones v2, Acoustic Dynamic Gating, 3-Crop TTA, Two-Stage OOD, Full 25-Cell Master Blueprint) | Passed |
 | schematics-day-1.ipynb | Notebook master terintegrasi 23 sel (EDA, Preprocessing, LGBM, B1-B4 DL, 5M Ensemble) | Passed |
 | schematics_day1_notebook.md | Transkrip lengkap markdown 23 cell dan seluruh output runtime Day 1 (174 KB) | Passed |
 | metadata_with_folds.csv | Dataset train metadata dengan kolom partisi 4-Fold StratifiedGroupKFold | Passed |
