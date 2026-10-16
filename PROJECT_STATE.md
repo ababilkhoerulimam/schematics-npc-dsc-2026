@@ -7,7 +7,7 @@
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
 **Primary notebook:** schematics-day-1.ipynb (Day 1 archive) / Day 2 Master Notebook
-**Last completed cell:** Cell 26 (Day 2 Master Execution - Submissions sub_005 and sub_006 Bundled)
+**Last completed cell:** Cell 27 (Day 2 Master Execution - sub_007 High-Harmonic Gate Bundled)
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
 
@@ -194,6 +194,7 @@
 | E-046 | Two-Stage Cascaded OOD Rejection & Test Distribution Locked | Ambang batas terkalibrasi p91.5 (tau=0.5473) menghasilkan Unknown sub_005 = 308 (37.84%) dan sub_006 = 351 (43.12%); Stage 2 Cendrawasih Prototype Shrinkage (tau=0.4214) memotong 37 ekses FP (129 -> 92 core, 11.30%); perbedaan 43 sampel terisolasi sempurna untuk pembuktian ablasi Ide 1 vs Ide 1+2 | Day 2 Master Cell 25-26 | In-Fold Cosine kNN-5 + Gated Uncertainty + Entropy Fusion | Observed |
 | E-047 | Public Leaderboard validation of sub_005 | Macro F1 = 0.55789 on 30% public LB; konfirmasi empiris bahwa tanpa Prototype Shrinkage Cendrawasih (130 kandidat, 15.97%), desis frekuensi rendah menyerap Unknown dan menjatuhkan presisi kelas minoritas | Kaggle LB | Kaggle Public LB evaluation | Observed |
 | E-048 | Public Leaderboard validation of sub_006 (New Peak LB 0.59462) | Macro F1 = 0.59462 (+0.03673 vs sub_005 0.55789, +0.00279 vs Day 1 sub_004 0.59183); new all-time high competition score; bukti empiris tak terbantahkan bahwa Adaptive Prototype Shrinkage (92 core Cendrawasih) + 3-Crop TTA mengangkat performa secara signifikan | Kaggle LB | Kaggle Public LB evaluation | Observed |
+| E-049 | sub_007 Bioacoustic High-Harmonic Gate & Dual-Manifold Shrinkage | Dual-manifold in-fold kNN (ConvNeXt 75% + Swin 25%) + High-Harmonic Deficit penalty mengunci Cendrawasih tepat di 70 sampel (8.60%, -22 ekses vs sub_006) dan Unknown di 387 sampel (47.54%); 44 sampel terkalibrasi ke zona paling defensible | Day 2 Master Cell 27 | Cell 27 execution | Observed |
 
 ## Methodology Design
 
@@ -252,6 +253,7 @@ Not Applicable at initial project planning phase.
 | experiment 4.csv | File submission keempat (814 baris, 5-model ensemble NLL blend, 37.71% Unknown) | Passed |
 | experiment 5.csv | File submission kelima (sub_005: SNR-Dynamic Gating 1-Crop, 37.84% Unknown) - LB 0.55789 | Passed |
 | experiment 6.csv | File submission keenam (sub_006: Dynamic Gating + 3-Crop TTA + Prototype Shrinkage, 43.12% Unknown) - Peak LB 0.59462 | Passed |
+| experiment 7.csv | File submission ketujuh (sub_007: Bioacoustic High-Harmonic Gate + Dual-Manifold Shrinkage, 70 Cendrawasih, 47.54% Unknown) | Passed |
 | submissions/sub_001_*/ | Bundel submission sub_001 (experiment 1.csv, test_predictions_detailed.csv, metrics.json) | Passed |
 | submissions/sub_002_*/ | Bundel submission sub_002 (experiment 2.csv, metrics.json) | Passed |
 | submissions/sub_003_*/ | Bundel submission sub_003 (experiment 3.csv, metrics.json) | Passed |
