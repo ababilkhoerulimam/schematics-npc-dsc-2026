@@ -47,13 +47,13 @@
 
 | Stage | Status | Evidence / Cell | Notes |
 |---|---|---|---|
-| Planning | Completed | Guidebook, repo, PREPROCESSING_PLAN.md v1.2 | Aturan kompetisi, rubrik 65/35, larangan data eksternal, arsitektur preprocessing & CNN locked |
+| Planning | Completed | Guidebook, repo, planning day 2.md v2.0 | Aturan kompetisi, rubrik 65/35, larangan data eksternal, arsitektur Day 2 locked |
 | Data quality and preparation | Completed | Cell 1-8, metadata_with_folds.csv | 4-Fold StratifiedGroupKFold locked, zero group leakage verified, audio specs clean |
 | EDA or statistical analysis | Completed | Cell 1-7 | Class balance, acoustic dynamics, spectral signatures, stereo correlation, high-freq audit, mel-spectrograms |
-| Feature engineering | Completed | Cell 9-10 | 32 kHz default log-mel & 792-dim tabular feature matrix extracted and cached |
+| Feature engineering | In Progress | Cell 9-10, planning day 2.md | Day 1 32kHz mel extracted; Day 2 VAD windowing and 818-dim tabular upgrade underway |
 | Modeling and validation | Completed | Cell 10-18 | Full 5-model portfolio trained: LGBM (0.8542), B1 EffNet (0.8392), B2 ConvNeXt (0.8908), B3 SE-ResNeXt (0.8560), B4 Swin (0.8489) |
 | Explanation and error analysis | Not Started | None | Pending OOF residual and misclassification audit |
-| Methodology design | Completed | PREPROCESSING_PLAN.md v1.2 | 6-phase architecture with 8 ablation experiments, LP-FT 2-phase, and 256-d bottleneck OOD |
+| Methodology design | In Progress | planning day 2.md v2.0 | 5-phase Day 2 architecture with VAD, Dual-Tree, SNR-Gating, 3-Crop TTA, and Cascaded OOD |
 | Delivery and export QA | In Progress | Cell 15-15c | sub_001 (LB 0.54401), sub_002 (LB 0.58315), sub_003 (LB 0.58313) evaluated |
 | Operational monitoring | Not Applicable | None | Batch Kaggle competition submission |
 
@@ -176,15 +176,15 @@
 
 ## Methodology Design
 
-**Method ID and version:** PREPROC-PLAN v1.2
+**Method ID and version:** PLAN-DAY2 v2.0
 
 **Maturity:** Proposal
 
-**Method spec:** PREPROCESSING_PLAN.md v1.2 (6 phases, 32 kHz default SR, ImageNet 2D CNN backbones with 256-d bottleneck OOD head, 8 ablation experiments)
+**Method spec:** planning day 2.md v2.0 (Audio Preprocessing v2.0, Dual-Tree Tabular Engine, SNR-Dynamic Gating, 3-Crop TTA, Two-Stage Cascaded OOD)
 
-**Case signature and baseline gap:** Open-set audio classification with IR=13.54, group-structured recordings, clipping artifacts, and zero Unknown labels in train. Standard closed-set classifiers fail on Unknown rejection; heavy audio transformers overfit on $N=83$ minority class.
+**Case signature and baseline gap:** Open-set audio classification with IR=13.54, group-structured recordings, clipping artifacts, and zero Unknown labels in train. Day 1 reached 0.59183 ceiling due to static 10s cropping, clipping saturation, and unweighted NLL bias.
 
-**Exact next experiment:** Cell 8 - Execute 4-Fold StratifiedGroupKFold partition with zero group leakage verification
+**Exact next experiment:** Execute Day 2 Action Plan starting with Slot 1 (sub_005: Quick-Win SNR-Dynamic Gated Blending and Two-Stage OOD Prototype Shrinkage on Day 1 artifacts)
 
 ## Model Drivers and Error Analysis
 
@@ -198,7 +198,8 @@ Not Applicable at initial project planning phase.
 | schematics-2026/sample_submission.csv | Ground truth submission schema and file_id list | Passed |
 | eda_acoustic_profiles.png | Visualisasi 3-panel profil akustik dan separabilitas spektral untuk laporan | Passed |
 | eda_mel_spectrograms.png | Visualisasi mel-spectrogram komparatif 3 spesies untuk bab Preprocessing laporan | Passed |
-| PREPROCESSING_PLAN.md | Arsitektur preprocessing & methodology v1.2 (32 kHz default, EfficientNet-B0/ConvNeXt-Tiny/ResNet-34, 256-d OOD bottleneck) | Passed |
+| schematics_day1_all_artifacts/planning day 1.md | Spesifikasi metodologi dan rencana eksperimen Day 1 (diarsipkan) | Passed |
+| planning day 2.md | Spesifikasi teknis Day 2 v2.0 (VAD, Dual-Tree, SNR-Gating, 3-Crop TTA, Two-Stage OOD) | Passed |
 | schematics-day-1.ipynb | Notebook master terintegrasi 23 sel (EDA, Preprocessing, LGBM, B1-B4 DL, 5M Ensemble) | Passed |
 | metadata_with_folds.csv | Dataset train metadata dengan kolom partisi 4-Fold StratifiedGroupKFold | Passed |
 | preprocess_config.json | Konfigurasi pipeline preprocessing dan model backbones v1.2 terkunci | Passed |
@@ -259,4 +260,4 @@ Not Applicable at initial project planning phase.
 
 ## Exact Next Action
 
-All 5 daily submissions exhausted (sub_001 0.54401, sub_002 0.58315, sub_003 0.58313, sub_004 0.59183 peak + 1 team mate morning sub). Export all artifacts to zip, document day 1 findings, and prepare offline experiments (ablation studies ABL-01 to ABL-08) and competition report drafting for tomorrow.
+Execute Day 2 Action Plan starting with Slot 1 (sub_005: Quick-Win SNR-Dynamic Gated Blending & Two-Stage OOD Prototype Shrinkage on Day 1 artifacts to establish baseline ablation), followed by Preprocessing v2.0 VAD and Dual-Tree Feature Matrix extraction.
