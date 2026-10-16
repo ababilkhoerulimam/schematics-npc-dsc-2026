@@ -100,8 +100,9 @@ Submissions follow an empirical validation protocol on Kaggle:
 | **sub_003** | `experiment 3.csv` | Sweet-spot p92 Threshold Probe | 28.01% (228) | 0.58313 | Plateau Identified |
 | **sub_004** | `experiment 4.csv` | 5-Model Multi-Paradigm Ensemble Blend | 37.71% (307) | 0.59183 | Day 1 Benchmark |
 | **sub_005** | `experiment 5.csv` | Preprocessing v2.0 + Dynamic Gating (1-Crop) | 37.84% (308) | 0.55789 | Pure Ide 1 Isolation |
-| **sub_006** | `experiment 6.csv` | The Elite Triad + Dynamic Gating + 3-Crop TTA + Prototype Shrinkage | 43.12% (351) | **0.59462** | **New Peak All-Time (+0.03673 vs sub_005)** |
-| **sub_007** | `experiment 7.csv` | Dual-Manifold kNN + Bioacoustic High-Harmonic Gate (70 Cendra) | 47.54% (387) | 0.58805 | Over-rejection concavity boundary |
+| **sub_006** | `experiment 6.csv` | The Elite Triad + Dynamic Gating + 3-Crop TTA + Prototype Shrinkage | 43.12% (351) | **0.59462** | **Peak Benchmark** |
+| **sub_007** | `experiment 7.csv` | Dual-Manifold kNN + Bioacoustic High-Harmonic Gate (70 Cendra) | 47.54% (387) | 0.58805 | Over-rejection boundary |
+| **sub_008** | `experiment 8.csv` | Golden Sweet-Spot Interpolation (82 Cendrawasih, 43.86% Unknown) | 43.86% (357) | Pending | Sweet-Spot Equilibrium |
 
 ## Repository Structure
 
