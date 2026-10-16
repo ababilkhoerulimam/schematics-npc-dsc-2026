@@ -231,6 +231,7 @@ Not Applicable at initial project planning phase.
 | submissions/sub_002_*/ | Bundel submission sub_002 (experiment 2.csv, metrics.json) | Passed |
 | submissions/sub_003_*/ | Bundel submission sub_003 (experiment 3.csv, metrics.json) | Passed |
 | submissions/sub_004_*/ | Bundel submission sub_004 (experiment 4.csv) | Passed |
+| day1.md | Laporan teknis terpadu hari ke-1 lengkap untuk analisis AI (20k karakter) | Passed |
 | schematics_day1_all_artifacts/ | Folder ekstraksi seluruh model weights, metrics, OOF numpy arrays Day 1 | Passed |
 
 ## Operational Monitoring
