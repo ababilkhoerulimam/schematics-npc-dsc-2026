@@ -101,7 +101,7 @@ Submissions follow an empirical validation protocol on Kaggle:
 | **sub_004** | `experiment 4.csv` | 5-Model Multi-Paradigm Ensemble Blend | 37.71% (307) | 0.59183 | Day 1 Benchmark |
 | **sub_005** | `experiment 5.csv` | Preprocessing v2.0 + Dynamic Gating (1-Crop) | 37.84% (308) | 0.55789 | Pure Ide 1 Isolation |
 | **sub_006** | `experiment 6.csv` | The Elite Triad + Dynamic Gating + 3-Crop TTA + Prototype Shrinkage | 43.12% (351) | **0.59462** | **New Peak All-Time (+0.03673 vs sub_005)** |
-| **sub_007** | `experiment 7.csv` | Dual-Manifold kNN + Bioacoustic High-Harmonic Gate (70 Cendra) | 47.54% (387) | Pending | Sweet-Spot Target 70 Cendrawasih |
+| **sub_007** | `experiment 7.csv` | Dual-Manifold kNN + Bioacoustic High-Harmonic Gate (70 Cendra) | 47.54% (387) | 0.58805 | Over-rejection concavity boundary |
 
 ## Repository Structure
 
