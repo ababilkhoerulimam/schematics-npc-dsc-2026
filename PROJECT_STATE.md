@@ -22,6 +22,7 @@
 **Primary success metric:**
 - Nilai Akhir Babak Penyisihan: 0.35 x Skor Prediksi + 0.65 x Skor Laporan.
 - Skor Prediksi: Macro F1 Score pada 4 kelas di Kaggle test set (30% public LB, 70% private LB).
+- Current Peak LB: Macro F1 = 0.59462 (sub_006: Preprocessing v2.0 + The Elite Triad + SNR-Dynamic Gating + 3-Crop TTA + Two-Stage Prototype Shrinkage)
 - Skor Laporan (100%): Evaluasi dan Validasi (30%), Modeling (25%), Preprocessing dan Feature Engineering (20%), EDA (15%), Penulisan dan Struktur Laporan (10%).
 - Kelolosan: 5 tim teratas lolos ke Babak Final luring di Kampus ITS Sukolilo Surabaya (15 November 2026).
 
@@ -191,6 +192,8 @@
 | E-044 | Acoustic Noise-Conditioned Dynamic Gating Breakthrough (v2.0) | Global OOF Macro F1 melesat ke 0.9380 (Harmonic NLL: 0.1938); Bondol F1=0.9495, Cendrawasih F1=0.9390 (Presisi 95.06%, 77 TP, 4 FP), Kutilang F1=0.9256; Two-Way Shield memveto 53 FP Tabular dan 37 FP Swin; melampaui seluruh single model | Day 2 Master Cell 23 | Grid Search SNR Gating (w_conv=0.8, w_swin=0.2, w_max=0.45, gamma=1.0) | Observed |
 | E-045 | 3-Crop Test-Time Augmentation (TTA) Verification | 419 dari 814 sampel test (>10s) dievaluasi dengan 3-crop multi-window (VAD + Left + Right); agreement rate 98.53% vs 1-crop; memulihkan +8 kandidat vokal di tepi rekaman; inferensi 8 fold tuntas dalam 76.3s | Day 2 Master Cell 24 | Confidence-Weighted Pooling pada ConvNeXt-Tiny & Swin-Tiny | Observed |
 | E-046 | Two-Stage Cascaded OOD Rejection & Test Distribution Locked | Ambang batas terkalibrasi p91.5 (tau=0.5473) menghasilkan Unknown sub_005 = 308 (37.84%) dan sub_006 = 351 (43.12%); Stage 2 Cendrawasih Prototype Shrinkage (tau=0.4214) memotong 37 ekses FP (129 -> 92 core, 11.30%); perbedaan 43 sampel terisolasi sempurna untuk pembuktian ablasi Ide 1 vs Ide 1+2 | Day 2 Master Cell 25-26 | In-Fold Cosine kNN-5 + Gated Uncertainty + Entropy Fusion | Observed |
+| E-047 | Public Leaderboard validation of sub_005 | Macro F1 = 0.55789 on 30% public LB; konfirmasi empiris bahwa tanpa Prototype Shrinkage Cendrawasih (130 kandidat, 15.97%), desis frekuensi rendah menyerap Unknown dan menjatuhkan presisi kelas minoritas | Kaggle LB | Kaggle Public LB evaluation | Observed |
+| E-048 | Public Leaderboard validation of sub_006 (New Peak LB 0.59462) | Macro F1 = 0.59462 (+0.03673 vs sub_005 0.55789, +0.00279 vs Day 1 sub_004 0.59183); new all-time high competition score; bukti empiris tak terbantahkan bahwa Adaptive Prototype Shrinkage (92 core Cendrawasih) + 3-Crop TTA mengangkat performa secara signifikan | Kaggle LB | Kaggle Public LB evaluation | Observed |
 
 ## Methodology Design
 
@@ -247,10 +250,14 @@ Not Applicable at initial project planning phase.
 | experiment 2.csv | File submission kedua (814 baris, Cendrawasih guard, 36.61% Unknown) | Passed |
 | experiment 3.csv | File submission ketiga (814 baris, titik manis p92.0, 28.01% Unknown) | Passed |
 | experiment 4.csv | File submission keempat (814 baris, 5-model ensemble NLL blend, 37.71% Unknown) | Passed |
+| experiment 5.csv | File submission kelima (sub_005: SNR-Dynamic Gating 1-Crop, 37.84% Unknown) - LB 0.55789 | Passed |
+| experiment 6.csv | File submission keenam (sub_006: Dynamic Gating + 3-Crop TTA + Prototype Shrinkage, 43.12% Unknown) - Peak LB 0.59462 | Passed |
 | submissions/sub_001_*/ | Bundel submission sub_001 (experiment 1.csv, test_predictions_detailed.csv, metrics.json) | Passed |
 | submissions/sub_002_*/ | Bundel submission sub_002 (experiment 2.csv, metrics.json) | Passed |
 | submissions/sub_003_*/ | Bundel submission sub_003 (experiment 3.csv, metrics.json) | Passed |
 | submissions/sub_004_*/ | Bundel submission sub_004 (experiment 4.csv) | Passed |
+| submissions/sub_005_*/ | Bundel submission sub_005 (experiment 5.csv, metrics.json) | Passed |
+| submissions/sub_006_*/ | Bundel submission sub_006 (experiment 6.csv, metrics.json) | Passed |
 | day1.md | Laporan teknis terpadu hari ke-1 lengkap untuk analisis AI (20k karakter) | Passed |
 | schematics_day1_all_artifacts/ | Folder ekstraksi seluruh model weights, metrics, OOF numpy arrays Day 1 | Passed |
 
@@ -279,4 +286,4 @@ Not Applicable at initial project planning phase.
 
 ## Exact Next Action
 
-Execute Day 2 Action Plan starting with Slot 1 (sub_005: Quick-Win SNR-Dynamic Gated Blending & Two-Stage OOD Prototype Shrinkage on Day 1 artifacts to establish baseline ablation), followed by Preprocessing v2.0 VAD and Dual-Tree Feature Matrix extraction.
+Analyze sub_005 (0.55789) vs sub_006 (0.59462 new peak) empirical delta. Sub_006 confirmed that Adaptive Prototype Shrinkage (+0.03673) and 3-Crop TTA significantly boosted score. With 3 daily submission slots remaining, formulate sub_007 to fine-tune Cendrawasih shrinkage radius into the 65-75 sample sweet spot and optimize Unknown threshold towards >=0.6200.

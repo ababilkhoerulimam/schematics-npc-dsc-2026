@@ -98,7 +98,9 @@ Submissions follow an empirical validation protocol on Kaggle:
 | **sub_001** | `experiment 1.csv` | LightGBM + EffNet-B0 + Global Tau (p95) | 12.04% (98) | 0.54401 | Anchor Baseline |
 | **sub_002** | `experiment 2.csv` | Cosine kNN-5 + Cendrawasih Guard + p90 Probe | 36.61% (298) | 0.58315 | +0.03914 jump |
 | **sub_003** | `experiment 3.csv` | Sweet-spot p92 Threshold Probe | 28.01% (228) | 0.58313 | Plateau Identified |
-| **sub_004** | `experiment 4.csv` | 5-Model Multi-Paradigm Ensemble Blend | 37.71% (307) | **0.59183** | **Current Benchmark** |
+| **sub_004** | `experiment 4.csv` | 5-Model Multi-Paradigm Ensemble Blend | 37.71% (307) | 0.59183 | Day 1 Benchmark |
+| **sub_005** | `experiment 5.csv` | Preprocessing v2.0 + Dynamic Gating (1-Crop) | 37.84% (308) | 0.55789 | Pure Ide 1 Isolation |
+| **sub_006** | `experiment 6.csv` | The Elite Triad + Dynamic Gating + 3-Crop TTA + Prototype Shrinkage | 43.12% (351) | **0.59462** | **New Peak All-Time (+0.03673 vs sub_005)** |
 
 ## Repository Structure
 
