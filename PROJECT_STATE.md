@@ -28,9 +28,10 @@
 
 **Constraints:**
 - Periode penyisihan: 15-25 Oktober 2026 di Kaggle. Maksimal 5 submission per hari.
-- DILARANG menggunakan data tambahan di luar dataset yang disediakan panitia (strict zero external data).
+- DILARANG menggunakan data tambahan di luar dataset yang disediakan panitia (strict zero external raw audio data).
+- Model pre-trained dari repositori/pustaka publik (timm, Hugging Face, TensorFlow Hub, termasuk bioacoustic foundation models seperti BirdNET / Google Perch) DIPERBOLEHKAN sesuai Guidebook Hal 10 dengan syarat mencantumkan identitas dan versi model secara transparan di notebook dan laporan, serta dapat dipertanggungjawabkan prosesnya.
 - DILARANG menggunakan full AutoML atau solusi yang tidak dapat dijelaskan prosesnya.
-- Model Hugging Face / timm wajib melampirkan identitas/versi model yang jelas.
+- Model Hugging Face / timm / external pre-trained wajib melampirkan identitas/versi model yang jelas (serta access token jika gated).
 - Reprodusibilitas mutlak: notebook wajib menggunakan seed/random_state. Perbedaan signifikan antara skor notebook dan skor Kaggle berisiko diskualifikasi.
 - Berkas penyisihan wajib: DatSci_NamaTim_Notebook.ipynb, DatSci_NamaTim_Laporan.pdf (maks 10 halaman, maks 10 MB, Bahasa Indonesia baku), submission.csv, dan DatSci_NamaTim_Pendukung.zip (opsional).
 
@@ -86,12 +87,12 @@
 - **Evidence:** Panduan resmi Halaman 9-10 (Penilaian Babak Penyisihan: 0.35 Skor Prediksi + 0.65 Skor Laporan).
 - **Revisit when:** Not Applicable.
 
-### D-003: Strict Compliance on Prohibited External Data and AutoML
+### D-003: Compliance on Permitted Pretrained Models and Prohibited Raw External Data
 
-- **Chosen:** Menggunakan hanya dataset resmi 1.826 train audio, seed deterministik, dan arsitektur yang transparan.
-- **Alternatives considered:** Pseudo-labeling dataset burung eksternal (e.g. Xeno-Canto), full AutoML.
-- **Why:** Guidebook halaman 8 dan 14 melarang data tambahan di luar dataset panitia dan melarang full AutoML dengan sanksi diskualifikasi langsung.
-- **Evidence:** Halaman 8 dan 14 Buku Panduan.
+- **Chosen:** Menggunakan dataset resmi 1.826 train audio untuk fine-tuning dan evaluasi. Penggunaan model pre-trained publik (ImageNet-1k, Hugging Face, maupun foundation model bioakustik seperti BirdNET dan Google Perch) diperbolehkan berdasarkan Guidebook Hal 10 selama bukan penambahan raw audio data baru ke dalam dataset panitia dan identitas/versi model dicantumkan secara transparan.
+- **Alternatives considered:** Penambahan raw audio file dari Xeno-Canto/eBird (dilarang mutlak), full AutoML (dilarang).
+- **Why:** Guidebook Halaman 9 melarang penambahan file data di luar dataset resmi, namun Halaman 10 secara eksplisit mengizinkan tools, library, framework, dan model Hugging Face publik selama identitas model dapat dipertanggungjawabkan dan prosesnya transparan (bukan black-box full AutoML).
+- **Evidence:** Halaman 9-10 dan 15 Buku Panduan.
 - **Revisit when:** Not Applicable.
 
 ### D-004: Bundled Submission Tracking Protocol
@@ -197,6 +198,7 @@
 | E-049 | sub_007 Bioacoustic High-Harmonic Gate & Dual-Manifold Shrinkage | Dual-manifold in-fold kNN (ConvNeXt 75% + Swin 25%) + High-Harmonic Deficit penalty mengunci Cendrawasih tepat di 70 sampel (8.60%, -22 ekses vs sub_006) dan Unknown di 387 sampel (47.54%); 44 sampel terkalibrasi ke zona paling defensible | Day 2 Master Cell 27 | Cell 27 execution | Observed |
 | E-050 | Public Leaderboard validation of sub_007 | Macro F1 = 0.58805 on 30% public LB; membuktikan kurva konkavitas batas penolakan: rasio Unknown 43.12% (sub_006) adalah titik optimum global; pengetatan berlebih ke 47.54% Unknown (sub_007) mulai memotong recall Bondol Jawa (-18 sampel) | Kaggle LB | Kaggle Public LB evaluation | Observed |
 | E-051 | Public Leaderboard validation of sub_008 | Macro F1 = 0.58356 on 30% public LB; mengonfirmasi bahwa menaikkan threshold global ke p92.0 (tau=0.5924) pada test_ood komposit terlalu longgar untuk Stage 1, membuktikan sub_006 (p91.5, tau=0.5473, 92 Cendrawasih) adalah titik manis definitif | Kaggle LB | Kaggle Public LB evaluation | Observed |
+| E-052 | Legalitas Penggunaan Pretrained Bioacoustic Models (BirdNET/Perch) | Guidebook Hal 10 eksplisit mengizinkan model, tools, library, dan gated repository Hugging Face publik selama versi dicantumkan dan proses transparan; yang dilarang adalah raw audio eksternal dan full AutoML | Dokumen Resmi | NPC Guidebook Hal 9-10 & 15 | Observed |
 
 ## Methodology Design
 
