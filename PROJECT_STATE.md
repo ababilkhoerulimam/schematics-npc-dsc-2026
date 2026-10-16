@@ -291,4 +291,4 @@ Not Applicable at initial project planning phase.
 
 ## Exact Next Action
 
-All 4 planned Day 2 submission iterations evaluated (sub_005 0.55789, sub_006 0.59462 peak, sub_007 0.58805, sub_008 0.58356). sub_006 locked as the definitive final competition model. 1 emergency submission reserved. Cease all model execution and transition 100% effort to authoring the 10-page final competition report (65% evaluation weight) in Indonesian.
+Day 2 Master Execution completed. All 4 DL backbones retrained on Preprocessing v2.0, Triad Tabular built, SNR-Dynamic Gating validated (OOF Macro F1 0.9380), 3-Crop TTA executed, and Kaggle submissions sub_005 (0.55789), sub_006 (0.59462 new peak), sub_007 (0.58805), and sub_008 (0.58356) evaluated. Sub_006 locked as final model. Day 2 artifacts exported to zip. Next session: verify foundation model (Google Perch) rules with competition organizers, then execute final competition technical report authoring in Indonesian (65% weight).
