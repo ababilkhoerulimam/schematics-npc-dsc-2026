@@ -88,7 +88,7 @@ Apply a 4th-order Butterworth high-pass filter at 300 Hz (or set $f_{\min} = 300
 
 ---
 
-## 4. Fase 2: Upgraded Tabular Feature Matrix (~818 Dims) & Dual-Tree Ensemble
+## 4. Fase 2: Upgraded Tabular Feature Matrix (~818 Dims) & Triad-Tree Ensemble
 
 ### Feature Matrix Enhancements (from 792 to ~818 features)
 1. **Three High-Harmonic Bimodal Ratios (Capturing Cendrawasih up to 16 kHz):**
@@ -98,10 +98,11 @@ Apply a 4th-order Butterworth high-pass filter at 300 Hz (or set $f_{\min} = 300
 2. **Harmonic-Temporal Rhythm Index:** Autocorrelation of dominant mel bins across lags of 0.1s to 0.8s, separating rhythmic biological chirps from continuous abiotic noise (rain, wind).
 3. **Distortion Descriptors:** `clipping_ratio` and `crest_factor`.
 
-### Dual-Tree Head-to-Head & Blending
-* **Model 1: LightGBM:** Leaf-wise tree growth, `class_weight='balanced'`, 1000 estimators, learning rate 0.03.
-* **Model 2: XGBoost:** Depth-wise tree growth (`max_depth=6`), GPU histogram tree method, balanced sample weights.
-* **Ensemble Strategy:** Rather than discarding the runner-up, combine 50% LightGBM + 50% XGBoost probabilities. Blending leaf-wise and depth-wise decision boundaries reduces variance on extreme minority classes.
+### Triad-Tree Head-to-Head & Blending
+* **Model 1: LightGBM (Track A1):** Leaf-wise tree growth, `class_weight='balanced'`, 1000 estimators, learning rate 0.03.
+* **Model 2: XGBoost (Track A2):** Depth-wise tree growth (`max_depth=6`), GPU histogram tree method, balanced sample weights.
+* **Model 3: CatBoost (Track A3):** Symmetric oblivious trees (depth=6), GPU acceleration (`task_type='GPU'`), balanced sample weights. Oblivious trees provide maximum invariance against overfitting on high-dimensional noisy continuous features.
+* **Ensemble Strategy:** Rather than discarding any model, combine LightGBM (asymmetric leaf-wise) + XGBoost (level-wise) + CatBoost (symmetric oblivious) probabilities. Blending three distinct decision boundary paradigms minimizes prediction variance on the extreme minority class (Cendrawasih).
 
 ---
 
@@ -197,7 +198,7 @@ Each experiment directly populates specific rubric requirements in the 10-page f
 
 ## 10. Rencana Eksekusi Lengkap Cell-by-Cell Notebook Day 2 (End-to-End Master)
 
-Notebook master Day 2 dirancang berjalan secara mandiri dan utuh dari nol (Cell 1) hingga submission final (Cell 23). Struktur ini mengintegrasikan seluruh tahapan EDA deep-dive Day 1, penambahan uji formal Kruskal-Wallis & Confounder Effect Size (Jere), Preprocessing v2.0 (VAD + Spectral Subtraction + Active RMS), Dual-Tree Tabular (LightGBM + XGBoost), Retraining Deep Learning (ConvNeXt-Tiny + Swin-Tiny), Multi-View Ensembling, Dynamic Gating, 3-Crop TTA, hingga Two-Stage Cascaded OOD.
+Notebook master Day 2 dirancang berjalan secara mandiri dan utuh dari nol (Cell 1) hingga submission final (Cell 24). Struktur ini mengintegrasikan seluruh tahapan EDA deep-dive Day 1, penambahan uji formal Kruskal-Wallis & Confounder Effect Size (Jere), Preprocessing v2.0 (VAD + Spectral Subtraction + Active RMS), Dual-Tree Tabular (LightGBM + XGBoost), Retraining Deep Learning (ConvNeXt-Tiny + Swin-Tiny), Multi-View Ensembling, Dynamic Gating, 3-Crop TTA, hingga Two-Stage Cascaded OOD.
 
 ---
 
@@ -267,7 +268,7 @@ Notebook master Day 2 dirancang berjalan secara mandiri dan utuh dari nol (Cell 
 
 ---
 
-### Bagian III: Feature Engineering & Dual-Tree Tabular Engine (Cell 12 s.d. Cell 15)
+### Bagian III: Feature Engineering & Triad-Tree Tabular Engine (Cell 12 s.d. Cell 16)
 
 * **Cell 12: Ekstraksi Fitur Tabular Bioakustik v2.0 (~818 Dimensi)**
   * *Operasi:* Ekstraksi matriks fitur kaya informasi bioakustik pada 1,826 train dan 814 test audio:
@@ -281,59 +282,63 @@ Notebook master Day 2 dirancang berjalan secara mandiri dan utuh dari nol (Cell 
 
 * **Cell 13: Track A1 - LightGBM GBDT Training (4-Fold)**
   * *Operasi:* Melatih 4 model LightGBM pada partisi 4-Fold StratifiedGroupKFold (`class_weight='balanced'`, `n_estimators=1000`, `learning_rate=0.03`, early stopping 50).
-  * *Output:* Menyimpan `oof_track_a1_lgbm_v2.csv`, probabilitas test `test_p_lgbm_v2.npy`, dan mencetak Global OOF Macro F1 serta F1 per kelas.
+  * *Output:* Menyimpan `oof_track_a1_lgbm_v2.csv`, `oof_p_lgbm_v2.npy`, probabilitas test `test_p_lgbm_v2.npy`, dan mencetak Global OOF Macro F1 serta F1 per kelas.
 
 * **Cell 14: Track A2 - XGBoost GPU Training (4-Fold)**
-  * *Operasi:* Melatih 4 model XGBoost dengan metode histogram GPU (`tree_method='hist'`, `max_depth=6`, `subsample=0.8`, `colsample_bytree=0.8`, `learning_rate=0.03`, sample weight invers frekuensi kelas).
-  * *Output:* Menyimpan `oof_track_a2_xgboost_v2.csv`, probabilitas test `test_p_xgb_v2.npy`, dan mencetak Global OOF Macro F1 serta F1 per kelas.
+  * *Operasi:* Melatih 4 model XGBoost dengan metode histogram GPU (`tree_method='hist'`, `max_depth=6`, `subsample=0.8`, `colsample_bytree=0.8`, `learning_rate=0.03`, sample weight seimbang).
+  * *Output:* Menyimpan `oof_track_a2_xgboost_v2.csv`, `oof_p_xgb_v2.npy`, probabilitas test `test_p_xgb_v2.npy`, dan mencetak Global OOF Macro F1 serta F1 per kelas.
 
-* **Cell 15: Dual-Tree Tabular Evaluation & 50-50 Blend**
-  * *Operasi:* Evaluasi komparatif LightGBM (leaf-wise) vs XGBoost (depth-wise). Menggabungkan probabilitas 50% LightGBM + 50% XGBoost untuk menekan varians keputusan pada kelas minoritas Cendrawasih.
-  * *Output:* Menyimpan probabilitas gabungan `oof_p_tabular_v2.npy` dan `test_p_tabular_v2.npy`.
+* **Cell 15: Track A3 - CatBoost GPU Training (4-Fold)**
+  * *Operasi:* Melatih 4 model CatBoost dengan pohon simetris (*oblivious trees*, depth 6) pada GPU (`task_type='GPU'`, `learning_rate=0.04`, sample weight seimbang).
+  * *Output:* Menyimpan `oof_track_a3_catboost_v2.csv`, `oof_p_catboost_v2.npy`, probabilitas test `test_p_catboost_v2.npy`, dan mencetak Global OOF Macro F1 serta F1 per kelas.
+
+* **Cell 16: Triad-Tree Tabular Evaluation & Optimal Blend**
+  * *Operasi:* Evaluasi komparatif 3 paradigma pohon: LightGBM (leaf-wise), XGBoost (depth-wise), dan CatBoost (symmetric oblivious). Mengoptimalkan bobot gabungan tabular via Macro F1 Nelder-Mead atau weighted average.
+  * *Output:* Matriks probabilitas gabungan tabular `oof_p_tabular_v2.npy` dan `test_p_tabular_v2.npy`.
 
 ---
 
-### Bagian IV: Deep Learning Retraining on Cleaned Manifolds (Cell 16 s.d. Cell 18)
+### Bagian IV: Deep Learning Retraining on Cleaned Manifolds (Cell 17 s.d. Cell 19)
 
-* **Cell 16: Deep Learning GPU Frontend & BirdChirpNet v2 Architecture**
+* **Cell 17: Deep Learning GPU Frontend & BirdChirpNet v2 Architecture**
   * *Operasi:* Modul PyTorch STFT GPU frontend terintegrasi dengan spectral subtraction. Kelas arsitektur `BirdChirpNetV2` (mendukung ConvNeXt-Tiny dan Swin-Tiny, GeM pooling adaptif $p=3.0$, bottleneck head 256-d L2-normalized).
   * *Loss Function:* `ClassBalancedFocalLoss` ($\gamma=2.0, \beta=0.99, \text{smoothing}=0.05$).
   * *Output:* Inisialisasi model siap latih dan verifikasi forward pass tensor audio `(32, 320000)`.
 
-* **Cell 17: Track B2 Retraining - ConvNeXt-Tiny with Jittered VAD (4-Fold)**
+* **Cell 18: Track B2 Retraining - ConvNeXt-Tiny with Jittered VAD (4-Fold)**
   * *Operasi:* Melatih ulang ConvNeXt-Tiny (~28.0M params) dengan protokol LP-FT 2-phase (5 epoch Linear Probing + 18 epoch Fine-Tuning) menggunakan `Energy-Biased Jittered Cropping` ($\pm 1.5\text{s}$). Waveform di-cache di RAM.
   * *Output:* Menyimpan model weights di `checkpoints_b2_v2_convnext_tiny/`, probabilitas OOF `oof_b2_v2_probs.npy`, embedding OOF `oof_b2_v2_emb256d.npy`, dan reference train embeddings `train_fold_b2_v2_emb256d.pt`.
 
-* **Cell 18: Track B4 Retraining - Swin-Tiny Shifted Window Attention (4-Fold)**
+* **Cell 19: Track B4 Retraining - Swin-Tiny Shifted Window Attention (4-Fold)**
   * *Operasi:* Melatih ulang Swin-Tiny (~28.3M params) pada spektrogram hasil Preprocessing v2.0 menggunakan protokol LP-FT 2-phase.
   * *Output:* Menyimpan model weights di `checkpoints_b4_v2_swin_tiny/`, probabilitas OOF `oof_b4_v2_probs.npy`, dan embedding OOF `oof_b4_v2_emb256d.npy`.
 
 ---
 
-### Bagian V: Multi-View Ensembling, Dynamic Gating, TTA, & OOD Rejection (Cell 19 s.d. Cell 23)
+### Bagian V: Multi-View Ensembling, Dynamic Gating, TTA, & OOD Rejection (Cell 20 s.d. Cell 24)
 
-* **Cell 19: Cross-Preprocessing Multi-View Integration & Macro-Loss Alignment**
+* **Cell 20: Cross-Preprocessing Multi-View Integration & Macro-Loss Alignment**
   * *Operasi:* Memuat probabilitas OOF dan test set dari checkpoint Day 1 **SE-ResNeXt-50 (Track B3)** dan **EfficientNet-B0 (Track B1)**. Menggabungkan model yang dilatih pada Preprocessing v1.0 dan v2.0.
-  * *Macro Alignment:* Mengoptimalkan bobot 5 model menggunakan Class-Harmonic Loss via Nelder-Mead (bukan NLL unweighted) untuk menjamin F1 Cendrawasih tetap $\ge 0.80$.
+  * *Macro Alignment:* Mengoptimalkan bobot ensemble menggunakan Class-Harmonic Loss via Nelder-Mead (bukan NLL unweighted) untuk menjamin F1 Cendrawasih tetap $\ge 0.80$.
   * *Output:* Bobot optimal ensemble $w_{\text{opt}}$ dan skor Global OOF Macro F1 3-kelas tertutup.
 
-* **Cell 20: SNR-Dynamic Gated Blending**
+* **Cell 21: SNR-Dynamic Gated Blending**
   * *Operasi:* Menghitung Indeks Kualitas Sinyal $\text{SNR}_{\text{proxy}}(x_i) \in [0, 1]$ dari Spectral Flatness dan active RMS.
-  * *Gating Dinamis:* Menginterpolasi bobot Tabular Dual-Tree ($w_{\text{Tab}}$) dan Deep Learning ($w_{\text{DL}}$) secara dinamis per sampel audio.
+  * *Gating Dinamis:* Menginterpolasi bobot Tabular Triad-Tree ($w_{\text{Tab}}$) dan Deep Learning ($w_{\text{DL}}$) secara dinamis per sampel audio.
   * *Output:* Skor evaluasi OOF dinamis (`dynamic_gating_oof_macro_f1`).
 
-* **Cell 21: 3-Crop Test-Time Augmentation (TTA) Test Inference**
+* **Cell 22: 3-Crop Test-Time Augmentation (TTA) Test Inference**
   * *Operasi:* Inferensi test set pada 814 rekaman menggunakan 3-Crop Multi-Window (Left $0\text{--}10\text{s}$, Center, Right $(L-10)\text{--}L$) untuk seluruh model deep learning aktif.
   * *Agregasi:* Confidence-weighted softmax pooling untuk probabilitas kelas dan L2-normalized mean pooling untuk vektor embedding 256-d.
   * *Output:* Matriks probabilitas uji TTA dan matriks embedding uji TTA per fold.
 
-* **Cell 22: Two-Stage Cascaded OOD Rejection Engine**
+* **Cell 23: Two-Stage Cascaded OOD Rejection Engine**
   * *Operasi:*
     - *Stage 1 (Global OOD Filter):* Menghitung jarak Cosine kNN-5 pada embedding ConvNeXt-Tiny 256-d, digabung dengan Gated Softmax Entropy. Menetapkan ambang $\tau_{\text{global}}$ untuk menangkap ~34% s.d. 37% Unknown.
     - *Stage 2 (Adaptive Prototype Shrinkage Cendrawasih):* Mengunci radius penerimaan kelas Cendrawasih pada persentil ke-84 data training. Calon Cendrawasih yang berada di luar radius dialihkan ke Unknown.
   * *Output:* Audit sebaran prediksi 4 kelas dan verifikasi jumlah Unknown.
 
-* **Cell 23: Final Submission Assembly, Verification, & Bundling**
+* **Cell 24: Final Submission Assembly, Verification, & Bundling**
   * *Operasi:* Menyusun DataFrame submission final (`file_id`, `label`).
   * *Pemeriksaan Integritas:*
     1. Tepat 814 baris.

@@ -1,13 +1,13 @@
 # Project State: Schematics NPC DSC 2026 - Bird Chirp Openset Classification
 
 **Schema version:** 1.1
-**Last updated:** 2026-10-15
+**Last updated:** 2026-10-16
 **Status:** In Progress
 **Current phase:** Planning -> Feature Engineering & Partitioning
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
-**Primary notebook:** schematics-day-1.ipynb
-**Last completed cell:** Cell 19
+**Primary notebook:** schematics-day-1.ipynb (Day 1 archive) / Day 2 Master Notebook
+**Last completed cell:** Cell 14 (Day 2 Master Execution)
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
 
@@ -158,7 +158,7 @@
 | E-011 | Class imbalance ratio | IR = 13.54 (Bondol Jawa / Cendrawasih), Shannon entropy = 1.163 bits (norm: 0.734) | Cell 3 | Cell output | Observed |
 | E-012 | Exact hash deduplication | 100% unique in train (1826/1826) and test (814/814), zero exact leakage | Cell 3 | SHA256 audit | Observed |
 | E-013 | Duration shift test | KS statistic 0.0302, p-value 0.6695, Wasserstein distance 0.0892s (no shift) | Cell 3 | Scipy stats | Observed |
-| E-014 | Group cardinality range | Cendrawasih groups: 3 to 35; Kutilang: 132 to 178; Bondol: 58 to 336 | Cell 3 | Group groupby | Observed |
+| E-014 | Group cardinality range | Cendrawasih: [3, 16, 29, 35] (total 83); Kutilang: [132, 143, 166, 178] (total 619); Bondol: [58, 82, 117, 123, 176, 232, 336] (total 1124) | Cell 3 | Group groupby | Observed |
 | E-015 | Acoustic signal dynamics | Clipping rate 40-55%, silence ~10%, Kutilang ZCR (0.2899) lower than Cendrawasih (0.3699) and Bondol (0.3483) | Cell 4 | Audio loader probe | Observed |
 | E-016 | Spectral power band signatures | Kutilang dominant in 2-4kHz (57.2%); Bondol broad in 2-6kHz (64.5%); Cendrawasih high in 0-2kHz (44.0%) and 6-8kHz (14.7%) | Cell 5 | Welch PSD decomposition | Observed |
 | E-017 | High-frequency power audit | 16-24kHz contains only 0.11-1.22% power; 8-16kHz holds up to 9.08% power in Cendrawasih; 0-8kHz contains >90.7% power | Cell 7 | 48kHz Welch PSD | Observed |
@@ -181,7 +181,7 @@
 | E-034 | Track B4 Swin-Tiny Transformer Global OOF Macro F1 | 0.8489; Cendrawasih F1 0.7291; Fold 0 F1 0.9747; completes 5-family diverse portfolio | Cell 18 | LP-FT 2-phase on 4-Fold StratifiedGroupKFold | Observed |
 | E-035 | sub_004 5-Model Ensemble and Test Inference | NLL-weighted blend (LGBM 0.683, ConvNeXt 0.207, Swin 0.111); OOF Macro F1=0.8670; Unknown 307 (37.71%), Cendrawasih 76 (9.34%), Kutilang 227, Bondol 204 | Cell 19 | 5-model NLL blend + fold-safe kNN OOD | Observed |
 | E-036 | Public Leaderboard validation of sub_004 | Macro F1 = 0.59183 (+0.00868 vs sub_002 0.58315, +0.04782 vs sub_001); new competition high; validates multimodal tabular-DL ensemble synergy | Kaggle LB | Kaggle Public LB evaluation | Observed |
-| E-037 | Audit Confounder Source Group Jere (Kruskal-Wallis Eta-squared) | Source group menjelaskan eta^2 = 0.2366 (23.66%) varians akustik Bondol Jawa (H=270.32, p=1.855e-55) dan 3.96% Kutilang (p=4.942e-06); bukti formal kebocoran mikrofon jika tanpa StratifiedGroupKFold | notebook jere Cell 5 | Kruskal-Wallis non-parametrik & Eta-squared effect size | Observed |
+| E-037 | Audit Confounder Source Group Jere (Kruskal-Wallis Eta-squared) | Source group menjelaskan eta^2 = 0.2386 (23.86%) varians akustik Bondol Jawa (H=272.52, p=6.273e-56) dan 6.43% Kutilang (p=3.086e-09); bukti formal kebocoran mikrofon jika tanpa StratifiedGroupKFold | notebook jere Cell 5 / Day 2 Master Cell 6 | Kruskal-Wallis non-parametrik & Eta-squared effect size | Observed |
 | E-038 | Karakteristik Bioakustik Kandidat Unknown pada Fitur Welch PSD (Jere) | Sampel uji OOD kNN > P95 (14.25%) memiliki frekuensi dominan anjlok ke 1,359 Hz (vs in-dist 2,930 Hz) dan energi low-band <1 kHz melonjak 10.64% -> 19.33%; konfirmasi anomali spektral | notebook jere Cell 6 | Welch PSD (nperseg=2048) & k-NN (k=5) pada 8 fitur DSP | Observed |
 
 ## Methodology Design
@@ -209,7 +209,7 @@ Not Applicable at initial project planning phase.
 | eda_acoustic_profiles.png | Visualisasi 3-panel profil akustik dan separabilitas spektral untuk laporan | Passed |
 | eda_mel_spectrograms.png | Visualisasi mel-spectrogram komparatif 3 spesies untuk bab Preprocessing laporan | Passed |
 | schematics_day1_all_artifacts/planning day 1.md | Spesifikasi metodologi dan rencana eksperimen Day 1 (diarsipkan) | Passed |
-| planning day 2.md | Spesifikasi teknis Day 2 v2.0 (VAD, Dual-Tree, SNR-Gating, 3-Crop TTA, Two-Stage OOD, Full 23-Cell Master Blueprint) | Passed |
+| planning day 2.md | Spesifikasi teknis Day 2 v2.0 (VAD, Triad-Tree, SNR-Gating, 3-Crop TTA, Two-Stage OOD, Full 24-Cell Master Blueprint) | Passed |
 | schematics-day-1.ipynb | Notebook master terintegrasi 23 sel (EDA, Preprocessing, LGBM, B1-B4 DL, 5M Ensemble) | Passed |
 | schematics_day1_notebook.md | Transkrip lengkap markdown 23 cell dan seluruh output runtime Day 1 (174 KB) | Passed |
 | metadata_with_folds.csv | Dataset train metadata dengan kolom partisi 4-Fold StratifiedGroupKFold | Passed |
