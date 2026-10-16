@@ -133,6 +133,14 @@
 - **Evidence:** Korpus `cv_arch_swin_shifted_window_attention`, `cv_arch_hybrid_cnn_transformer_dual_path`, dan Cell 7 PSD harmonik 8-16kHz (`E-017`).
 - **Revisit when:** Resolusi spektrogram ($128 \times 626$) memicu interpolasi relative position bias yang tidak stabil di timm.
 
+### D-009: Critical Filtering & Integration of Teammate (Jere) EDA & Confounder Findings
+
+- **Chosen:** Mengadopsi bukti kuantitatif Kruskal-Wallis Eta-squared ($\eta^2 = 0.2366, p=1.855 \times 10^{-55}$) untuk memperkuat justifikasi metodologis StratifiedGroupKFold di Bab Evaluasi & Validasi laporan teknis (bobot 30%), namun MENOLAK estimasi ambang batas Unknown Jere ($14.25\%$).
+- **Alternatives considered:** Menggunakan ambang batas penolakan P95 kNN Jere (14.25% Unknown, 116 sampel uji) sebagai dasar post-processing.
+- **Why:** Eksperimen empiris Public LB membuktikan estimasi Unknown Jere (14.25%) terlalu konservatif (meremehkan Unknown sebenarnya sekitar 20%). Sub_001 (12.04% Unknown) hanya menghasilkan LB 0.54401, sedangkan Sub_002 (36.61% Unknown) melonjak ke 0.58315 dan Sub_004 ke 0.59183. Delapan fitur skalar Welch statis milik Jere merata-ratakan audio sepanjang 10 detik, sehingga modulasi vokal burung pendek tenggelam dalam desis latar belakang dan gagal menangkap ketidakpastian sejati.
+- **Evidence:** `E-027` (sub_001 LB 0.54401), `E-029` (sub_002 LB 0.58315), `E-036` (sub_004 LB 0.59183), `E-037` (Confounder Eta-squared), `E-038` (OOD Spectral Profile).
+- **Revisit when:** Fitur bioakustik diekstraksi secara *frame-level dynamic window*, bukan *global scalar average*.
+
 ## Evidence Ledger
 
 | ID | Claim or Result | Value | Evidence Source | Evaluation Context | Status |
@@ -173,6 +181,8 @@
 | E-034 | Track B4 Swin-Tiny Transformer Global OOF Macro F1 | 0.8489; Cendrawasih F1 0.7291; Fold 0 F1 0.9747; completes 5-family diverse portfolio | Cell 18 | LP-FT 2-phase on 4-Fold StratifiedGroupKFold | Observed |
 | E-035 | sub_004 5-Model Ensemble and Test Inference | NLL-weighted blend (LGBM 0.683, ConvNeXt 0.207, Swin 0.111); OOF Macro F1=0.8670; Unknown 307 (37.71%), Cendrawasih 76 (9.34%), Kutilang 227, Bondol 204 | Cell 19 | 5-model NLL blend + fold-safe kNN OOD | Observed |
 | E-036 | Public Leaderboard validation of sub_004 | Macro F1 = 0.59183 (+0.00868 vs sub_002 0.58315, +0.04782 vs sub_001); new competition high; validates multimodal tabular-DL ensemble synergy | Kaggle LB | Kaggle Public LB evaluation | Observed |
+| E-037 | Audit Confounder Source Group Jere (Kruskal-Wallis Eta-squared) | Source group menjelaskan eta^2 = 0.2366 (23.66%) varians akustik Bondol Jawa (H=270.32, p=1.855e-55) dan 3.96% Kutilang (p=4.942e-06); bukti formal kebocoran mikrofon jika tanpa StratifiedGroupKFold | notebook jere Cell 5 | Kruskal-Wallis non-parametrik & Eta-squared effect size | Observed |
+| E-038 | Karakteristik Bioakustik Kandidat Unknown pada Fitur Welch PSD (Jere) | Sampel uji OOD kNN > P95 (14.25%) memiliki frekuensi dominan anjlok ke 1,359 Hz (vs in-dist 2,930 Hz) dan energi low-band <1 kHz melonjak 10.64% -> 19.33%; konfirmasi anomali spektral | notebook jere Cell 6 | Welch PSD (nperseg=2048) & k-NN (k=5) pada 8 fitur DSP | Observed |
 
 ## Methodology Design
 
