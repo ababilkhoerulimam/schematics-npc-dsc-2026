@@ -102,7 +102,7 @@ Submissions follow an empirical validation protocol on Kaggle:
 | **sub_005** | `experiment 5.csv` | Preprocessing v2.0 + Dynamic Gating (1-Crop) | 37.84% (308) | 0.55789 | Pure Ide 1 Isolation |
 | **sub_006** | `experiment 6.csv` | The Elite Triad + Dynamic Gating + 3-Crop TTA + Prototype Shrinkage | 43.12% (351) | **0.59462** | **Peak Benchmark** |
 | **sub_007** | `experiment 7.csv` | Dual-Manifold kNN + Bioacoustic High-Harmonic Gate (70 Cendra) | 47.54% (387) | 0.58805 | Over-rejection boundary |
-| **sub_008** | `experiment 8.csv` | Golden Sweet-Spot Interpolation (82 Cendrawasih, 43.86% Unknown) | 43.86% (357) | Pending | Sweet-Spot Equilibrium |
+| **sub_008** | `experiment 8.csv` | Golden Sweet-Spot Interpolation (82 Cendrawasih, 43.86% Unknown) | 43.86% (357) | 0.58356 | Global Tau p92 probe |
 
 ## Repository Structure
 
