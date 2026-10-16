@@ -166,15 +166,15 @@ where $\tau_{\text{cendra, shrink}}$ is set at the 84th percentile of in-distrib
 
 ---
 
-## 8. Day 2 Submission Quota Allocation Strategy (5 Slots)
+## 8. Day 2 Submission Quota Allocation Strategy & Ablation Design
 
-| Slot | Target Submission | Core Hypothesis & Method | Target Public LB |
-|---|---|---|---|
-| **Sub 1 (sub_005)** | `experiment 5.csv` | **Quick-Win Intermediate Baseline:** SNR-Dynamic Gated Blending + Two-Stage Prototype Shrinkage on Day 1 artifacts (zero retraining, CPU < 2 min). Establishes report ablation proof for Dynamic Gating. | **0.6050 - 0.6200** |
-| **Sub 2 (sub_006)** | `experiment 6.csv` | **3-Crop TTA on Day 1 Models:** Applies 3-crop multi-window pooling to all 4 DL backbones. Tests recovery of truncated peripheral calls on audio >10s. | **0.6250 - 0.6400** |
-| **Sub 3 (sub_007)** | `experiment 7.csv` | **Dual-Tree Upgrade:** 50% LightGBM + 50% XGBoost trained on new 818-dim feature matrix with VAD and high-harmonic ratios. | **0.6400 - 0.6600** |
-| **Sub 4 (sub_008)** | `experiment 8.csv` | **Retrained ConvNeXt-Tiny v2.0:** ConvNeXt trained with Energy-Biased Jittered VAD and spectral subtraction. | **0.6650 - 0.6900** |
-| **Sub 5 (sub_009)** | `experiment 9.csv` | **Master Multi-View Blend Day 2:** Full ensemble combining Preprocessing v1.0 and v2.0 models + 3-Crop TTA + Dynamic Gated Blending + Cascaded OOD Rejection. | **0.6900 - 0.7200** |
+Untuk membuktikan keunggulan metodologi pada laporan teknis (bobot 65%), Day 2 dirancang menghasilkan dua pengujian terisolasi yang memisahkan dampak Ide 1 (SNR-Dynamic Gating) dan Ide 2 (Adaptive Prototype Shrinkage):
+
+| Slot | Target Submission | Core Hypothesis & Method | Target Public LB | Nilai Ilmiah untuk Laporan (Bab Validasi 30%) |
+|---|---|---|---|---|
+| **Sub 1 (sub_005)** | `experiment 5.csv` | **Acoustic Noise-Conditioned Dynamic Gating (Ide 1 Murni):** Menginterpolasi bobot Tabular Triad dan Deep Learning v2.0 secara dinamis berbasis SNR Proxy. Menggunakan ambang batas penolakan global standar $\tau_{\text{global}}$ ($p91.5$). | **0.6300 - 0.6600** | **Isolasi Dampak Ide 1:** Membuktikan bahwa alokasi bobot adaptif berbasis noise floor mengungguli rata-rata statis unweighted NLL. |
+| **Sub 2 (sub_006)** | `experiment 6.csv` | **Dynamic Gating + Adaptive Prototype Shrinkage + 3-Crop TTA (Ide 1 + Ide 2):** Menambahkan gerbang tahap kedua khusus Cendrawasih ($p84$ core radius) dan inferensi multi-window TTA untuk memulihkan vokal di tepi rekaman. | **0.6800 - 0.7200** | **Isolasi Dampak Ide 2:** Membuktikan eliminasi 100% false positive Cendrawasih akibat desis frekuensi rendah di data uji. |
+| **Sub 3-5** | Cadangan | Alokasi kalibrasi lanjutan atau fine-tuning ambang batas jika diperlukan. | **0.7000+** | Stabilitas estimasi sebaran Unknown. |
 
 ---
 
@@ -198,7 +198,7 @@ Each experiment directly populates specific rubric requirements in the 10-page f
 
 ## 10. Rencana Eksekusi Lengkap Cell-by-Cell Notebook Day 2 (End-to-End Master)
 
-Notebook master Day 2 dirancang berjalan secara mandiri dan utuh dari nol (Cell 1) hingga submission final (Cell 25). Struktur ini mengintegrasikan seluruh tahapan EDA deep-dive Day 1, penambahan uji formal Kruskal-Wallis & Confounder Effect Size (Jere), Preprocessing v2.0 (VAD + Spectral Subtraction + Active RMS), Dual-Tree Tabular (LightGBM + XGBoost), Retraining Deep Learning (ConvNeXt-Tiny + Swin-Tiny), Multi-View Ensembling, Dynamic Gating, 3-Crop TTA, hingga Two-Stage Cascaded OOD.
+Notebook master Day 2 dirancang berjalan secara mandiri dan utuh dari nol (Cell 1) hingga submission final (Cell 26). Struktur ini mengintegrasikan seluruh tahapan EDA deep-dive Day 1, penambahan uji formal Kruskal-Wallis & Confounder Effect Size (Jere), Preprocessing v2.0 (VAD + Spectral Subtraction + Active RMS), Dual-Tree Tabular (LightGBM + XGBoost), Retraining Deep Learning (ConvNeXt-Tiny + Swin-Tiny), Multi-View Ensembling, Dynamic Gating, 3-Crop TTA, hingga Two-Stage Cascaded OOD.
 
 ---
 
@@ -323,38 +323,51 @@ Notebook master Day 2 dirancang berjalan secara mandiri dan utuh dari nol (Cell 
 
 ---
 
-### Bagian V: Acoustic Noise-Conditioned Dynamic Gating, TTA, & Cascaded OOD (Cell 22 s.d. Cell 25)
+### Bagian V: Model Grand Prix, Dynamic Gating, TTA, & Dual-Submission (Cell 22 s.d. Cell 26)
 
-* **Cell 22: Acoustic Noise-Conditioned Dynamic Gating (Ekuivalen Langsung Progressive Weighting)**
+* **Cell 22: Comprehensive Model Grand Prix & Decision Matrix (Bandingkan Semua Model)**
+  * *Operasi:*
+    1. Menyusun satu tabel perbandingan komprehensif seluruh model yang telah dilatih pada data partisi yang sama:
+       - 3 Model Tabular Standalone: LightGBM (0.8475), XGBoost (0.8408), CatBoost (0.8322).
+       - Tabular Dual-Tree Blend: 50% LightGBM + 50% XGBoost (0.8486).
+       - 4 Model Deep Learning Retrained v2.0: ConvNeXt-Tiny (0.9323), Swin-Tiny (0.9098), SE-ResNeXt-50, dan EfficientNet-B0.
+    2. Menghitung matriks korelasi prediksi probabilitas antar seluruh arsitektur untuk melihat derajat redundansi vs ortogonalitas.
+    3. Evaluasi performa per kelas (terutama Cendrawasih F1 dan False Positive Rate).
+  * *Sesi Brainstorming & Keputusan:* Memilih sub-portofolio model paling defensible dan efisien untuk diintegrasikan ke final pipeline (mengeliminasi model redundan agar penjelasan laporan ringkas dan berbobot).
+  * *Output:* Tabel komparasi lengkap dan artefak `model_grand_prix_summary.json`.
+
+* **Cell 23: Acoustic Noise-Conditioned Dynamic Gating (Ide 1 - Ekuivalen Progressive Weighting)**
   * *Premis Fisik:*
-    - Model Tabular Triad (LGBM + XGB + CatBoost) mengandalkan statistik agregat global; sangat presisi pada rekaman jernih (High-SNR, flatness rendah), namun terdistorsi oleh derau hujan/angin kontinu.
+    - Model Tabular Triad mengandalkan statistik agregat global; sangat presisi pada rekaman jernih (High-SNR, flatness rendah), namun terdistorsi oleh derau hujan/angin kontinu.
     - Model Deep Learning (ConvNeXt, Swin, SE-ResNeXt, EffNet) melihat spektrogram sebagai citra 2D spasial; sangat tangguh menyaring garis vokal burung meskipun tertutup desis latar belakang (noise-invariant spatial filter).
   * *Mekanisme Interpolasi Dinamis Kontinu:*
-    Menghitung $	ext{SNR}_{	ext{proxy}}(x_i) \in [0, 1]$ dari Spectral Flatness dan active RMS.
-    $$w_{	ext{Tab}}(x_i) = w_{\min} + (w_{\max} - w_{\min}) \cdot \left(	ext{SNR}_{	ext{proxy}}(x_i)ight)^\gamma$$
-    $$w_{	ext{DL}}(x_i) = 1.0 - w_{	ext{Tab}}(x_i)$$
-    - Audio jernih ($	ext{SNR}_{	ext{proxy}} 	o 1$): $w_{	ext{Tab}}$ naik hingga 0.50 (memanfaatkan presisi tinggi fitur fisik).
-    - Audio berderau lebat ($	ext{SNR}_{	ext{proxy}} 	o 0$): $w_{	ext{DL}}$ mendominasi hingga 0.85 - 0.90 (didominasi ConvNeXt-Tiny dan Swin-Tiny).
+    Menghitung $\text{SNR}_{\text{proxy}}(x_i) \in [0, 1]$ dari Spectral Flatness dan active RMS.
+    $$w_{\text{Tab}}(x_i) = w_{\min} + (w_{\max} - w_{\min}) \cdot \left(\text{SNR}_{\text{proxy}}(x_i)\right)^\gamma$$
+    $$w_{\text{DL}}(x_i) = 1.0 - w_{\text{Tab}}(x_i)$$
+    - Audio jernih ($\text{SNR}_{\text{proxy}} \to 1$): $w_{\text{Tab}}$ naik hingga 0.50 (memanfaatkan presisi tinggi fitur fisik).
+    - Audio berderau lebat ($\text{SNR}_{\text{proxy}} \to 0$): $w_{\text{DL}}$ mendominasi hingga 0.85 - 0.90 (didominasi ConvNeXt-Tiny dan Swin-Tiny).
   * *Output:* Matriks probabilitas OOF tertutup dinamis `oof_p_gated_master.npy` dan test set `test_p_gated_master.npy`.
 
-* **Cell 23: 3-Crop Test-Time Augmentation (TTA) on Test Set**
-  * *Operasi:* Inferensi multi-window 10.0s (Left $0	ext{--}10	ext{s}$, Center, Right $(L-10)	ext{--}L$) pada seluruh model Deep Learning aktif untuk 814 rekaman data uji.
+* **Cell 24: 3-Crop Test-Time Augmentation (TTA) on Test Set**
+  * *Operasi:* Inferensi multi-window 10.0s (Left $0\text{--}10\text{s}$, Center, Right $(L-10)\text{--}L$) pada model-model Deep Learning terpilih untuk 814 rekaman data uji.
   * *Agregasi:* Confidence-weighted softmax pooling untuk probabilitas kelas dan L2-normalized mean pooling untuk vektor embedding 256-d.
   * *Output:* Matriks probabilitas uji TTA teragregasi dan matriks embedding uji TTA per fold.
 
-* **Cell 24: Two-Stage Cascaded OOD Rejection Engine**
+* **Cell 25: Two-Stage Cascaded OOD Rejection Engine**
   * *Operasi:*
-    - *Stage 1 (Global OOD Filter):* Menghitung jarak Cosine kNN-5 pada embedding ConvNeXt-Tiny v2.0 256-d, digabung dengan Gated Softmax Entropy. Menetapkan ambang $	au_{	ext{global}}$ untuk menangkap ~34% s.d. 37% Unknown.
+    - *Stage 1 (Global OOD Filter):* Menghitung jarak Cosine kNN-5 pada embedding ConvNeXt-Tiny v2.0 256-d, digabung dengan Gated Softmax Entropy. Menetapkan ambang $\tau_{\text{global}}$ untuk menangkap ~34% s.d. 37% Unknown.
     - *Stage 2 (Adaptive Prototype Shrinkage Cendrawasih):* Mengunci radius penerimaan kelas Cendrawasih pada persentil ke-84 data training. Calon Cendrawasih yang berada di luar radius dialihkan ke Unknown.
   * *Output:* Audit sebaran prediksi 4 kelas dan verifikasi jumlah Unknown.
 
-* **Cell 25: Final Submission Assembly, Verification, & Bundling (sub_005)**
-  * *Operasi:* Menyusun DataFrame submission final (`file_id`, `label`).
-  * *Pemeriksaan Integritas:*
+* **Cell 26: Dual-Submission Assembly, Verification, & Bundling (sub_005 & sub_006)**
+  * *Operasi:* Menyusun dua berkas submission resmi:
+    1. `experiment 5.csv` (`sub_005`): Menilai dampak murni Dynamic Gating (Ide 1) dengan ambang global.
+    2. `experiment 6.csv` (`sub_006`): Menilai dampak sinergi Dynamic Gating + Adaptive Prototype Shrinkage Cendrawasih (Ide 1 + Ide 2) + 3-Crop TTA.
+  * *Pemeriksaan Integritas Ketat pada Kedua Berkas:*
     1. Tepat 814 baris.
     2. Kolom persis `file_id` dan `label`.
     3. `file_id` cocok 100% dengan `sample_submission.csv`.
     4. Bebas NaN / null.
     5. Label hanya terdiri dari 4 kelas resmi: `Bondol Jawa`, `Cendrawasih`, `Kutilang`, `Unknown`.
-  * *Penyimpanan Bundel:* Menyimpan `submission.csv`, `metrics.json`, dan notebook ke folder `submissions/sub_005_<timestamp>/`.
-  * *Output:* Tautan unduh interaktif `FileLink("submission.csv")`.
+  * *Penyimpanan Bundel:* Menyimpan `submission.csv`, `metrics.json`, dan notebook ke folder `submissions/sub_005_<timestamp>/` dan `submissions/sub_006_<timestamp>/`.
+  * *Output:* Tautan unduh interaktif `FileLink("experiment 5.csv")` dan `FileLink("experiment 6.csv")`.
