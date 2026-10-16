@@ -1,0 +1,23 @@
+{
+  "strategy": "Acoustic_Noise_Conditioned_Dynamic_Gating",
+  "global_oof_macro_f1": 0.93804,
+  "harmonic_nll": 0.1938,
+  "optimal_params": {
+    "w_conv": 0.8,
+    "w_swin": 0.2,
+    "w_min": 0.0,
+    "w_max": 0.45,
+    "gamma": 1.0,
+    "cendra_lock": 0.45
+  },
+  "per_class_f1": {
+    "Bondol Jawa": 0.94947,
+    "Cendrawasih": 0.93902,
+    "Kutilang": 0.92562
+  },
+  "cendra_tp": 77,
+  "cendra_fp": 4,
+  "cendra_precision": 0.9506,
+  "delta_vs_convnext_single": 0.00574,
+  "elapsed_sec": 0.28
+}

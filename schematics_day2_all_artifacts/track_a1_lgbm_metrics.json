@@ -1,0 +1,19 @@
+{
+  "track": "Track_A1_LightGBM_v2_818dims",
+  "global_oof_macro_f1": 0.84754,
+  "mean_fold_macro_f1": 0.81804,
+  "per_class_oof_f1": {
+    "Bondol Jawa": 0.94775,
+    "Cendrawasih": 0.65517,
+    "Kutilang": 0.9397
+  },
+  "fold_macro_f1s": [
+    0.88042,
+    0.98771,
+    0.77961,
+    0.62444
+  ],
+  "previous_day1_lgb_macro_f1": 0.85423,
+  "delta_vs_day1": -0.00669,
+  "elapsed_sec": 18.78
+}

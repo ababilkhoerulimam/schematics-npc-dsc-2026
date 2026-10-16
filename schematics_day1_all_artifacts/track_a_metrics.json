@@ -1,0 +1,17 @@
+{
+  "track": "Track_A_LightGBM_32kHz",
+  "n_features": 792,
+  "global_oof_macro_f1": 0.85423,
+  "mean_fold_macro_f1": 0.83281,
+  "per_class_oof_f1": {
+    "Bondol Jawa": 0.95558,
+    "Cendrawasih": 0.66272,
+    "Kutilang": 0.9444
+  },
+  "fold_macro_f1s": [
+    0.8476,
+    0.97795,
+    0.85621,
+    0.64947
+  ]
+}

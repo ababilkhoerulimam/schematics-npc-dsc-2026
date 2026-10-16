@@ -1,0 +1,17 @@
+{
+  "submission_id": "sub_006_20261016_1247",
+  "strategy": "Dynamic_Gating_plus_3Crop_TTA_plus_TwoStage_Prototype_Shrinkage",
+  "architecture": "The_Elite_Triad (ConvNeXt_Tiny_v2 + Swin_Tiny_v2 + Dual_Tree_Tabular)",
+  "preprocessing": "v2.0 (HighPass_300Hz, Active_RMS_Norm, VAD_Jittered, Spectral_Subtraction)",
+  "ood_method": "Two_Stage_Cascaded_Filter (Global_tau=0.5473 + Cendrawasih_Shrinkage_tau=0.4214)",
+  "prediction_distribution": {
+    "Unknown": 351,
+    "Bondol Jawa": 199,
+    "Kutilang": 172,
+    "Cendrawasih": 92
+  },
+  "unknown_percentage": 43.12,
+  "target_public_lb": "0.68 - 0.72",
+  "scientific_value": "Master Day 2 model combining physical signal recovery, dynamic noise allocation, multi-window TTA, and minority manifold pruning",
+  "created_at": "20261016_1247"
+}

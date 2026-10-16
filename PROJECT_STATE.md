@@ -6,7 +6,7 @@
 **Current phase:** Planning -> Feature Engineering & Partitioning
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
-**Primary notebook:** schematics-day-1.ipynb (Day 1 archive) / Day 2 Master Notebook
+**Primary notebook:** notebooks/schematics-day-1.ipynb (Day 1 archive) / notebooks/schematics-day-2.ipynb (Day 2 Master)
 **Last completed cell:** Cell 28 (Day 2 Master Execution - sub_008 Golden Sweet-Spot Bundled)
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
@@ -49,13 +49,13 @@
 
 | Stage | Status | Evidence / Cell | Notes |
 |---|---|---|---|
-| Planning | Completed | Guidebook, repo, planning day 2.md v2.0 | Aturan kompetisi, rubrik 65/35, larangan data eksternal, arsitektur Day 2 locked |
+| Planning | Completed | Guidebook, repo, schematics_day2_all_artifacts/planning day 2.md v2.0 | Aturan kompetisi, rubrik 65/35, larangan data eksternal, arsitektur Day 2 locked |
 | Data quality and preparation | Completed | Cell 1-8, metadata_with_folds.csv | 4-Fold StratifiedGroupKFold locked, zero group leakage verified, audio specs clean |
 | EDA or statistical analysis | Completed | Cell 1-7 | Class balance, acoustic dynamics, spectral signatures, stereo correlation, high-freq audit, mel-spectrograms |
-| Feature engineering | In Progress | Cell 9-10, planning day 2.md | Day 1 32kHz mel extracted; Day 2 VAD windowing and 818-dim tabular upgrade underway |
-| Modeling and validation | Completed | Cell 10-18 | Full 5-model portfolio trained: LGBM (0.8542), B1 EffNet (0.8392), B2 ConvNeXt (0.8908), B3 SE-ResNeXt (0.8560), B4 Swin (0.8489) |
-| Explanation and error analysis | Not Started | None | Pending OOF residual and misclassification audit |
-| Methodology design | In Progress | planning day 2.md v2.0 | 5-phase Day 2 architecture with VAD, Dual-Tree, SNR-Gating, 3-Crop TTA, and Cascaded OOD |
+| Feature engineering | Completed | Cell 9-12 | Day 1 32kHz mel extracted; Day 2 VAD windowing and 818-dim tabular upgrade executed |
+| Modeling and validation | Completed | Cell 13-23 | Full portfolio trained & gated: The Elite Triad Gated OOF Macro F1 = 0.9380 |
+| Explanation and error analysis | Completed | Cell 22, 25, 27 | OOD threshold concavity, Cendrawasih false positive pruning, harmonic gate audit |
+| Methodology design | Completed | schematics_day2_all_artifacts/planning day 2.md v2.0 | 5-phase Day 2 architecture with VAD, Dual-Tree, SNR-Gating, 3-Crop TTA, and Cascaded OOD |
 | Delivery and export QA | In Progress | Cell 15-15c | sub_001 (LB 0.54401), sub_002 (LB 0.58315), sub_003 (LB 0.58313) evaluated |
 | Operational monitoring | Not Applicable | None | Batch Kaggle competition submission |
 
@@ -206,28 +206,31 @@
 
 **Maturity:** Proposal
 
-**Method spec:** planning day 2.md v2.0 (Audio Preprocessing v2.0, Dual-Tree Tabular Engine, SNR-Dynamic Gating, 3-Crop TTA, Two-Stage Cascaded OOD)
-
+**Method spec:** schematics_day2_all_artifacts/planning day 2.md v2.0 (Audio Preprocessing v2.0, Dual-Tree Tabular Engine, SNR-Dynamic Gating, 3-Crop TTA, Two-Stage Cascaded OOD)
+ 
 **Case signature and baseline gap:** Open-set audio classification with IR=13.54, group-structured recordings, clipping artifacts, and zero Unknown labels in train. Day 1 reached 0.59183 ceiling due to static 10s cropping, clipping saturation, and unweighted NLL bias.
-
+ 
 **Exact next experiment:** Execute Day 2 Action Plan starting with Slot 1 (sub_005: Quick-Win SNR-Dynamic Gated Blending and Two-Stage OOD Prototype Shrinkage on Day 1 artifacts)
-
+ 
 ## Model Drivers and Error Analysis
-
+ 
 Not Applicable at initial project planning phase.
-
+ 
 ## Artifacts
-
+ 
 | Artifact | Purpose | Validation Status |
 |---|---|---|
 | NPC Guidebook - Data Science REVISED.pdf | Buku panduan teknis resmi kompetisi | Passed |
 | schematics-2026/sample_submission.csv | Ground truth submission schema and file_id list | Passed |
-| eda_acoustic_profiles.png | Visualisasi 3-panel profil akustik dan separabilitas spektral untuk laporan | Passed |
-| eda_mel_spectrograms.png | Visualisasi mel-spectrogram komparatif 3 spesies untuk bab Preprocessing laporan | Passed |
+| schematics_day1_all_artifacts/eda_acoustic_profiles.png | Visualisasi 3-panel profil akustik dan separabilitas spektral untuk laporan | Passed |
+| schematics_day1_all_artifacts/eda_mel_spectrograms.png | Visualisasi mel-spectrogram komparatif 3 spesies untuk bab Preprocessing laporan | Passed |
 | schematics_day1_all_artifacts/planning day 1.md | Spesifikasi metodologi dan rencana eksperimen Day 1 (diarsipkan) | Passed |
-| planning day 2.md | Spesifikasi teknis Day 2 v2.0 (VAD, Triad-Tree, 4 DL Backbones v2, Grand Prix Model Decision, Acoustic Dynamic Gating, 3-Crop TTA, Two-Stage OOD, Full 26-Cell Master Blueprint) | Passed |
-| schematics-day-1.ipynb | Notebook master terintegrasi 23 sel (EDA, Preprocessing, LGBM, B1-B4 DL, 5M Ensemble) | Passed |
-| schematics_day1_notebook.md | Transkrip lengkap markdown 23 cell dan seluruh output runtime Day 1 (174 KB) | Passed |
+| schematics_day2_all_artifacts/planning day 2.md | Spesifikasi teknis Day 2 v2.0 (VAD, Triad-Tree, 4 DL Backbones v2, Grand Prix Model Decision, Acoustic Dynamic Gating, 3-Crop TTA, Two-Stage OOD, Full 26-Cell Master Blueprint) | Passed |
+| notebooks/schematics-day-1.ipynb | Notebook master terintegrasi 23 sel (EDA, Preprocessing, LGBM, B1-B4 DL, 5M Ensemble) | Passed |
+| notebooks/schematics-day-2.ipynb | Notebook master Day 2 terintegrasi 28 sel (Preprocessing v2.0, Grand Prix, Dynamic Gating, sub_005 s.d. sub_008) | Passed |
+| schematics_day1_all_artifacts/schematics_day1_notebook.md | Transkrip lengkap markdown 23 cell dan seluruh output runtime Day 1 (174 KB) | Passed |
+| notebooks/notebook_jere.ipynb | Notebook analisis Welch periodogram dan uji Kruskal-Wallis Jere | Passed |
+| notebooks/notebook_jere.md | Transkrip markdown analisis dan temuan confounder Jere | Passed |
 | metadata_with_folds.csv | Dataset train metadata dengan kolom partisi 4-Fold StratifiedGroupKFold | Passed |
 | preprocess_config.json | Konfigurasi pipeline preprocessing dan model backbones v1.2 terkunci | Passed |
 | track_a_X_train_32k.npy | Matriks fitur tabular 792-dimensi (N=1826) terekstraksi | Passed |

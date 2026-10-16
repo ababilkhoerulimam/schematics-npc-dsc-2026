@@ -1,0 +1,77 @@
+{
+  "version": "1.2",
+  "seed": 42,
+  "n_folds": 4,
+  "default_sr": 32000,
+  "ablation_sr": 16000,
+  "duration_sec": 10.0,
+  "mono_downmix": "arithmetic_mean",
+  "resampler": "scipy.signal.resample_poly",
+  "peak_norm": true,
+  "pad_mode_short": "reflect",
+  "crop_mode_train": "random",
+  "crop_mode_eval": "center",
+  "mel_spec_32k": {
+    "target_sr": 32000,
+    "n_samples": 320000,
+    "n_fft": 2048,
+    "hop_length": 512,
+    "n_mels": 128,
+    "fmin": 200,
+    "fmax": 16000,
+    "top_db": 80,
+    "expected_shape": [
+      128,
+      626
+    ]
+  },
+  "mel_spec_16k": {
+    "target_sr": 16000,
+    "n_samples": 160000,
+    "n_fft": 1024,
+    "hop_length": 320,
+    "n_mels": 128,
+    "fmin": 200,
+    "fmax": 8000,
+    "top_db": 80,
+    "expected_shape": [
+      128,
+      501
+    ]
+  },
+  "per_sample_zscore": true,
+  "imagenet_rgb_norm": false,
+  "augmentation_train": {
+    "mixup_beta": 0.2,
+    "gain_jitter_db": 6.0,
+    "gaussian_noise_snr_db": [
+      15.0,
+      30.0
+    ],
+    "spec_augment": {
+      "freq_masks": 2,
+      "freq_width": 16,
+      "time_masks": 2,
+      "time_width": 32
+    }
+  },
+  "backbones": {
+    "primary": "efficientnet_b0",
+    "diversity": "convnext_tiny",
+    "baseline_attention": "seresnet34",
+    "in_chans": 1,
+    "bottleneck_dim": 256,
+    "dropout": 0.3
+  },
+  "label_to_idx": {
+    "Bondol Jawa": 0,
+    "Cendrawasih": 1,
+    "Kutilang": 2
+  },
+  "idx_to_label": {
+    "0": "Bondol Jawa",
+    "1": "Cendrawasih",
+    "2": "Kutilang"
+  },
+  "ood_label": "Unknown"
+}

@@ -1,0 +1,22 @@
+{
+  "selected_strategy": "Dual_LGBM_XGBoost_50_50",
+  "global_oof_macro_f1": 0.84864,
+  "macro_harmonic_nll": 0.37241,
+  "standalone_f1": {
+    "LightGBM": 0.84754,
+    "XGBoost": 0.84076,
+    "CatBoost": 0.83215
+  },
+  "selected_weights": {
+    "LightGBM": 0.5,
+    "XGBoost": 0.5,
+    "CatBoost": 0.0
+  },
+  "per_class_f1": {
+    "Bondol Jawa": 0.94966,
+    "Cendrawasih": 0.65517,
+    "Kutilang": 0.94108
+  },
+  "delta_vs_best_standalone": 0.0011,
+  "elapsed_sec": 1.37
+}

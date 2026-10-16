@@ -1,0 +1,19 @@
+{
+  "track": "Track_B4_Swin_Tiny_v2",
+  "global_oof_macro_f1": 0.90982,
+  "mean_fold_macro_f1": 0.86843,
+  "per_class_oof_f1": {
+    "Bondol Jawa": 0.94162,
+    "Cendrawasih": 0.86705,
+    "Kutilang": 0.92078
+  },
+  "fold_macro_f1s": [
+    0.98921,
+    0.9903,
+    0.77208,
+    0.72212
+  ],
+  "previous_day1_swin_macro_f1": 0.84894,
+  "delta_vs_day1": 0.06088,
+  "elapsed_sec": 1083.38
+}

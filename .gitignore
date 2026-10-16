@@ -218,3 +218,19 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Competition Large Datasets & Heavy Binary Artifacts
+schematics-2026/
+NPC Guidebook - Data Science REVISED.pdf
+*.npy
+*.pt
+*.pth
+*.zip
+*.tar.gz
+*.flac
+*.wav
+*.mp3
+.virtual_documents/
+checkpoints_*/
+catboost_info/
+

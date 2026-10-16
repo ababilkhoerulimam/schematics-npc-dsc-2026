@@ -1,0 +1,30 @@
+{
+  "blend_weight_b1": 0.48,
+  "blend_weight_lgbm": 0.52,
+  "temperature_b1": 0.608,
+  "ood_weights": {
+    "w_energy": 0.2148,
+    "w_knn256d": 0.4506,
+    "w_ens_msp": 0.3346
+  },
+  "tau_final": 1.67562,
+  "id_quantile_percentile": 99.89,
+  "norm_stats": {
+    "eng_p5": -3.1524369716644287,
+    "eng_p95": -0.9060471653938293,
+    "ens_msp_p5": 0.0297621488571167,
+    "ens_msp_p95": 0.463871568441391
+  },
+  "metrics_oof": {
+    "closed_set_3c_macro_f1": 0.88137,
+    "open_set_4c_macro_f1": 0.90987,
+    "per_class_4c_f1": {
+      "Bondol Jawa": 0.96809,
+      "Cendrawasih": 0.71084,
+      "Kutilang": 0.96426,
+      "Unknown": 0.9963
+    },
+    "id_false_reject_pct": 0.11,
+    "pseudo_ood_recall_pct": 100.0
+  }
+}

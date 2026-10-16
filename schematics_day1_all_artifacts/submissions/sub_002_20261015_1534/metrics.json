@@ -1,0 +1,15 @@
+{
+  "submission_id": "sub_002_20261015_1534",
+  "strategy": "p90_threshold_probe_plus_cendrawasih_fp_guard_knn5_cosine",
+  "tau_global_p90": 0.64496,
+  "tau_cendrawasih_strict": 0.88501,
+  "test_prediction_distribution": {
+    "Unknown": 298,
+    "Kutilang": 255,
+    "Bondol Jawa": 226,
+    "Cendrawasih": 35
+  },
+  "test_unknown_percentage": 36.61,
+  "previous_sub_001_lb": 0.54401,
+  "public_lb_score": null
+}

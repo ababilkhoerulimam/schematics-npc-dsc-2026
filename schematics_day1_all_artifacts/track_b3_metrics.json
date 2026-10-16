@@ -1,0 +1,12 @@
+{
+  "track": "Track_B3_se_resnext50_32x4d_32kHz_LP_FT",
+  "global_oof_macro_f1": 0.85603,
+  "mean_fold_macro_f1": 0.83494,
+  "per_class_oof_f1": {
+    "Bondol Jawa": 0.92053,
+    "Cendrawasih": 0.73913,
+    "Kutilang": 0.90842
+  },
+  "delta_vs_track_b2": -0.03481,
+  "total_elapsed_sec": 1280.92
+}

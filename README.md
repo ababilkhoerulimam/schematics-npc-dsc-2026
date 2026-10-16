@@ -108,19 +108,28 @@ Submissions follow an empirical validation protocol on Kaggle:
 
 ```text
 schematics-npc-dsc-2026/
-├── schematics-day-1.ipynb          Master production notebook containing full pipeline (Cells 1-22)
-├── PROJECT_STATE.md               Persistent machine-readable evidence ledger and decisions log
-├── PREPROCESSING_PLAN.md          Detailed 6-phase engineering and ablation specifications
-├── metadata_with_folds.csv        4-Fold StratifiedGroupKFold metadata partition
-├── preprocess_config.json         Locked audio and feature extraction hyperparameters
-├── eda_acoustic_profiles.png      3-panel quantitative acoustic analysis visualization
-├── eda_mel_spectrograms.png       3-class comparative mel-spectrogram diagnostics
-├── schematics_day1_all_artifacts/ Trained model weights, out-of-fold predictions, and metrics
-└── submissions/                   Isolated submission bundles with timestamped logs
-    ├── sub_001_*/                 Bundle for submission 1 (LB 0.54401)
-    ├── sub_002_*/                 Bundle for submission 2 (LB 0.58315)
-    ├── sub_003_*/                 Bundle for submission 3 (LB 0.58313)
-    └── sub_004_*/                 Bundle for submission 4 (LB 0.59183)
+├── notebooks/
+│   ├── schematics-day-1.ipynb          Master production notebook Day 1 (Cells 1-23)
+│   ├── schematics-day-2.ipynb          Master production notebook Day 2 (Cells 1-28, Peak LB 0.59462)
+│   ├── notebook_jere.ipynb             EDA & Kruskal-Wallis confounder analysis notebook
+│   ├── notebook_jere.md                Markdown transcript of Jere analysis
+│   └── ANALYSIS_STATE.md               State ledger for exploratory confounder analysis
+├── schematics_day1_all_artifacts/      Day 1 artifacts, planning day 1, plots, metrics, submissions 1-4
+│   ├── planning day 1.md               Day 1 planning and ablation blueprint
+│   ├── day1.md                         Day 1 comprehensive technical dossier
+│   ├── schematics_day1_notebook.md     Markdown export of Day 1 notebook
+│   ├── eda_acoustic_profiles.png       3-panel quantitative acoustic analysis visualization
+│   ├── eda_mel_spectrograms.png        3-class comparative mel-spectrogram diagnostics
+│   └── submissions/                    Submissions 1 to 4 bundles (sub_001 to sub_004)
+├── schematics_day2_all_artifacts/      Day 2 artifacts, planning day 2, plots, metrics, submissions 5-8
+│   ├── planning day 2.md               Day 2 28-cell technical master blueprint
+│   ├── eda_day2_preprocessing_v2_verification.png Preprocessing v2.0 verification spectrogram
+│   ├── model_grand_prix_summary.json   7-model decision matrix and F1 benchmarks
+│   ├── dynamic_gating_summary.json     SNR-Dynamic Gating calibration parameters
+│   └── submissions/                    Submissions 5 to 8 bundles (sub_005 to sub_008)
+├── PROJECT_STATE.md                    Persistent machine-readable evidence ledger and decisions log
+├── LICENSE                             Repository license
+└── README.md                           Publication-grade documentation
 ```
 
 ## How to Run
@@ -133,7 +142,14 @@ cd schematics-npc-dsc-2026
 
 2. Install dependencies:
 ```bash
-pip install torch torchvision timm soundfile librosa lightgbm scikit-learn scipy pandas numpy
+pip install torch torchvision timm soundfile librosa lightgbm xgboost catboost scikit-learn scipy pandas numpy
 ```
 
-3. Open and run `schematics-day-1.ipynb` sequentially from Cell 1 through Cell 22.
+3. Open and run master notebooks inside directory `notebooks/` sequentially:
+```bash
+# Day 1 Baseline and Foundation Exploration
+jupyter notebook notebooks/schematics-day-1.ipynb
+
+# Day 2 Master Pipeline (Peak LB 0.59462)
+jupyter notebook notebooks/schematics-day-2.ipynb
+```

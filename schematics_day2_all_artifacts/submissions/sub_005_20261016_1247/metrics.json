@@ -1,0 +1,17 @@
+{
+  "submission_id": "sub_005_20261016_1247",
+  "strategy": "Acoustic_Noise_Conditioned_Dynamic_Gating_1Crop",
+  "architecture": "The_Elite_Triad (ConvNeXt_Tiny_v2 + Swin_Tiny_v2 + Dual_Tree_Tabular)",
+  "preprocessing": "v2.0 (HighPass_300Hz, Active_RMS_Norm, VAD_TopEnergy, Spectral_Subtraction)",
+  "ood_method": "Global_Stage1_p91.5 (tau=0.5473)",
+  "prediction_distribution": {
+    "Unknown": 308,
+    "Bondol Jawa": 203,
+    "Kutilang": 173,
+    "Cendrawasih": 130
+  },
+  "unknown_percentage": 37.84,
+  "target_public_lb": "0.63 - 0.66",
+  "scientific_value": "Isolates the pure impact of physical SNR-Dynamic Gating without TTA",
+  "created_at": "20261016_1247"
+}

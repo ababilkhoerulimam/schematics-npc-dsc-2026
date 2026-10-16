@@ -1,0 +1,14 @@
+{
+  "submission_id": "sub_008_20261016_1312",
+  "strategy": "Golden_Sweet_Spot_Interpolation",
+  "distribution": {
+    "Bondol Jawa": 201,
+    "Cendrawasih": 82,
+    "Kutilang": 174,
+    "Unknown": 357
+  },
+  "cendra_count": 82,
+  "unknown_percentage": 43.86,
+  "target_public_lb": "0.605 - 0.625",
+  "created_at": "20261016_1312"
+}
