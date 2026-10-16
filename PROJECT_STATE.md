@@ -209,8 +209,9 @@ Not Applicable at initial project planning phase.
 | eda_acoustic_profiles.png | Visualisasi 3-panel profil akustik dan separabilitas spektral untuk laporan | Passed |
 | eda_mel_spectrograms.png | Visualisasi mel-spectrogram komparatif 3 spesies untuk bab Preprocessing laporan | Passed |
 | schematics_day1_all_artifacts/planning day 1.md | Spesifikasi metodologi dan rencana eksperimen Day 1 (diarsipkan) | Passed |
-| planning day 2.md | Spesifikasi teknis Day 2 v2.0 (VAD, Dual-Tree, SNR-Gating, 3-Crop TTA, Two-Stage OOD) | Passed |
+| planning day 2.md | Spesifikasi teknis Day 2 v2.0 (VAD, Dual-Tree, SNR-Gating, 3-Crop TTA, Two-Stage OOD, Blueprint Cell 1-17) | Passed |
 | schematics-day-1.ipynb | Notebook master terintegrasi 23 sel (EDA, Preprocessing, LGBM, B1-B4 DL, 5M Ensemble) | Passed |
+| schematics_day1_notebook.md | Transkrip lengkap markdown 23 cell dan seluruh output runtime Day 1 (174 KB) | Passed |
 | metadata_with_folds.csv | Dataset train metadata dengan kolom partisi 4-Fold StratifiedGroupKFold | Passed |
 | preprocess_config.json | Konfigurasi pipeline preprocessing dan model backbones v1.2 terkunci | Passed |
 | track_a_X_train_32k.npy | Matriks fitur tabular 792-dimensi (N=1826) terekstraksi | Passed |
