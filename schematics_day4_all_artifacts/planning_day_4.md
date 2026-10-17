@@ -1,250 +1,272 @@
-# Master Blueprint: Day 4 Transductive Bioacoustic Architecture (Self-Training + Free Energy OOD + Forensic Shielding)
+# Master Blueprint: Day 4 Multi-Family Modular Pipeline (Tabular Triad + ConvNeXt-Tiny + Perch v2 + Transductive Adaptation)
 
 **Proyek:** Schematics NPC DSC 2026 (Kompetisi Sains Data Nasional ITS)
 **Tugas:** Audio Open-Set Classification (Bondol Jawa, Cendrawasih, Kutilang, dan Unknown)
 **Target:** Menembus batas Public Leaderboard dari 0.66760 (sub_013) menuju 0.7200 - 0.7600 & Mengunci Laporan Teknis Publikasi (Bobot 65%)
 **Dokumen:** `planning_day_4.md`
-**Versi:** 1.0 (End-to-End Modular Blueprint: Zero External File Uploads, Grounded in 76 Observed Evidences)
-**Status:** Approved & Locked for Day 4 Execution
+**Versi:** 2.0 (End-to-End Reproducible Master: 3-Pillar Multi-Family Benchmark, Deep EDA, In-Fold Taxa Audit, & Self-Training)
+**Status:** Approved & Locked for Execution
 
 ---
 
-## 1. Landasan Filosofis & Resolusi Metodologis
+## 1. Landasan Filosofis & Justifikasi Akademis (Defensible Against Committee Audit)
 
-Blueprint Day 4 dirancang 100% mandiri (*self-contained*) di Kaggle GPU Tesla T4 tanpa ketergantungan unggahan file eksternal manual. Seluruh bobot pretrained diunduh via API publik resmi yang diizinkan Guidebook Hal 10 (`google/bird-vocalization-classifier/perch_v2/2` via TFHub/Kaggle Models dan `birdnet` PyPI package v1.3.0).
+Blueprint Day 4 dirancang berjalan 100% mandiri (*self-contained*) di Kaggle GPU Tesla T4 dari Cell 1 hingga Cell 36 tanpa ketergantungan unggahan file eksternal manual.
 
-### Tiga Pilar Temuan Empiris yang Dikunci (Anti-Halusinasi):
-1. **Bukti Confounder Mikrofon (E-037):** Kruskal-Wallis Eta-squared membuktikan 22.62% varians akustik adalah derau mikrofon recorder ($p = 5.77 \times 10^{-53}$). Validasi wajib menggunakan partisi kombinatorial 4-Fold `StratifiedGroupKFold` pada `source_group`.
-2. **Bukti Forensik Taksonomi Trucuk (E-073):** 89 file yang dipanggil Kutilang oleh Perch dengan confidence rendah ($P < 0.60$) terbukti di BirdNET adalah Trucuk (*Pycnonotus goiavier*). File ini terbukti menurunkan F1 jika dipaksa menjadi Bondol (E-073), dan wajib ditolak ke **Unknown**.
-3. **Bukti Soft Reassignment Cendrawasih (E-072):** Ambang BirdNET `pct80` (thr = -7.70) pada Cendrawasih terbukti mendongkrak OOF Macro F1 dari 0.9283 menjadi **0.9482** (+0.0199) dengan memulihkan false alarm desis menjadi Bondol/Kutilang asli.
+### Menjawab Pertanyaan Kritis Juri ITS: "Mengapa Perch? Mengapa Bukan Tabular atau CNN Saja?"
+Kami tidak membuang model konvensional untuk langsung melompat ke *black-box foundation model*. Seluruh arsitektur dibangun di atas **Multi-Family Empirical Grand Prix**:
+1. **Pilar 1: Tabular Triad (818 Fitur Fisik Sinyal):** Membuktikan batas representasi 1D statistik (Centroid, Rolloff, ZCR, Autokorelasi). Menghasilkan OOF Macro F1 0.8463, namun rentan terhadap derau mikrofon recorder ($\eta^2 = 0.2262$).
+2. **Pilar 2: Spatial 2D CNN (ConvNeXt-Tiny v2.0):** Membuktikan batas representasi visual spektrogram 2D (ImageNet pre-trained). Menghasilkan OOF Macro F1 0.9323, sangat presisi dalam mengidentifikasi pola spasial kicauan, namun tidak memiliki pemahaman semantik satwa liar.
+3. **Pilar 3: Bioacoustic Foundation (Google Perch v2):** Membuktikan kekuatan representasi 14.795 taksa bioakustik dunia. Menghasilkan OOF Macro F1 0.9283 dan mendongkrak Public LB langsung ke 0.65+.
+4. **Pilar 4: Transductive Inlierness Self-Training (Day 4 SOTA):** Menjembatani pergeseran domain akustik (*microphone domain shift*) antara data latih dan data uji tanpa kontaminasi label (*zero label poisoning*), menembus plafon kompetisi.
 
 ---
 
-## 2. Arsitektur Pipeline Modular Day 4 (32 Sel)
+## 2. Master Configuration Flags (Modular Pipeline)
 
-Pipeline dibagi menjadi 6 modul terisolasi:
+Semua pilar dikontrol melalui *modular flags* di Cell 1 sehingga dapat dieksekusi secara terpisah atau digabungkan secara penuh (*end-to-end*):
 
-```
-[Modul 1: Environment & Partitioning] (Sel 1 - 6)
-  └── Seed 42, Metadata Audit, Exact Combinatorial 4-Fold Group Partitioning.
-
-[Modul 2: DSP Audio Pre-Caching & Dual-Stream Extraction] (Sel 7 - 12)
-  ├── Jalur A (32 kHz): Dynamic Equidistant 3-Window 5.0s, HighPass 100Hz, Linear Peak Norm 0.95.
-  └── Jalur B (48 kHz): 3-Window 3.0s untuk ekstraksi logit BirdNET v2.4 (6.522 taksa).
-
-[Modul 3: Foundation Feature Extraction & Dynamic Taxa Resolution] (Sel 13 - 17)
-  ├── Google Perch v2: Embedding L2-norm 1536-d + Ringkasan Logit Kandidat 16-d.
-  └── BirdNET v2.4: Logit Bondol, Kutilang, MaxCendra (17 genus), dan MaxNonTarget.
-
-[Modul 4: Supervised Baseline & In-Fold Bottleneck Calibration] (Sel 18 - 22)
-  └── PerchBottleneckCosineHead (1536 -> 256 -> 3) MIL Softmax Bag Pooling, Evaluasi Epoch 40 Final.
-
-[Modul 5: Inlierness-Guided Adaptive Self-Training & Free Energy OOD] (Sel 23 - 27)
-  ├── Helmholtz Free-Energy Scoring E(x) menggantikan heuristic distance kNN.
-  ├── Kurasi adaptif pseudo-labels (Top 20% test confidence + manifold distance + BirdNET verification).
-  └── Retraining Bottleneck Head pada Augmented Dataset (1.826 train + N_pseudo test).
-
-[Modul 6: Forensic Shielding, Sweet-Spot Calibration, & Export] (Sel 28 - 32)
-  ├── Cendrawasih Fallback Reassignment (thr = -7.70) ke second-best class.
-  ├── Trucuk / Alien Bulbul Shield (thr = -8.11) ke Unknown.
-  ├── Sweet-spot OOD quantile locking (~43.5% Unknown).
-  └── Pengecekan kualitas ketat & ekspor otomatis (sub_014 hingga sub_018).
+```python
+# Master Pipeline Execution Switches
+RUN_TABULAR_PILLAR   = True   # Ekstraksi 818 fitur & latih LightGBM + XGBoost + CatBoost (Ablasi)
+RUN_CONVNEXT_PILLAR  = True   # Latih ConvNeXt-Tiny v2.0 LP-FT 2-Phase (Pilar Spasial)
+RUN_PERCH_PILLAR     = True   # Latih Google Perch v2 Bottleneck Cosine Head (Pilar Bioakustik)
+RUN_BIRDNET_FORENSIC = True   # Ekstraksi BirdNET v2.4 untuk Forensic Shielding
+RUN_SELF_TRAINING    = True   # Inlierness-Guided Adaptive Pseudo-Labeling (Day 4 Innovation)
 ```
 
 ---
 
-## 3. Rincian Sel-demi-Sel & Spesifikasi Teknis
+## 3. Struktur 7 Modul Pipeline (Total 36 Sel)
 
-### Modul 1: Environment & Partitioning (Sel 1 - 6)
+```
+[Modul 1: Environment, Seeds, & Hardware Config] (Sel 1 - 2)
+  └── Seed deterministik 42, CUBLAS workspace config, autodeteksi base directory.
+
+[Modul 2: Deep Exploratory Data Analysis & Confounder Audit] (Sel 3 - 8)
+  ├── Metadata Schema Audit, Class Imbalance Ratio (IR=13.54), Shannon Entropy.
+  ├── Audio Streaminfo Header Audit, KS-Test Durasi, Deduplikasi Hash SHA256 (100% Unik).
+  ├── Confounder Audit: Uji Kruskal-Wallis Eta-Squared (eta^2 = 0.2262 pada source_group).
+  ├── Exact Combinatorial 4-Fold Group Partitioning (Cendrawasih: [35, 29, 16, 3]).
+  ├── Deep Spectral Audit: Welch PSD Native 48k vs 32k (Pita 16-24 kHz <1.22% daya).
+  └── Stereo Downmix Lossless Verification (Korelasi inter-channel 0.7702, selisih RMS 0.002).
+
+[Modul 3: Pilar 1 - Tabular Triad Benchmark & Ablasi] (Sel 9 - 14)
+  ├── Ekstraksi 818 Fitur DSP Preprocessing v2.0 (Spectral, Temporal, Cepstral, Rhythmic).
+  ├── Pelatihan 4-Fold LightGBM (Leaf-wise GBDT, OOF F1 = 0.8431).
+  ├── Pelatihan 4-Fold XGBoost (Depth-wise GPU, OOF F1 = 0.8399).
+  ├── Pelatihan 4-Fold CatBoost (Symmetric Oblivious GPU, OOF F1 = 0.8292).
+  ├── Ablasi Tabular & Dual-Tree Selection (50% LGBM + 50% XGBoost, F1 = 0.8463, CatBoost dipangkas).
+  └── Ekspor Artefak Tabular OOF dan Test (`oof_p_tabular_v2.npy`, `test_p_tabular_v2.npy`).
+
+[Modul 4: Pilar 2 - Spatial 2D CNN ConvNeXt-Tiny v2.0] (Sel 15 - 17)
+  ├── GPU Log-Mel Frontend (128 bin), Spectral Subtraction p10, SpecAugment, Focal Loss.
+  ├── Pelatihan 4-Fold ConvNeXt-Tiny v2.0 (LP-FT 2-Phase, OOF F1 = 0.9323, Cendra TP=77, FP=3).
+  └── 3-Crop TTA Multi-Window Inference, Temperature Sharpening (T=0.55), In-Fold kNN-5 Distance.
+
+[Modul 5: Pilar 3 - Bioacoustic Foundation Google Perch v2] (Sel 18 - 22)
+  ├── Preprocessing v2.1: HighPass 100Hz, Linear Peak Norm 0.95, Dynamic Equidistant 3-Window 5s.
+  ├── Load Model Perch v2 TFHub & Dynamic Taxa Resolution eBird labels.csv.
+  ├── Batch Inference 1.826 Train & 814 Test (Embedding 1536-d & 16-d Logit Summary).
+  ├── Out-of-Fold Taxa Screening (AUROC in-fold verification pada Cendrawasih).
+  └── PerchBottleneckCosineHead Training (40 Epochs, Zero-Peeking Final Epoch, OOF F1 = 0.9283).
+
+[Modul 6: Multi-Family Ensembling & Forensic Taxonomic Shield] (Sel 23 - 27)
+  ├── SNR-Dynamic Gating Master Optimization (Evaluasi premise bising Perch vs Conv vs Tabular).
+  ├── Load Official BirdNET v2.4 (LiteRT) & Batch Logit Extraction (Bondol, Kutilang, Cendra, NonTarget).
+  ├── Forensic Reassignment Cendrawasih (thr=-7.70) ke second-best class (OOF F1 naik ke 0.9482).
+  ├── Forensic Trucuk Shield (Pycnonotus goiavier thr=-8.11) ke Unknown.
+  └── Grand Prix Comparison Matrix (Tabel evaluasi seluruh model untuk Bab 4 Laporan).
+
+[Modul 7: Transductive Adaptive Self-Training & Multi-Submission Export] (Sel 28 - 36)
+  ├── Helmholtz Free-Energy Scoring E(x) & Manifold Distance Evaluation.
+  ├── Adaptive Test Inlierness Curation (Seleksi Top 15% - 20% test soundscapes paling murni).
+  ├── Augmented Dataset Construction (1.826 Train + N_pseudo Test).
+  ├── Retraining Bottleneck Cosine Head (Self-Training 40 Epochs).
+  ├── Test Inference & Calibrated Post-Processing.
+  ├── Sweet-Spot Manifold Unknown Locking (~43.5% Total Unknown).
+  ├── Quality Assertion & Submission Export: sub_014, sub_015, sub_016.
+  ├── Automated Publication Diagnostics Plot (ood_dual_manifold_diagnostics.png).
+  └── Final Working Directory Compression & Download Link (schematics_day4_all_artifacts.zip).
+```
+
+---
+
+## 4. Rincian Sel-demi-Sel & Expected Verified Outputs
+
+### Modul 1: Environment, Seeds, & Hardware Config (Sel 1 - 2)
 
 * **Cell 1: Environment Setup, Deterministic Seeds, and Hardware Config**
-  * *Operasi:* Set seed deterministik 42 (PyTorch, CuDNN, NumPy). Inisialisasi CUDA device Tesla T4.
-  * *Input:* Runtime hardware.
+  * *Operasi:* Set seed 42 (PyTorch, CuDNN, NumPy). Inisialisasi CUDA device Tesla T4. Set master configuration flags.
   * *Expected Output:* `hardware_target | device=cuda:0 | gpu=Tesla T4 | free_vram=14.46GB`.
 
-* **Cell 2: Metadata Schema Audit & Cardinality Verification**
-  * *Operasi:* Load `train/metadata.csv` (1.826 baris) dan `sample_submission.csv` (814 baris). Assert 0 missing values.
-  * *Input:* `metadata.csv`, `sample_submission.csv`.
-  * *Expected Output:* `train_shape=(1826, 4) | test_shape=(814, 2) | imbalance_ratio=13.54`.
-
-* **Cell 3: Audio Header & Deduplication Audit**
-  * *Operasi:* Validasi FLAC header 48 kHz stereo 24-bit. Audit exact SHA256 deduplication (100% unique).
-  * *Input:* Audio files directory.
-  * *Expected Output:* `audio_integrity_verified | duplicates=0 | sr=48000 | channels=2`.
-
-* **Cell 4: Exact Combinatorial 4-Fold Group Partitioning**
-  * *Operasi:* Algoritma partisi kombinatorial eksak memetakan 15 `source_group` ke dalam 4 fold tanpa kebocoran mikrofon.
-  * *Input:* `train_df["source_group"]`, `train_df["target"]`.
-  * *Expected Output:* `fold_distribution: Cendrawasih=[35, 29, 16, 3] | group_leakage=0`.
-
-* **Cell 5: Save Master Metadata with Folds**
-  * *Operasi:* Tulis `metadata_with_folds.csv` ke `WORK_DIR`.
-  * *Input:* Partisi fold dari Cell 4.
-  * *Expected Output:* `metadata_with_folds.csv saved | shape=(1826, 5)`.
-
-* **Cell 6: Visualisasi Distribusi Partisi & Welch PSD Confounder**
-  * *Operasi:* Plotting 3-panel verifikasi partisi dan spektrum daya Welch.
-  * *Input:* Audio waveform & fold metadata.
-  * *Expected Output:* `eda_partition_and_confounder.png saved`.
+* **Cell 2: Remote Dataset Auto-Discovery & Path Normalization**
+  * *Operasi:* Autodeteksi base directory `/kaggle/input/competitions/schematics-2026` atau fallback lokal.
+  * *Expected Output:* `dataset_discovered | base_dir=/kaggle/input/... | work_dir=/kaggle/working`.
 
 ---
 
-### Modul 2: DSP Audio Pre-Caching (Sel 7 - 12)
+### Modul 2: Deep Exploratory Data Analysis & Confounder Audit (Sel 3 - 8)
 
-* **Cell 7: Resampling Audio & Polyphase Filtering**
-  * *Operasi:* Resample audio ke 32 kHz menggunakan FIR polyphase `scipy.signal.resample_poly` (up=2, down=3) untuk jalur Perch, dan pertahankan native 48 kHz untuk jalur BirdNET.
-  * *Input:* Audio FLAC 48 kHz.
-  * *Expected Output:* `polyphase_resampling_complete | target_sr=32000 | nyquist=16000Hz`.
+* **Cell 3: Metadata Schema Audit & Cardinality Verification**
+  * *Operasi:* Load `train/metadata.csv` (1.826) dan `sample_submission.csv` (814). Assert 0 null. Hitung IR dan Shannon entropy.
+  * *Expected Output:* `train_shape=(1826, 4) | test_shape=(814, 2) | IR=13.54 | entropy=1.163 bits`.
 
-* **Cell 8: Butterworth 100 Hz High-Pass Filter & Peak Normalization**
-  * *Operasi:* Terapkan 4th-order Butterworth High-Pass 100 Hz (SOS format) dan Linear Peak Normalization 0.95 (tanpa fungsi non-linear `tanh`).
-  * *Input:* Audio 32 kHz.
-  * *Expected Output:* `dsp_v2.1_registered | highpass=100Hz | peak_norm=0.95`.
+* **Cell 4: Audio Header & Exact Deduplication Audit**
+  * *Operasi:* Parse streaminfo FLAC 48 kHz stereo 24-bit. Audit exact SHA256 deduplication (100% unique). KS-test durasi.
+  * *Expected Output:* `audio_integrity_verified | duplicates=0 | sr=48000 | ks_test_p=0.6695`.
 
-* **Cell 9: Dynamic Equidistant 3-Window Framing (32 kHz)**
-  * *Operasi:* Potong audio menjadi 3 window berdurasi 5.0 detik (160.000 sampel) pada offset $[0, (L-5)/2, L-5]$ detik.
-  * *Input:* Audio bersih 32 kHz.
-  * *Expected Output:* `dynamic_3window_verified | shape=(3, 160000) float32 | pad_corruption=0.0%`.
+* **Cell 5: Confounder Audit: Kruskal-Wallis Eta-Squared Test**
+  * *Operasi:* Uji Kruskal-Wallis pada fitur akustik antar `source_group`. Hitung effect size $\eta^2$.
+  * *Expected Output:* `confounder_audit | eta_squared=0.2262 | p_value=5.77e-53 (Statistically Significant Confounder)`.
 
-* **Cell 10: RAM Pre-Caching Audio Perch (Train & Test)**
-  * *Operasi:* Muat seluruh 1.826 audio train dan 814 audio test (3-window 32 kHz) ke RAM dictionary.
-  * *Input:* Fungsi Cell 9.
-  * *Expected Output:* `ram_caching_perch_complete | train=1826 | test=814 | elapsed ~65s`.
+* **Cell 6: Exact Balanced Group Partitioning (4-Fold StratifiedGroupKFold)**
+  * *Operasi:* Optimasi kombinatorial eksak memetakan 15 `source_group` ke 4 fold tanpa kebocoran mikrofon.
+  * *Expected Output:* `partition_locked | Cendrawasih=[35, 29, 16, 3] | group_leakage=0`.
 
-* **Cell 11: Dynamic 3-Window Framing (48 kHz untuk BirdNET)**
-  * *Operasi:* Ekstraksi 3 window berdurasi 3.0 detik (144.000 sampel) pada audio native 48 kHz.
-  * *Input:* Audio native 48 kHz.
-  * *Expected Output:* `birdnet_3window_ready | shape=(3, 144000) float32`.
+* **Cell 7: Deep Spectral Audit: Welch PSD & Nyquist 48k vs 32k**
+  * *Operasi:* Analisis spektrum daya Welch pada pita frekuensi: 0-2k, 2-8k, 8-16k, dan 16-24k.
+  * *Expected Output:* `spectral_audit: band_16_24k < 1.22% power | band_8_16k up to 9.08% on Cendrawasih`.
 
-* **Cell 12: Memory Cache Check & GPU Buffer Allocation**
-  * *Operasi:* Verifikasi ketersediaan memori sistem dan alokasi PyTorch CUDA pinned memory.
-  * *Input:* System RAM & GPU VRAM.
-  * *Expected Output:* `memory_sanity_verified | ram_used < 6GB | vram_free > 13GB`.
+* **Cell 8: Stereo Downmix Lossless Verification & EDA Plots Export**
+  * *Operasi:* Audit selisih RMS stereo (0.002) dan korelasi channel (0.7702). Simpan visualisasi 3-panel EDA.
+  * *Expected Output:* `eda_acoustic_profiles.png saved | stereo_lossless_verified=True`.
 
 ---
 
-### Modul 3: Foundation Feature Extraction (Sel 13 - 17)
+### Modul 3: Pilar 1 - Tabular Triad Benchmark & Ablasi (Sel 9 - 14)
 
-* **Cell 13: Load Google Perch v2 from TFHub Local Cache**
-  * *Operasi:* Muat model `google/bird-vocalization-classifier/perch_v2/2` dari cache Kaggle Models / TFHub.
-  * *Input:* TFHub URL.
-  * *Expected Output:* `perch_backend_loaded | emb_dim=1536 | num_taxa=14795`.
+* **Cell 9: Tabular Signal Extraction (818 Fitur DSP Preprocessing v2.0)**
+  * *Operasi:* Ekstraksi 818 dimensi fitur: Spectral Centroid, Rolloff, Contrast, Mel statistical summaries, ZCR, RMS.
+  * *Expected Output:* `tabular_extracted: X_train=(1826, 818) | X_test=(814, 818) | elapsed ~45s`.
 
-* **Cell 14: Dynamic Taxa Matching eBird Labels (Perch)**
-  * *Operasi:* Pencocokan regex nama ilmiah pada `labels.csv`: Bondol Jawa (`Lonchura leucogastroides`), Kutilang (`Pycnonotus aurigaster`), Cendrawasih (10 kandidat genus *Paradisaea*).
-  * *Input:* `labels.csv` Perch.
-  * *Expected Output:* `taxa_resolved: Bondol=[7329], Kutilang=[11701], Cendra=[2893, ... (10)]`.
+* **Cell 10: 4-Fold LightGBM (Leaf-Wise GBDT)**
+  * *Operasi:* Pelatihan 4-fold LightGBM dengan balanced class weights.
+  * *Expected Output:* `lgbm_trained | OOF Macro F1 = 0.8431 | Cendra FP = 36`.
 
-* **Cell 15: Batch Inference Perch v2 (Train & Test)**
-  * *Operasi:* Ekstraksi batch (batch_size=32) menghasilkan embedding 1536-d dan ringkasan logit 16-d untuk 1.826 train & 814 test.
-  * *Input:* Tensor audio dari Cell 10.
-  * *Expected Output:* `train_emb=(1826, 3, 1536) | test_emb=(814, 3, 1536) | elapsed ~35s`.
+* **Cell 11: 4-Fold XGBoost (Depth-Wise GPU)**
+  * *Operasi:* Pelatihan 4-fold XGBoost GPU histogram-based.
+  * *Expected Output:* `xgboost_trained | OOF Macro F1 = 0.8399 | Cendra FP = 34`.
 
-* **Cell 16: Load Official BirdNET v2.4 (LiteRT Backend)**
-  * *Operasi:* Inisialisasi pustaka resmi `birdnet` v1.3.0 dengan model `AcousticModelV2_4` (76.8 MB FP32).
-  * *Input:* Package `birdnet`.
-  * *Expected Output:* `birdnet_loaded | species_count=6522 | backend=litert`.
+* **Cell 12: 4-Fold CatBoost (Symmetric Oblivious GPU)**
+  * *Operasi:* Pelatihan 4-fold CatBoost GPU.
+  * *Expected Output:* `catboost_trained | OOF Macro F1 = 0.8292 | Cendra FP = 51 (Ablation Defect Detected)`.
 
-* **Cell 17: Batch Inference BirdNET v2.4 (Logit Extraction)**
-  * *Operasi:* Ekstraksi 3-window 48 kHz menghasilkan matriks ringkasan `(N, 3, 4)`: `[Bondol, Kutilang, MaxCendra, MaxNonTarget]`.
-  * *Input:* Audio 48 kHz dari Cell 11.
-  * *Expected Output:* `birdnet_train_summary=(1826, 3, 4) | birdnet_test_summary=(814, 3, 4)`.
+* **Cell 13: Tabular Ablasi & Dual-Selection Ensembling**
+  * *Operasi:* Evaluasi perbandingan Grand Prix tabular. Pangkas CatBoost karena over-rejection minoritas. Kunci 50% LGBM + 50% XGBoost.
+  * *Expected Output:* `dual_tabular_blend: OOF Macro F1 = 0.8463 (CatBoost pruned successfully)`.
 
----
-
-### Modul 4: Supervised Baseline & In-Fold Bottleneck Head (Sel 18 - 22)
-
-* **Cell 18: In-Fold Taxa Screening & Verification**
-  * *Operasi:* Seleksi kandidat taksa Cendrawasih terbaik secara murni in-fold via AUROC validasi.
-  * *Input:* Logit kandidat Perch dari Cell 15.
-  * *Expected Output:* `verified_cendra_idx=2893 | in_fold_auroc > 0.88`.
-
-* **Cell 19: Definition of PerchBottleneckCosineHead Architecture**
-  * *Operasi:* Definisi arsitektur PyTorch: `Linear(1536, 256) -> LayerNorm -> SiLU -> Dropout(0.2) -> CosineLinear(256, 3, learnable_tau)`.
-  * *Input:* PyTorch module.
-  * *Expected Output:* `architecture_compiled: PerchBottleneckCosineHead | trainable_params ~395K`.
-
-* **Cell 20: 4-Fold StratifiedGroupKFold Training (Zero-Peeking Evaluation)**
-  * *Operasi:* Pelatihan 40 epoch per fold menggunakan Class-Balanced Focal Loss dan MIL Softmax Bag Pooling. Evaluasi wajib pada epoch terakhir 40.
-  * *Input:* `perch_v2_train_emb.npy`, `metadata_with_folds.csv`.
-  * *Expected Output:* `global_oof_macro_f1 > 0.9250 | Bondol > 0.98 | Kutilang > 0.99 | Cendra > 0.80`.
-
-* **Cell 21: Test-Set Forward Pass & Closed-Set Probability Extraction**
-  * *Operasi:* Inferensi ensemble 4 fold pada 814 test embedding menghasilkan `test_p_perch_v2.npy` (814, 3).
-  * *Input:* Bobot model 4 fold dari Cell 20.
-  * *Expected Output:* `test_p_extracted | shape=(814, 3) | min_sum=1.0 | max_sum=1.0`.
-
-* **Cell 22: Baseline Manifold Distance Extraction (Anisotropy-Corrected kNN-5)**
-  * *Operasi:* In-fold mean-centering $\tilde{x} = (x - \mu) / \|x - \mu\|_2$ dan kalkulasi jarak Cosine kNN-5.
-  * *Input:* Train & test embeddings.
-  * *Expected Output:* `oof_d_perch mean ~0.33 | test_d_perch mean ~0.51`.
+* **Cell 14: Simpan Artefak Probabilitas Tabular**
+  * *Operasi:* Simpan `oof_p_tabular_v2.npy`, `test_p_tabular_v2.npy`, dan `tabular_triad_summary.json`.
+  * *Expected Output:* `artifacts_saved: oof_p_tabular_v2.npy, test_p_tabular_v2.npy`.
 
 ---
 
-### Modul 5: Inlierness-Guided Adaptive Self-Training & Free Energy OOD (Sel 23 - 27)
+### Modul 4: Pilar 2 - Spatial 2D CNN ConvNeXt-Tiny v2.0 (Sel 15 - 17)
 
-* **Cell 23: Helmholtz Free Energy Score Computation**
-  * *Operasi:* Hitung skor energi bebas $E(x) = -T \log \sum_{c=0}^2 \exp(z_c / T)$ pada seluruh data latih OOF dan data uji test set.
-  * *Input:* Logit closed-set dari Cell 20 & 21.
+* **Cell 15: GPU Mel-Spectrogram Frontend & VAD Jittered Augmentation**
+  * *Operasi:* Inisialisasi frontend 128 mel-bins, stationary spectral subtraction p10, dan SpecAugment 2D.
+  * *Expected Output:* `frontend_ready: logmel_128_bins | spec_sub_p10=True | spec_augment=True`.
+
+* **Cell 16: Live Retraining ConvNeXt-Tiny v2.0 (LP-FT 2-Phase)**
+  * *Operasi:* Pelatihan 4-fold ConvNeXt-Tiny v2.0 (Phase 1: Linear Probe 5 ep, Phase 2: Fine-Tuning 20 ep).
+  * *Expected Output:* `convnext_retrained: Global OOF Macro F1 = 0.9323 | Cendra F1 = 0.9448 (TP=77, FP=3)`.
+
+* **Cell 17: 3-Crop TTA Multi-Window Inference & In-Fold Manifold Distance**
+  * *Operasi:* Evaluasi 3-crop TTA pada 814 data uji dengan kalibrasi $T=0.55$. Hitung jarak kNN-5 in-fold mean-centered.
+  * *Expected Output:* `convnext_tta_evaluated | oof_d_conv mean=0.0724 | test_d_conv mean=0.1635`.
+
+---
+
+### Modul 5: Pilar 3 - Bioacoustic Foundation Google Perch v2 (Sel 18 - 22)
+
+* **Cell 18: DSP Preprocessing v2.1 (Linear Peak Norm & Dynamic 3-Window 5s)**
+  * *Operasi:* HighPass 100 Hz, linear peak norm 0.95 (tanpa tanh), potong 3-window 5.0s (160.000 sampel @ 32 kHz).
+  * *Expected Output:* `dsp_v2.1_cached | train=1826 | test=814 | zero_pad_corruption=0.0%`.
+
+* **Cell 19: Load Google Perch v2 from TFHub & Dynamic Taxa Resolution**
+  * *Operasi:* Muat model `perch_v2/2` dan cocokkan regex taksa eBird `labels.csv`.
+  * *Expected Output:* `perch_loaded | emb_dim=1536 | taxa: Bondol=7329, Kutilang=11701, Cendra=(10 cands)`.
+
+* **Cell 20: Batch Feature Extraction Perch v2 (Train & Test)**
+  * *Operasi:* Ekstraksi batch 32 menghasilkan embedding (1826, 3, 1536) dan ringkasan logit kandidat 16-d.
+  * *Expected Output:* `perch_features_extracted | train_emb=(1826, 3, 1536) | test_emb=(814, 3, 1536)`.
+
+* **Cell 21: Out-of-Fold Taxa Screening & Verification**
+  * *Operasi:* Seleksi taksa Cendrawasih murni in-fold via AUROC validasi (mengunci indeks resmi eBird 2893).
+  * *Expected Output:* `verified_cendra_idx=2893 | in_fold_auroc=0.8911 | final_summary_locked=(1826, 3, 7)`.
+
+* **Cell 22: PerchBottleneckCosineHead Training (Zero-Peeking Evaluation)**
+  * *Operasi:* Pelatihan 40 epoch head Cosine dengan MIL Softmax Bag Pooling. Evaluasi wajib final epoch 40.
+  * *Expected Output:* `perch_head_trained | Global OOF Macro F1 = 0.9283 | Bondol=0.9838, Kutilang=0.9968, Cendra=0.8043`.
+
+---
+
+### Modul 6: Multi-Family Ensembling & Forensic Taxonomic Shield (Sel 23 - 27)
+
+* **Cell 23: SNR-Dynamic Gating Master Optimization**
+  * *Operasi:* Evaluasi empiris premis bising Perch vs Conv vs Tabular. Grid search parameter gating optimal.
+  * *Expected Output:* `snr_gating_locked | r_perch=0.70, r_conv=0.15, w_tab=0.15 | Master OOF F1 = 0.9414`.
+
+* **Cell 24: Load Official BirdNET v2.4 (LiteRT) & Batch Logit Extraction**
+  * *Operasi:* Inisialisasi pustaka `birdnet` v1.3.0. Ekstraksi logit 3-window 48 kHz (Bondol, Kutilang, Cendra, NonTarget).
+  * *Expected Output:* `birdnet_extracted: train=(1826, 3, 4) | test=(814, 3, 4) | elapsed ~9m`.
+
+* **Cell 25: Forensic Cendrawasih Fallback Reassignment (thr = -7.70)**
+  * *Operasi:* Reassign panggilan Cendrawasih bising Perch ke kelas kedua jika BirdNET logit $< -7.70$.
+  * *Expected Output:* `cendra_reassigned ~89 samples | OOF Macro F1 jumps to 0.9482 (+0.0199)`.
+
+* **Cell 26: Forensic Trucuk / Alien Bulbul Shield (thr = -8.11)**
+  * *Operasi:* Isolasi 72 file Kutilang bising Perch dengan detektor BirdNET mati ke kandidat Unknown.
+  * *Expected Output:* `trucuk_shielded ~72 samples to Unknown | zero_contamination_to_bondol=True`.
+
+* **Cell 27: Multi-Family Grand Prix Matrix Compilation**
+  * *Operasi:* Rangkum performa OOF dan karakteristik seluruh model ke dalam satu tabel komparatif laporan.
+  * *Expected Output:* `model_grand_prix_summary.json saved | 4 families benchmarked`.
+
+---
+
+### Modul 7: Transductive Adaptive Self-Training & Multi-Submission Export (Sel 28 - 36)
+
+* **Cell 28: Helmholtz Free-Energy Scoring E(x) & Manifold Distance Evaluation**
+  * *Operasi:* Hitung skor energi bebas $E(x) = -T \log \sum \exp(z_c / T)$ dan jarak kNN-5 mean-centered.
   * *Expected Output:* `energy_scores_computed | oof_energy_mean < test_energy_mean`.
 
-* **Cell 24: Adaptive Test Inlierness Curation (Anti-Poisoning Filter)**
-  * *Operasi:* Seleksi otomatis 120-150 sampel test dengan kriteria multi-kondisi:
-    1. Confidence relatif tinggi: $P \ge \text{percentile}(P_{\text{test}}, 75)$.
-    2. Jarak manifold dekat: $d_{\text{test}} \le \text{percentile}(d_{\text{test}}, 40)$.
-    3. Konfirmasi BirdNET: Kutilang $\ge -8.11$, Cendrawasih $\ge -7.70$.
-  * *Input:* `test_p_perch_v2`, `test_d_perch`, `birdnet_test_summary`.
+* **Cell 29: Adaptive Test Inlierness Curation (Anti-Poisoning Filter)**
+  * *Operasi:* Seleksi otomatis 120-150 sampel test dengan 3 filter konsensus (Top 25% prob + Top 40% distance + BirdNET verification).
   * *Expected Output:* `curated_pseudo_samples: N in [120, 160] | zero_unknown_overlap=True`.
 
-* **Cell 25: Augmented Dataset Construction**
-  * *Operasi:* Gabungkan 1.826 data latih asli dengan $N_{\text{pseudo}}$ data uji terpilih. Pembobotan sample-weight seimbang.
-  * *Input:* Data latih asli + pseudo-test terpilih.
+* **Cell 30: Augmented Dataset Construction & Class Re-balancing**
+  * *Operasi:* Gabungkan 1.826 train asli dengan $N_{\text{pseudo}}$ test terkurasi. Hitung inverse-frequency class weights.
   * *Expected Output:* `augmented_dataset_shape=(1826 + N_pseudo, 3, 1536)`.
 
-* **Cell 26: Retraining Bottleneck Cosine Head on Augmented Manifold**
-  * *Operasi:* Latih ulang head klasifikasi selama 40 epoch pada augmented dataset menggunakan Cosine Annealing LR.
-  * *Input:* Augmented dataset dari Cell 25.
+* **Cell 31: Retraining Bottleneck Cosine Head (Self-Training 40 Epochs)**
+  * *Operasi:* Latih ulang head klasifikasi selama 40 epoch pada augmented manifold menggunakan Cosine Annealing LR.
   * *Expected Output:* `self_training_completed | elapsed < 45s | final_loss < 0.05`.
 
-* **Cell 27: Self-Trained Test Inference & Calibrated Probability Matrix**
-  * *Operasi:* Forward pass pada 814 test set menggunakan model hasil self-training.
-  * *Input:* Model hasil Cell 26, `test_emb`.
+* **Cell 32: Self-Trained Test Inference & Calibrated Probability Matrix**
+  * *Operasi:* Forward pass pada 814 data uji menghasilkan probabilitas teradaptasi domain.
   * *Expected Output:* `p_selftrained_test shape=(814, 3)`.
 
----
-
-### Modul 6: Forensic Shielding, Sweet-Spot Calibration, & Export (Sel 28 - 32)
-
-* **Cell 28: Forensic Taxonomic Reassignment (BirdNET Cendrawasih Shield)**
-  * *Operasi:* Jika model memprediksi Cendrawasih namun logit BirdNET `MaxCendra < -7.70`, kembalikan prediksi ke kelas kedua model (Bondol Jawa atau Kutilang).
-  * *Input:* `p_selftrained_test`, `birdnet_test_summary`.
-  * *Expected Output:* `cendra_reassigned_count ~85-95 samples`.
-
-* **Cell 29: Forensic Trucuk / Alien Bulbul Isolation**
-  * *Operasi:* Jika model memprediksi Kutilang dengan probabilitas marjinal ($P_{\text{Kutilang}} < 0.60$) dan logit BirdNET Kutilang $< -8.11$, isolasi file tersebut sebagai kandidat `Unknown` (spesies non-target *Pycnonotus goiavier*).
-  * *Input:* `p_selftrained_test`, `birdnet_test_summary`.
-  * *Expected Output:* `trucuk_shielded_to_unknown ~65-75 samples`.
-
-* **Cell 30: Sweet-Spot Manifold Unknown Quantile Calibration (~43.5% Target)**
-  * *Operasi:* Kunci ambang batas $\tau$ pada jarak manifold Perch $d_{\text{perch}}$ sedemikian rupa sehingga total Unknown (termasuk Trucuk shield) berada di rentang optimal 43.0% s.d. 44.0%.
-  * *Input:* `test_d_perch`, `trucuk_mask`.
+* **Cell 33: Sweet-Spot Manifold Unknown Quantile Locking (~43.5% Target)**
+  * *Operasi:* Kunci ambang batas $\tau$ sedemikian rupa sehingga total Unknown (termasuk Trucuk shield) berada di 43.0% - 44.0%.
   * *Expected Output:* `tau_locked | total_unknown_count ~350-357 (43.0% - 43.8%)`.
 
-* **Cell 31: Multi-Submission Assembly & Export (sub_014 & sub_015)**
-  * *Operasi:* Ekspor berkas submission resmi:
-    * `experiment 14.csv`: Self-Trained Perch + Forensic Shield @ 43.5% Unknown (Bidikan Konservatif).
-    * `experiment 15.csv`: Free-Energy Calibrated Hybrid @ 41.5% Unknown (Bidikan Agresif).
-  * *Input:* Label hasil klasifikasi Cell 28-30.
-  * *Expected Output:* `experiment 14.csv & experiment 15.csv verified: 814 rows, 0 NaN, 4 valid classes`.
+* **Cell 34: Multi-Submission Assembly & Verification (sub_014 & sub_015)**
+  * *Operasi:* Ekspor berkas submission resmi `experiment 14.csv` dan `experiment 15.csv`. Verifikasi 814 baris, 0 null, 4 kelas.
+  * *Expected Output:* `experiment 14.csv & experiment 15.csv exported successfully | assertions passed`.
 
-* **Cell 32: Automated Publication Diagnostics & Artifact Bundling**
-  * *Operasi:* Simpan grafik 2-panel publikasi (`ood_dual_manifold_diagnostics.png`), ekspor ringkasan `ood_thresholds.json`, dan hasilkan arsip ZIP terkompresi `schematics_day4_all_artifacts.zip` dengan tautan unduh aktif.
-  * *Input:* Seluruh artefak di `/kaggle/working`.
-  * *Expected Output:* `schematics_day4_all_artifacts.zip generated | download link displayed`.
+* **Cell 35: Automated Publication Diagnostics Plot**
+  * *Operasi:* Simpan grafik 2-panel publikasi (`ood_dual_manifold_diagnostics.png`) untuk Bab 3 & 5 Laporan.
+  * *Expected Output:* `ood_dual_manifold_diagnostics.png saved`.
+
+* **Cell 36: Full Working Directory Compression & Download Link**
+  * *Operasi:* Kompres seluruh isi `/kaggle/working` menjadi `schematics_day4_all_artifacts.zip` dan tampilkan `FileLink`.
+  * *Expected Output:* `schematics_day4_all_artifacts.zip created | download link displayed`.
 
 ---
 
-## 4. Matriks Risiko & Protokol Mitigasi
+## 5. Matriks Risiko & Protokol Mitigasi
 
 | Potensi Risiko | Probabilitas | Dampak | Protokol Mitigasi Terverifikasi |
 |---|---|---|---|
@@ -255,7 +277,7 @@ Pipeline dibagi menjadi 6 modul terisolasi:
 
 ---
 
-## 5. Kepatuhan Penuh Terhadap Regulasi Kompetisi (Guidebook ITS)
+## 6. Kepatuhan Penuh Terhadap Regulasi Kompetisi (Guidebook ITS)
 
 1. **Strict Zero External Raw Audio:** Seluruh pelatihan fitur berasal dari 1.826 train audio resmi panitia dan 814 audio uji transduktif. Nol raw audio eksternal ditambahkan ke dataset.
 2. **Atribusi Pretrained Publik Transparan (Guidebook Hal 10):**
@@ -263,4 +285,4 @@ Pipeline dibagi menjadi 6 modul terisolasi:
    * *BirdNET v2.4:* K. Lisa Yang Center for Conservation Bioacoustics, Cornell Lab of Ornithology (PyPI official package `birdnet` v1.3.0).
 3. **Reprodusibilitas Penuh:** Kunci `seed=42`, `CUBLAS_WORKSPACE_CONFIG=:4096:8`, dan isolasi 4-fold tanpa kebocoran data.
 
-Blueprint Day 4 ini disetujui, terkunci di `schematics_day4_all_artifacts/planning_day_4.md`, dan siap dieksekusi sel-demi-sel secara interaktif.
+Blueprint Day 4 v2.0 ini resmi disetujui, terkunci di `schematics_day4_all_artifacts/planning_day_4.md`, dan siap dieksekusi sel-demi-sel secara interaktif.
