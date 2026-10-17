@@ -53,14 +53,14 @@
 
 | Stage | Status | Evidence / Cell | Notes |
 |---|---|---|---|
-| Planning | Completed | Guidebook, repo, schematics_day2_all_artifacts/planning day 2.md v2.0 | Aturan kompetisi, rubrik 65/35, larangan data eksternal, arsitektur Day 2 locked |
+| Planning | Completed | Guidebook, repo, schematics_day4_all_artifacts/planning_day_4.md v3.0, planning_day_4_experiment.md v2.0 | Aturan kompetisi, rubrik 65/35, arsitektur Day 4 1543-d hybrid & in-fold pseudo-labeling locked |
 | Data quality and preparation | Completed | Cell 1-8, metadata_with_folds.csv | 4-Fold StratifiedGroupKFold locked, zero group leakage verified, audio specs clean |
-| EDA or statistical analysis | Completed | Cell 1-7 | Class balance, acoustic dynamics, spectral signatures, stereo correlation, high-freq audit, mel-spectrograms |
-| Feature engineering | Completed | Cell 9-12 | Day 1 32kHz mel extracted; Day 2 VAD windowing and 818-dim tabular upgrade executed |
-| Modeling and validation | Completed | Cell 13-23 | Full portfolio trained & gated: The Elite Triad Gated OOF Macro F1 = 0.9380 |
-| Explanation and error analysis | Completed | Cell 22, 25, 27 | OOD threshold concavity, Cendrawasih false positive pruning, harmonic gate audit |
-| Methodology design | Completed | schematics_day2_all_artifacts/planning day 2.md v2.0 | 5-phase Day 2 architecture with VAD, Dual-Tree, SNR-Gating, 3-Crop TTA, and Cascaded OOD |
-| Delivery and export QA | In Progress | Cell 15-15c | sub_001 (LB 0.54401), sub_002 (LB 0.58315), sub_003 (LB 0.58313) evaluated |
+| EDA or statistical analysis | Completed | Cell 1-8, eda_acoustic_profiles.png | Confounder audit Kruskal-Wallis eta^2=0.2262, Welch PSD Nyquist 48k vs 32k, stereo correlation 0.7702 |
+| Feature engineering | Completed | Cell 9-20 | Preprocessing v2.0 818-d tabular, ConvNeXt logmel 128-bin, Perch v2 1536-d & 16-d logit summary |
+| Modeling and validation | Completed | Cell 9-32 (Day 3) | Multi-family Grand Prix: Tabular (0.8463), ConvNeXt v2 (0.9323), Perch v2 (0.9283), BirdNET v2.4 (0.7886) |
+| Explanation and error analysis | Completed | Cell 23-30 (Day 3) | BirdNET cendra reassignment (F1 0.9482), forensic Trucuk (Pycnonotus goiavier) shield, sweet-spot 43.5% |
+| Methodology design | Completed | schematics_day4_all_artifacts/planning_day_4.md v3.0 & planning_day_4_experiment.md v2.0 | 17-cell lean execution blueprint with self-contained combinatorial folds & 1543-d hybrid input |
+| Delivery and export QA | Completed | Cell 15-32 | sub_001 s.d. sub_013 evaluated; New All-Time Peak Record sub_013 LB 0.66760 locked |
 | Operational monitoring | Not Applicable | None | Batch Kaggle competition submission |
 
 ## Assumptions Register
@@ -230,20 +230,24 @@
 
 ## Methodology Design
 
-**Method ID and version:** PLAN-DAY2 v2.0
+**Method ID and version:** PLAN-DAY4 v3.0 (Master) / PLAN-DAY4-EXP v2.0 (Lean)
 
-**Maturity:** Proposal
+**Maturity:** Locked for Execution
 
-**Method spec:** schematics_day2_all_artifacts/planning day 2.md v2.0 (Audio Preprocessing v2.0, Dual-Tree Tabular Engine, SNR-Dynamic Gating, 3-Crop TTA, Two-Stage Cascaded OOD)
- 
-**Case signature and baseline gap:** Open-set audio classification with IR=13.54, group-structured recordings, clipping artifacts, and zero Unknown labels in train. Day 1 reached 0.59183 ceiling due to static 10s cropping, clipping saturation, and unweighted NLL bias.
- 
-**Exact next experiment:** Execute Day 2 Action Plan starting with Slot 1 (sub_005: Quick-Win SNR-Dynamic Gated Blending and Two-Stage OOD Prototype Shrinkage on Day 1 artifacts)
- 
+**Method spec:** schematics_day4_all_artifacts/planning_day_4.md v3.0 & planning_day_4_experiment.md v2.0 (1543-d Hybrid Input, In-Fold Pseudo-Labeling, Free-Energy OOD, BirdNET Forensic Dual-Shield)
+
+**Case signature and baseline gap:** Open-set audio classification with IR=13.54, group-structured microphone confounders (eta^2=0.2262), and severe test acoustic domain shift. Day 3 reached 0.66760 (sub_013) via Perch foundation weights, forensic Trucuk/Cendrawasih filtering, and single-round self-training. Day 4 formalizes in-fold nested knee-point calibration and transductive adaptation to bridge the 0.70+ boundary.
+
+**Exact next experiment:** Execute Day 4 Action Plan starting with Cell 1 through Cell 17 in `planning_day_4_experiment.md` v2.0 to export sub_014 (Safe Anchor), sub_015 (SOTA Champion), and sub_016 (Conservative Probe).
+
 ## Model Drivers and Error Analysis
- 
-Not Applicable at initial project planning phase.
- 
+
+- Confounder Microphone (E-037): Kruskal-Wallis membuktikan eta^2 = 0.2262 varians akustik adalah derau mikrofon recorder (p = 5.77e-53). Memerlukan StratifiedGroupKFold mutlak.
+- Perch False Alarms on Noisy Audio (E-072): Perch cenderung over-call Cendrawasih pada desis rekaman Bondol/Kutilang. Diatasi dengan BirdNET soft reassignment ke second-best class pada thr=-7.70 (F1 OOF naik dari 0.9283 ke 0.9482).
+- Trucuk / Pycnonotus goiavier Alien Species (E-073): 89 panggilan Kutilang Perch ber-confidence rendah (<0.60) terbukti adalah Trucuk/Babbler di BirdNET. Diisolasi langsung ke Unknown (bukan di-reassign ke Bondol).
+- Unknown Rejection Concavity (E-074): Titik manis Unknown global berada di rentang 41.5% s.d. 43.8% (sub_006: 43.12% -> 0.59462; sub_011: 40.05% -> 0.65233; sub_012: 43.86% -> 0.65447; sub_013: 43.49% -> 0.66760).
+- Transductive Manifold Adaptation (E-076): Kurasi adaptif 126 pseudo-labels test set menjembatani celah akustik mikrofon tanpa merusak decision boundary (naik +0.01313 ke LB 0.66760).
+
 ## Artifacts
  
 | Artifact | Purpose | Validation Status |
@@ -291,6 +295,16 @@ Not Applicable at initial project planning phase.
 | experiment 6.csv | File submission keenam (sub_006: Dynamic Gating + 3-Crop TTA + Prototype Shrinkage, 43.12% Unknown) - Peak LB 0.59462 | Passed |
 | experiment 7.csv | File submission ketujuh (sub_007: Bioacoustic High-Harmonic Gate + Dual-Manifold Shrinkage, 70 Cendrawasih, 47.54% Unknown) - LB 0.58805 | Passed |
 | experiment 8.csv | File submission kedelapan (sub_008: Golden Sweet-Spot Interpolation, 82 Cendrawasih, 43.86% Unknown) | Passed |
+| experiment 9.csv | File submission kesembilan (sub_009: Google Perch v2 Pure Standalone, 32.92% Unknown) - LB 0.63967 | Passed |
+| experiment 10.csv | File submission kesepuluh (sub_010: Master Foundation Ensemble 3-Pillar + Pure Dual-Manifold ECDF OOD, 55.28% Unknown) - LB 0.63256 | Passed |
+| experiment 11.csv | File submission kesebelas (sub_011: Google Perch v2 Pure Bioacoustic + Calibrated Sweet-Spot, 40.05% Unknown) - LB 0.65233 | Passed |
+| experiment 12.csv | File submission kedua belas (sub_012: Perch v2 + BirdNET Forensic Reassignment + Trucuk Shield, 43.86% Unknown) - LB 0.65447 | Passed |
+| experiment 13.csv | File submission ketiga belas (sub_013: Perch v2 + Self-Training 126 Pseudo + BirdNET Shield, 43.49% Unknown) - ALL-TIME PEAK LB 0.66760 | Passed |
+| schematics_day3_all_artifacts/ | Folder ekstraksi lengkap model weights, metrics, dan artefak Day 3 | Passed |
+| schematics_day4_all_artifacts/planning_day_4.md | Master Blueprint Day 4 v3.0 (36-sel modular) | Passed |
+| schematics_day4_all_artifacts/planning_day_4_experiment.md | Execution Plan Day 4 v2.0 (17-sel lean) | Passed |
+| notebooks/schematics-day-3.ipynb | Notebook master Day 3 terintegrasi 32 sel (Perch v2, BirdNET v2.4, Self-Training) | Passed |
+| notebooks/schematics-day-4.ipynb | Notebook eksekusi Day 4 (17 sel lean terverifikasi) | Passed |
 | submissions/sub_001_*/ | Bundel submission sub_001 (experiment 1.csv, test_predictions_detailed.csv, metrics.json) | Passed |
 | submissions/sub_002_*/ | Bundel submission sub_002 (experiment 2.csv, metrics.json) | Passed |
 | submissions/sub_003_*/ | Bundel submission sub_003 (experiment 3.csv, metrics.json) | Passed |
@@ -320,8 +334,9 @@ Not Applicable at initial project planning phase.
 
 ## Open Questions
 
-- Apakah penggunaan `in_chans=1` pada `timm` memberikan konvergensi awal LP-FT yang lebih stabil dibanding duplikasi 3-channel tanpa normalisasi ImageNet?
-- Berapa rasio bobot optimal ($w_1$ Energy Score vs $w_2$ kNN 256-d distance) pada kalibrasi Pseudo-OOD Injection di OOF?
+- Seberapa besar kenaikan performa In-Fold Self-Training (`sub_015`) dibanding Pure Supervised Perch Hybrid (`sub_014`) pada protokol bebas bocor (zero optimism bias)?
+- Apakah ambang batas kuantil Unknown 43.5% (`sub_015`) atau 41.5% (`sub_016`) yang memiliki ketahanan generalisasi lebih tinggi terhadap distribusi 70% Private LB?
+- Bagaimana kontribusi relatif Helmholtz Free-Energy Scoring dibanding Cosine kNN-5 distance dalam memisahkan sinyal biophony vs abiotic noise pada soundscape tropis?
 
 ## Exact Next Action
 
