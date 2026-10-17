@@ -4,7 +4,7 @@
   
   <p align="center">
     <img src="https://img.shields.io/badge/Competition-Schematics_NPC_DSC_2026-blue?style=flat-square" alt="Competition">
-    <img src="https://img.shields.io/badge/Kaggle_Public_LB-0.59183-success?style=flat-square" alt="Leaderboard">
+    <img src="https://img.shields.io/badge/Kaggle_Public_LB-0.66760-success?style=flat-square" alt="Leaderboard">
     <img src="https://img.shields.io/badge/Task-Audio_Open--Set_Classification-orange?style=flat-square" alt="Task">
     <img src="https://img.shields.io/badge/Language-Python_3.11-3776AB?style=flat-square&logo=python&logoColor=white" alt="Language">
     <img src="https://img.shields.io/badge/Status-Active_Phase_1-brightgreen?style=flat-square" alt="Status">
@@ -103,6 +103,11 @@ Submissions follow an empirical validation protocol on Kaggle:
 | **sub_006** | `experiment 6.csv` | The Elite Triad + Dynamic Gating + 3-Crop TTA + Prototype Shrinkage | 43.12% (351) | **0.59462** | **Peak Benchmark** |
 | **sub_007** | `experiment 7.csv` | Dual-Manifold kNN + Bioacoustic High-Harmonic Gate (70 Cendra) | 47.54% (387) | 0.58805 | Over-rejection boundary |
 | **sub_008** | `experiment 8.csv` | Golden Sweet-Spot Interpolation (82 Cendrawasih, 43.86% Unknown) | 43.86% (357) | 0.58356 | Global Tau p92 probe |
+| **sub_009** | `experiment 9.csv` | Google Perch v2 Pure Bioacoustic Foundation Standalone (1536-d) | 32.92% (268) | 0.63967 | Day 3 Perch Breakthrough |
+| **sub_010** | `experiment 10.csv` | 3-Pillar Master Ensemble (Perch + ConvNeXt + Tabular) + Pure ECDF OOD | 55.28% (450) | 0.63256 | Conservative Multi-Manifold |
+| **sub_011** | `experiment 11.csv` | Google Perch v2 Pure Bioacoustic + Calibrated Sweet-Spot Threshold | 40.05% (326) | 0.65233 | 0.65+ Breakthrough |
+| **sub_012** | `experiment 12.csv` | Perch v2 + BirdNET Forensic Reassignment + Trucuk Shield | 43.86% (357) | 0.65447 | Forensic Alignment Peak |
+| **sub_013** | `experiment 13.csv` | Perch v2 + Adaptive Self-Training (126 Pseudo) + BirdNET Shield | 43.49% (354) | **0.66760** | **All-Time Peak Benchmark** |
 
 ## Repository Structure
 
@@ -127,6 +132,12 @@ schematics-npc-dsc-2026/
 │   ├── model_grand_prix_summary.json   7-model decision matrix and F1 benchmarks
 │   ├── dynamic_gating_summary.json     SNR-Dynamic Gating calibration parameters
 │   └── submissions/                    Submissions 5 to 8 bundles (sub_005 to sub_008)
+├── schematics_day3_all_artifacts/      Day 3 artifacts, planning day 3, plots, metrics, submissions 9-13
+│   ├── planning_day_3.md               Day 3 technical master blueprint
+│   ├── ood_dual_manifold_diagnostics.png Dual-manifold distance space and bimodal OOD score plots
+│   ├── ood_thresholds.json             Dual-manifold statistical calibration parameters
+│   ├── dynamic_gating_summary.json     3-Pillar gating parameters and SNR noise tersil proof
+│   └── submissions/                    Submissions 9 to 13 bundles (sub_009 to sub_013)
 ├── PROJECT_STATE.md                    Persistent machine-readable evidence ledger and decisions log
 ├── LICENSE                             Repository license
 └── README.md                           Publication-grade documentation

@@ -1,0 +1,19 @@
+{
+  "track": "Track_A2_XGBoost_v2_818dims",
+  "global_oof_macro_f1": 0.83992,
+  "mean_fold_macro_f1": 0.8134,
+  "per_class_oof_f1": {
+    "Bondol Jawa": 0.94794,
+    "Cendrawasih": 0.63158,
+    "Kutilang": 0.94025
+  },
+  "fold_macro_f1s": [
+    0.87182,
+    0.97112,
+    0.78131,
+    0.62935
+  ],
+  "cendra_tp": 54,
+  "cendra_fp": 34,
+  "elapsed_sec": 22.92
+}

@@ -1,0 +1,27 @@
+{
+  "mode": "static",
+  "optimal_params": {
+    "r_noisy": 0.7,
+    "r_clean": 0.7,
+    "w_tab_max": 0.15
+  },
+  "master_closed_set_macro_f1_insample": 0.94144,
+  "master_closed_set_macro_f1_nested": 0.90534,
+  "nested_dynamic": 0.90754,
+  "nested_static": 0.90534,
+  "equal_average_f1": 0.94487,
+  "snr_percentiles_train": {
+    "p05": 0.056958175264298916,
+    "p95": 0.10462257638573647
+  },
+  "standalone_scores": {
+    "tabular": 0.84631,
+    "convnext": 0.93233,
+    "perch": 0.92832
+  },
+  "per_class_f1": {
+    "Bondol Jawa": 0.97917,
+    "Cendrawasih": 0.86339,
+    "Kutilang": 0.98176
+  }
+}

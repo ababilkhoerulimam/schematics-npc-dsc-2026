@@ -1,0 +1,16 @@
+{
+  "submission_id": "sub_011_perch_pure_calibrated_p40",
+  "filename": "experiment 11.csv",
+  "strategy": "Google_Perch_v2_Pure_Standalone_Calibrated_40pct_Unknown",
+  "target_public_lb": "0.6450 - 0.6650",
+  "q_chosen": 94.39999999999918,
+  "tau_perch": 0.5896006226539612,
+  "tau_cendra_guard": 0.622694730758667,
+  "unknown_percentage": 39.07,
+  "distribution": {
+    "Unknown": 318,
+    "Bondol Jawa": 200,
+    "Kutilang": 169,
+    "Cendrawasih": 127
+  }
+}

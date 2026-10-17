@@ -1,0 +1,25 @@
+{
+  "selected_strategy": "Dual_LGBM_XGBoost_50_50",
+  "global_oof_macro_f1": 0.84631,
+  "macro_harmonic_nll": 0.37174,
+  "ablation_cendra_fp": {
+    "triad_3way_fp": 39,
+    "dual_2way_fp": 34
+  },
+  "standalone_f1": {
+    "LightGBM": 0.84314,
+    "XGBoost": 0.83992,
+    "CatBoost": 0.82918
+  },
+  "selected_weights": {
+    "LightGBM": 0.5,
+    "XGBoost": 0.5,
+    "CatBoost": 0.0
+  },
+  "per_class_f1": {
+    "Bondol Jawa": 0.94971,
+    "Cendrawasih": 0.6474,
+    "Kutilang": 0.94182
+  },
+  "elapsed_sec": 2.15
+}

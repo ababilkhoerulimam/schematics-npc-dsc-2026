@@ -1,0 +1,6 @@
+input,start_time,end_time,species_name,confidence
+"/kaggle/working/dummy_3s_48k.wav","00:00:00.00","00:00:03.00","Engine_Engine",0.006812
+"/kaggle/working/dummy_3s_48k.wav","00:00:00.00","00:00:03.00","Human vocal_Human vocal",0.004206
+"/kaggle/working/dummy_3s_48k.wav","00:00:00.00","00:00:03.00","Fireworks_Fireworks",0.003352
+"/kaggle/working/dummy_3s_48k.wav","00:00:00.00","00:00:03.00","Bubo virginianus_Great Horned Owl",0.003303
+"/kaggle/working/dummy_3s_48k.wav","00:00:00.00","00:00:03.00","Power tools_Power tools",0.003166

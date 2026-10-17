@@ -1,0 +1,21 @@
+{
+  "submission_id": "sub_013_perch_self_training",
+  "filename": "experiment 13.csv",
+  "strategy": "Perch_v2_with_Adaptive_Self_Training_and_BirdNET_Forensic_Shield",
+  "public_lb_macro_f1": 0.66760,
+  "delta_vs_day2_peak": "+0.07298",
+  "pseudo_samples_count": 126,
+  "pseudo_distribution": {
+    "Bondol Jawa": 50,
+    "Kutilang": 63,
+    "Cendrawasih": 13
+  },
+  "total_augmented_training_size": 1952,
+  "unknown_percentage": 43.49,
+  "distribution": {
+    "Unknown": 354,
+    "Bondol Jawa": 203,
+    "Kutilang": 167,
+    "Cendrawasih": 90
+  }
+}
