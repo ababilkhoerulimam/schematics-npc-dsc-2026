@@ -222,6 +222,7 @@ __marimo__/
 # Competition Large Datasets & Heavy Binary Artifacts
 schematics-2026/
 NPC Guidebook - Data Science REVISED.pdf
+papers/*.pdf
 *.npy
 *.pt
 *.pth
