@@ -138,6 +138,8 @@ schematics-npc-dsc-2026/
 │   ├── ood_thresholds.json             Dual-manifold statistical calibration parameters
 │   ├── dynamic_gating_summary.json     3-Pillar gating parameters and SNR noise tersil proof
 │   └── submissions/                    Submissions 9 to 13 bundles (sub_009 to sub_013)
+├── schematics_day4_all_artifacts/      Day 4 artifacts, master blueprint, transductive self-training
+│   └── planning_day_4.md               Day 4 32-cell modular execution blueprint
 ├── PROJECT_STATE.md                    Persistent machine-readable evidence ledger and decisions log
 ├── LICENSE                             Repository license
 └── README.md                           Publication-grade documentation
