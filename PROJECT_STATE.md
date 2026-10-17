@@ -325,6 +325,4 @@ Not Applicable at initial project planning phase.
 
 ## Exact Next Action
 
-## Exact Next Action
-
-Day 4 Master Blueprint completed and locked in schematics_day4_all_artifacts/planning_day_4.md (32 modular cells: Self-Training, Helmholtz Free Energy OOD, BirdNET Forensic Cendrawasih Reassignment, and Trucuk Alien Bulbul Isolation). Ready for Day 4 interactive execution starting from Cell 1.
+Day 4 Lean Experiment Execution Plan v2.0 completed and locked in schematics_day4_all_artifacts/planning_day_4_experiment.md (17 cells: self-contained combinatorial folds, 1543-d hybrid input, in-fold pseudo-labeling, and tri-submission export). Ready for Day 4 interactive execution starting from Cell 1.
