@@ -3,11 +3,11 @@
 **Schema version:** 1.1
 **Last updated:** 2026-10-18
 **Status:** In Progress
-**Current phase:** Day 4 Submissions Evaluated (sub_014: 0.64396, sub_015: 0.65993, sub_016: 0.65052)
+**Current phase:** Day 4 Intrinsic Submissions Exported (sub_017 & sub_018 ready for Kaggle evaluation)
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
 **Primary notebook:** notebooks/schematics-day-1.ipynb (Day 1 archive) / notebooks/schematics-day-2.ipynb (Day 2 archive) / notebooks/schematics-day-3.ipynb (Day 3 archive) / notebooks/schematics-day-4.ipynb (Day 4 Execution Master)
-**Last completed cell:** Cell 16 (Validated Day 4 Submissions on Kaggle LB: sub_014=0.64396, sub_015=0.65993, sub_016=0.65052)
+**Last completed cell:** Cell 18 (Intrinsic OOD Submissions: sub_017 [Class Spheres, 38.45% Unk, 92 Cendra] & sub_018 [Global OOF p95, 35.75% Unk])
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
 
@@ -244,6 +244,8 @@
 | E-088 | Public Leaderboard validation of sub_014 (Safe Anchor Supervised Hybrid 1543-d) | Macro F1 = 0.64396 on 30% public LB; establishes pure in-fold supervised hybrid baseline without transductive adaptation; confirms robust defensibility and provides clean lower-bound anchor for Day 4 ablation | Kaggle LB | Kaggle Public LB evaluation | Observed |
 | E-089 | Public Leaderboard validation of sub_015 (SOTA Champion Self-Trained Hybrid @ 43.5%) | Macro F1 = 0.65993 on 30% public LB (+0.01597 vs sub_014 0.64396); conclusively proves the statistical power of in-fold transductive self-training with 99 inliers bridging microphone domain shift on identical feature backbones; delivers top score of Day 4 | Kaggle LB | Kaggle Public LB evaluation | Observed |
 | E-090 | Public Leaderboard validation of sub_016 (Conservative Probe Self-Trained Hybrid @ 41.5%) | Macro F1 = 0.65052 on 30% public LB (-0.00941 vs sub_015 0.65993); proves that loosening Unknown rejection from 43.5% (354) down to 41.5% (338) degrades macro F1 by allowing acoustic non-target noise to contaminate target species; confirms strict concavity and locks ~43.5% as the definitive global optimum Unknown rate | Kaggle LB | Kaggle Public LB evaluation | Observed |
+| E-091 | Live Day 4 sub_017 Class-Conditional Manifold Spheres Export | Formulated intrinsic per-class OOD rejection calibrated to each species' OOF p95 radius (Bondol tau=0.6352, Cendra tau=0.6611, Kutilang tau=0.4589); eliminated test-ranking quota forcing; preserved 92 Cendrawasih calls (vs 70 in sub_015) while tightening Kutilang boundary (94 calls); generated 313 Unknown (38.45%); exported experiment 17.csv (MD5 d5a39382) | Day 4 Cell 18 | Class-conditional manifold OOD rejection | Observed |
+| E-092 | Live Day 4 sub_018 Pure Global OOF Inlier Retention Export | Calibrated global OOD threshold strictly on OOF p95 inlier retention (tau=0.6106) with zero test-ranking quota forcing; produced organic 291 Unknown (35.75%), 78 Cendrawasih, 155 Kutilang, 290 Bondol Jawa; provides true distribution-agnostic safety net against Private LB prevalence shifts; exported experiment 18.csv (MD5 f33dd4df) | Day 4 Cell 18 | Global OOF inlier retention rejection | Observed |
 
 ## Methodology Design
 
