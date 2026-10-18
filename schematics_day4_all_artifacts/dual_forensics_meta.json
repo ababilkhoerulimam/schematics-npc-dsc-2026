@@ -1,0 +1,22 @@
+{
+  "supervised_cendra_clean": 126,
+  "selftrained_cendra_clean": 97,
+  "supervised_trucuk_flagged": 56,
+  "selftrained_trucuk_flagged": 52,
+  "trucuk_overlap": 39,
+  "trucuk_jaccard": 0.5652173913043478,
+  "selftrained_mask_diff_vs_cell13": 0,
+  "branch_agreement": 0.9152334152334153,
+  "n_branch_disagreement": 69,
+  "dist_supervised": {
+    "Bondol Jawa": 429,
+    "Kutilang": 259,
+    "Cendrawasih": 126
+  },
+  "dist_selftrained": {
+    "Bondol Jawa": 480,
+    "Kutilang": 237,
+    "Cendrawasih": 97
+  },
+  "note": "mask Trucuk hanya marker (tidak mengubah prediksi); kedua jalur tidak independen karena pseudo-label berasal dari jalur supervised"
+}

@@ -1,0 +1,128 @@
+{
+  "fold_thresholds": {
+    "0": {
+      "thr_cendra_p80": -7.657782554626465,
+      "thr_cendra_youden": -7.336775302886963,
+      "thr_kutilang_p95": -8.151447296142578,
+      "thr_kutilang_youden": -7.373602390289307,
+      "chosen_cendra": -7.657782554626465,
+      "chosen_kutilang": -8.151447296142578,
+      "heldout_tpr_fpr": {
+        "cendra_p80": [
+          0.8857142857142857,
+          0.17094017094017094
+        ],
+        "cendra_youden": [
+          0.8857142857142857,
+          0.1452991452991453
+        ],
+        "kutilang_p95": [
+          0.9696969696969697,
+          0.0646900269541779
+        ],
+        "kutilang_youden": [
+          0.9545454545454546,
+          0.016172506738544475
+        ]
+      },
+      "n_heldout_cendra": 35,
+      "n_heldout_kutilang": 132
+    },
+    "1": {
+      "thr_cendra_p80": -7.701614856719971,
+      "thr_cendra_youden": -7.336775302886963,
+      "thr_kutilang_p95": -8.054491996765137,
+      "thr_kutilang_youden": -7.337489604949951,
+      "chosen_cendra": -7.701614856719971,
+      "chosen_kutilang": -8.054491996765137,
+      "heldout_tpr_fpr": {
+        "cendra_p80": [
+          1.0,
+          0.20092378752886836
+        ],
+        "cendra_youden": [
+          0.9655172413793104,
+          0.17090069284064666
+        ],
+        "kutilang_p95": [
+          0.9440559440559441,
+          0.034482758620689655
+        ],
+        "kutilang_youden": [
+          0.916083916083916,
+          0.006269592476489028
+        ]
+      },
+      "n_heldout_cendra": 29,
+      "n_heldout_kutilang": 143
+    },
+    "2": {
+      "thr_cendra_p80": -7.683526039123535,
+      "thr_cendra_youden": -7.243544101715088,
+      "thr_kutilang_p95": -8.151082992553711,
+      "thr_kutilang_youden": -7.373602390289307,
+      "chosen_cendra": -7.683526039123535,
+      "chosen_kutilang": -8.151082992553711,
+      "heldout_tpr_fpr": {
+        "cendra_p80": [
+          0.8125,
+          0.18472906403940886
+        ],
+        "cendra_youden": [
+          0.6875,
+          0.13054187192118227
+        ],
+        "kutilang_p95": [
+          1.0,
+          0.0703125
+        ],
+        "kutilang_youden": [
+          1.0,
+          0.015625
+        ]
+      },
+      "n_heldout_cendra": 16,
+      "n_heldout_kutilang": 166
+    },
+    "3": {
+      "thr_cendra_p80": -7.770589828491211,
+      "thr_cendra_youden": -7.246252059936523,
+      "thr_kutilang_p95": -8.07380199432373,
+      "thr_kutilang_youden": -7.373602390289307,
+      "chosen_cendra": -7.770589828491211,
+      "chosen_kutilang": -8.07380199432373,
+      "heldout_tpr_fpr": {
+        "cendra_p80": [
+          1.0,
+          0.23853211009174313
+        ],
+        "cendra_youden": [
+          1.0,
+          0.1536697247706422
+        ],
+        "kutilang_p95": [
+          0.9943820224719101,
+          0.034482758620689655
+        ],
+        "kutilang_youden": [
+          0.9943820224719101,
+          0.011494252873563218
+        ]
+      },
+      "n_heldout_cendra": 3,
+      "n_heldout_kutilang": 178
+    }
+  },
+  "global_mean_thr_cendra": -7.703378319740295,
+  "global_mean_thr_kutilang": -8.107706069946289,
+  "final_thr_cendra": -7.7006449699401855,
+  "final_thr_kutilang": -8.1115140914917,
+  "final_all_methods": {
+    "cendra_p80": -7.7006449699401855,
+    "cendra_youden": -7.246252059936523,
+    "kutilang_p95": -8.1115140914917,
+    "kutilang_youden": -7.373602390289307
+  },
+  "cendra_confidence_floor": 0.6,
+  "note": "nilai ambang dihitung in-fold; pemilihan metode (p80/p95) berasal dari eksplorasi sebelumnya"
+}

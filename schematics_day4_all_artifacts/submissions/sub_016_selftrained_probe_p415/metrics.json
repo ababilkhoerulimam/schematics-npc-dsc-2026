@@ -1,0 +1,15 @@
+{
+  "submission_id": "sub_016_selftrained_probe_p415",
+  "filename": "experiment 16.csv",
+  "strategy": "InFold_SelfTrained_Hybrid_1543d_plus_BirdNET_Forensic_at_41.5pct_Unknown",
+  "scientific_role": "Conservative probe testing sensitivity if Private LB has lower Unknown prevalence",
+  "n_samples": 814,
+  "unknown_percentage": 41.52,
+  "distribution": {
+    "Unknown": 338,
+    "Bondol Jawa": 254,
+    "Kutilang": 150,
+    "Cendrawasih": 72
+  },
+  "md5": "1ad8d9112b42470bb7159d08a83cabb6"
+}

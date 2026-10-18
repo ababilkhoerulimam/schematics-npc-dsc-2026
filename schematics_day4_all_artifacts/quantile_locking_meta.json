@@ -1,0 +1,30 @@
+{
+  "rate_standard": 0.4349,
+  "rate_probe": 0.4152,
+  "overlap_sub14_sub15": 350,
+  "note": "laju Unknown dipilih dari umpan balik submission (bukan validasi OOF); mask Trucuk memaksa Unknown",
+  "sub_014": {
+    "tau_inclusive": 0.5845514535903931,
+    "unknown_count": 354,
+    "rate": 0.4348894348894349,
+    "from_trucuk": 56,
+    "from_distance": 298,
+    "oof_indist_reject_rate": 0.056955093099671415
+  },
+  "sub_015": {
+    "tau_inclusive": 0.5833323001861572,
+    "unknown_count": 354,
+    "rate": 0.4348894348894349,
+    "from_trucuk": 52,
+    "from_distance": 302,
+    "oof_indist_reject_rate": 0.056955093099671415
+  },
+  "sub_016": {
+    "tau_inclusive": 0.5900958776473999,
+    "unknown_count": 338,
+    "rate": 0.4152334152334152,
+    "from_trucuk": 52,
+    "from_distance": 286,
+    "oof_indist_reject_rate": 0.05640744797371303
+  }
+}

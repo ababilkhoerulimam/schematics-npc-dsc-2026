@@ -1,0 +1,57 @@
+{
+  "oof_macro_f1_st_raw": 0.9421491344236156,
+  "oof_macro_f1_st_reassigned": 0.9515321657427597,
+  "oof_macro_f1_supervised_reassigned_cell9": 0.9382782886676063,
+  "oof_reassigned_st_samples": 7,
+  "oof_fp_removed": 6,
+  "oof_fp_fixed": 6,
+  "oof_tp_lost": 1,
+  "oof_cendra_recall": [
+    0.7951807228915663,
+    0.7831325301204819
+  ],
+  "oof_cendra_precision": [
+    0.8918918918918919,
+    0.9701492537313433
+  ],
+  "trucuk_oof_flagged": 4,
+  "trucuk_oof_flagged_true_kutilang_rate": 0.0,
+  "test_cendra_st_raw": 116,
+  "test_cendra_st_reassigned": 19,
+  "test_cendra_st_clean": 97,
+  "trucuk_shielded_test": 52,
+  "cm_raw_st": [
+    [
+      1114,
+      8,
+      2
+    ],
+    [
+      15,
+      66,
+      2
+    ],
+    [
+      0,
+      0,
+      619
+    ]
+  ],
+  "cm_reassigned_st": [
+    [
+      1120,
+      2,
+      2
+    ],
+    [
+      16,
+      65,
+      2
+    ],
+    [
+      0,
+      0,
+      619
+    ]
+  ]
+}

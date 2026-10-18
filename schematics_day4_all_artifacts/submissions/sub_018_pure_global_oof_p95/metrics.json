@@ -1,0 +1,15 @@
+{
+  "submission_id": "sub_018_pure_global_oof_p95",
+  "filename": "experiment 18.csv",
+  "strategy": "SelfTrained_1543d_Pure_Global_OOF_Inlier_Retention_p95",
+  "scientific_role": "Rejection threshold calibrated strictly on global OOF p95 retention; zero test-ranking bias",
+  "n_samples": 814,
+  "unknown_percentage": 35.75,
+  "distribution": {
+    "Unknown": 291,
+    "Bondol Jawa": 290,
+    "Kutilang": 155,
+    "Cendrawasih": 78
+  },
+  "md5": "f33dd4dfa0f7bd68b2d87bc87a0e62dc"
+}
