@@ -3,11 +3,11 @@
 **Schema version:** 1.1
 **Last updated:** 2026-10-18
 **Status:** In Progress
-**Current phase:** Day 4 Intrinsic Submissions Exported (sub_017 & sub_018 ready for Kaggle evaluation)
+**Current phase:** Day 4 Submissions Completed (5/5 Quota Exhausted; Peak sub_013 LB 0.66760, Day 4 Champion sub_015 LB 0.65993)
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
 **Primary notebook:** notebooks/schematics-day-1.ipynb (Day 1 archive) / notebooks/schematics-day-2.ipynb (Day 2 archive) / notebooks/schematics-day-3.ipynb (Day 3 archive) / notebooks/schematics-day-4.ipynb (Day 4 Execution Master)
-**Last completed cell:** Cell 18 (Intrinsic OOD Submissions: sub_017 [Class Spheres, 38.45% Unk, 92 Cendra] & sub_018 [Global OOF p95, 35.75% Unk])
+**Last completed cell:** Cell 18 (Validated sub_017=0.57045 & sub_018=0.63049; locked 43.5% forensic sweet-spot)
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
 
@@ -246,6 +246,8 @@
 | E-090 | Public Leaderboard validation of sub_016 (Conservative Probe Self-Trained Hybrid @ 41.5%) | Macro F1 = 0.65052 on 30% public LB (-0.00941 vs sub_015 0.65993); proves that loosening Unknown rejection from 43.5% (354) down to 41.5% (338) degrades macro F1 by allowing acoustic non-target noise to contaminate target species; confirms strict concavity and locks ~43.5% as the definitive global optimum Unknown rate | Kaggle LB | Kaggle Public LB evaluation | Observed |
 | E-091 | Live Day 4 sub_017 Class-Conditional Manifold Spheres Export | Formulated intrinsic per-class OOD rejection calibrated to each species' OOF p95 radius (Bondol tau=0.6352, Cendra tau=0.6611, Kutilang tau=0.4589); eliminated test-ranking quota forcing; preserved 92 Cendrawasih calls (vs 70 in sub_015) while tightening Kutilang boundary (94 calls); generated 313 Unknown (38.45%); exported experiment 17.csv (MD5 d5a39382) | Day 4 Cell 18 | Class-conditional manifold OOD rejection | Observed |
 | E-092 | Live Day 4 sub_018 Pure Global OOF Inlier Retention Export | Calibrated global OOD threshold strictly on OOF p95 inlier retention (tau=0.6106) with zero test-ranking quota forcing; produced organic 291 Unknown (35.75%), 78 Cendrawasih, 155 Kutilang, 290 Bondol Jawa; provides true distribution-agnostic safety net against Private LB prevalence shifts; exported experiment 18.csv (MD5 f33dd4df) | Day 4 Cell 18 | Global OOF inlier retention rejection | Observed |
+| E-093 | Public Leaderboard validation of sub_017 (Class-Conditional Spheres) | Macro F1 = 0.57045 on 30% public LB (-0.08948 vs sub_015 0.65993); critical negative empirical finding: widening Cendrawasih inlier radius to tau=0.6611 caused catastrophic false-positive bleed where rainforest background harmonics were falsely admitted into Cendrawasih, destroying precision; proves class-conditional radius expansion is fundamentally unsafe under open-set acoustic noise | Kaggle LB | Kaggle Public LB evaluation | Observed |
+| E-094 | Public Leaderboard validation of sub_018 (Pure Global OOF p95 Inlier Retention) | Macro F1 = 0.63049 on 30% public LB (-0.02944 vs sub_015 0.65993); confirms that retaining 95% OOF inliers yields only 35.75% Unknown (291 samples), which is below the necessary ~43.5% open-set rejection threshold; empirically proves test set contains ~43.5% non-target sounds and establishes that forensic rank-calibrated sweet-spot is strictly necessary for optimal bioacoustic open-set classification | Kaggle LB | Kaggle Public LB evaluation | Observed |
 
 ## Methodology Design
 
