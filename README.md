@@ -115,8 +115,8 @@ Submissions follow an empirical validation protocol on the Kaggle Leaderboard:
 | **sub_019** | `experiment 19.csv` | In-Fold Self-Trained (203 Inliers) + BirdNET Shield @ 43.5% | 43.49% (354) | 0.67359 | Day 5 SOTA (+0.02663 vs sub_021) |
 | **sub_020** | `experiment 20.csv` | In-Fold Self-Trained (203 Inliers) Probe Low @ 42.0% | 42.01% (342) | 0.65818 | Probe Low (-0.01541 drop) |
 | **sub_021** | `experiment 21.csv` | Pure Supervised Hybrid Anchor (81 Cendra) @ 43.5% | 43.49% (354) | 0.64696 | Day 5 Safe Anchor Baseline |
-| **sub_022** | `experiment 22.csv` | In-Fold Self-Trained (203 Inliers) Probe High @ 45.0% | 44.96% (366) | **0.67701** | **ALL-TIME PEAK RECORD (+0.00941 vs sub_013)** |
-| **sub_023** | `experiment 23.csv` | Round-2 Self-Trained (274 Inliers) Multi-Taxa Pooled @ 45.0% | 44.96% (366) | Pending | Day 5 Final Slot (49 Cendrawasih) |
+| **sub_022** | `experiment 22.csv` | In-Fold Self-Trained (203 Inliers) Probe High @ 45.0% | 44.96% (366) | 0.67701 | Round-1 High Probe (+0.00941) |
+| **sub_023** | `experiment 23.csv` | Round-2 Self-Trained (274 Inliers) Multi-Taxa Pooled @ 45.0% | 44.96% (366) | **0.71221** | **ALL-TIME PEAK SOTA (+0.03520 jump, 0.70+ Milestone)** |
 
 ## Repository Structure
 
