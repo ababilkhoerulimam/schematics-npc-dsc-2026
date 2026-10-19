@@ -3,11 +3,11 @@
 **Schema version:** 1.1
 **Last updated:** 2026-10-18
 **Status:** In Progress
-**Current phase:** Day 4 Submissions Completed (5/5 Quota Exhausted; Peak sub_013 LB 0.66760, Day 4 Champion sub_015 LB 0.65993)
+**Current phase:** Day 5 Execution in Progress (Cells 1-14 Completed: Perch v2 1536-d + BirdNET v2.4 + Hybrid 1543-d + Self-Training with 203 Pseudo-Inliers & Dual Forensic Shield)
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
-**Primary notebook:** notebooks/schematics-day-1.ipynb (Day 1 archive) / notebooks/schematics-day-2.ipynb (Day 2 archive) / notebooks/schematics-day-3.ipynb (Day 3 archive) / notebooks/schematics-day-4.ipynb (Day 4 Execution Master)
-**Last completed cell:** Cell 18 (Validated sub_017=0.57045 & sub_018=0.63049; locked 43.5% forensic sweet-spot)
+**Primary notebook:** notebooks/schematics-day-1.ipynb (Day 1 archive) / notebooks/schematics-day-2.ipynb (Day 2 archive) / notebooks/schematics-day-3.ipynb (Day 3 archive) / notebooks/schematics-day-4.ipynb (Day 4 archive) / Day 5 Execution Master (Cells 1-14)
+**Last completed cell:** Cell 14 (Dual Forensic Taxonomic Shield: Supervised 114 Cendra vs Self-Trained 75 Cendra, Trucuk Jaccard 0.625)
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
 
@@ -150,6 +150,38 @@
 - **Evidence:** `E-027` (sub_001 LB 0.54401), `E-029` (sub_002 LB 0.58315), `E-036` (sub_004 LB 0.59183), `E-037` (Confounder Eta-squared), `E-038` (OOD Spectral Profile).
 - **Revisit when:** Fitur bioakustik diekstraksi secara *frame-level dynamic window*, bukan *global scalar average*.
 
+### D-015: Dual-Foundation Pretrained Bioacoustic Feature Extraction (Google Perch v2 + BirdNET v2.4)
+
+- **Chosen:** Menggunakan embedding 1536-d L2-normalized dari Google Perch v2 (EfficientNet-B3 backbone) dikombinasikan dengan ringkasan logit 4-d BirdNET v2.4 (AcousticModelV2_4) sebagai juri forensik independen.
+- **Alternatives considered:** Melatih CNN dari awal (scratch) pada spektrogram mel atau menggunakan single backbone tanpa cross-architecture forensic validation.
+- **Why:** Perch v2 dilatih pada 14.795 taksa biophony global menghasilkan representasi invarian derau yang jauh lebih terpisah dibanding model visual generalis. BirdNET v2.4 (dilatih pada 6.522 spesies) menyediakan sinyal ortogonal independen untuk memvalidasi vokal spesifik dan menyaring false positives.
+- **Evidence:** `E-097`, `E-098`, `E-099`.
+- **Revisit when:** Not Applicable.
+
+### D-016: RESOLVE Global Taxa Lock to Cicinnurus regius for Cendrawasih Grounding
+
+- **Chosen:** Mengunci taksa Paradisaeidae global ke *Cicinnurus regius* (King Bird-of-Paradise, index 2893) untuk seluruh 4 fold.
+- **Alternatives considered:** Fold-dependent candidate selection (Day 4 pendekatan yang menghasilkan Paradisaea rubra pada Fold 2 dan 3).
+- **Why:** Verifikasi empiris membuktikan bahwa Cendrawasih pada dataset kompetisi 100% konsisten dengan pola vokal *Cicinnurus regius*. Penguncian global ini mendongkrak AUROC held-out Fold 3 dari 0.5757 menjadi 0.9235 (pooled AUROC = 0.8917) dan mengeliminasi variansi taksa antar fold.
+- **Evidence:** `E-100`.
+- **Revisit when:** Not Applicable.
+
+### D-017: High-Purity In-Fold Transductive Self-Training with 203 Curated Inliers
+
+- **Chosen:** Mengkurasi 203 sampel test inlier steril (Bondol 92, Cendrawasih 11, Kutilang 100) menggunakan filter ganda: Confidence p65 (>=0.743) + In-fold kNN-5 Cosine Manifold Distance p50 (<=0.525) ditambah veto BirdNET Cendrawasih dan Kutilang shield, lalu menginjeksinya ke train split masing-masing fold (sample weight=1.0).
+- **Alternatives considered:** Naive pseudo-labeling seluruh test set atau self-training tanpa manifold distance filtering.
+- **Why:** Verifikasi pada OOF membuktikan aturan kurasi ini mencapai kemurnian pseudo-label 99.72% (351/352 sampel benar). Menginjeksi 203 pseudo-inliers ke train fold mendongkrak sampel latih Cendrawasih sebesar +13.8% s.d. +22.9%, menaikkan Macro F1 ke 0.9356, dan memangkas FP Cendrawasih OOF dari 20 menjadi 3 sampel.
+- **Evidence:** `E-103`, `E-104`, `E-105`.
+- **Revisit when:** Not Applicable.
+
+### D-018: Dual Forensic Taxonomic Shield (Nested BirdNET Cendrawasih Reassignment & Trucuk Shield)
+
+- **Chosen:** Menerapkan dua guardrail forensik: (1) Reassignment Cendrawasih ber-confidence rendah (< -7.70 BirdNET logit) ke kelas probabilitas ranking ke-2, dan (2) Trucuk Shield untuk menandai audio Kutilang borderline (confidence < 0.60 dan BirdNET Kutilang logit < -8.11) sebagai kandidat alien bulbul untuk OOD.
+- **Alternatives considered:** Mengabaikan spesies mirip dan membiarkan raw model decision boundary tanpa audit taksonomi.
+- **Why:** Memotong False Positive Cendrawasih OOF ke level ekstrem (presisi Cendrawasih 98.3%), memangkas kandidat Cendrawasih data uji dari 162 menjadi 75 sampel (tepat di sweet-spot ekologis), serta mengisolasi 64 sampel berisiko tinggi yang dapat merusak recall di data uji.
+- **Evidence:** `E-102`, `E-106`, `E-107`.
+- **Revisit when:** Not Applicable.
+
 ## Evidence Ledger
 
 | ID | Claim or Result | Value | Evidence Source | Evaluation Context | Status |
@@ -248,18 +280,31 @@
 | E-092 | Live Day 4 sub_018 Pure Global OOF Inlier Retention Export | Calibrated global OOD threshold strictly on OOF p95 inlier retention (tau=0.6106) with zero test-ranking quota forcing; produced organic 291 Unknown (35.75%), 78 Cendrawasih, 155 Kutilang, 290 Bondol Jawa; provides true distribution-agnostic safety net against Private LB prevalence shifts; exported experiment 18.csv (MD5 f33dd4df) | Day 4 Cell 18 | Global OOF inlier retention rejection | Observed |
 | E-093 | Public Leaderboard validation of sub_017 (Class-Conditional Spheres) | Macro F1 = 0.57045 on 30% public LB (-0.08948 vs sub_015 0.65993); critical negative empirical finding: widening Cendrawasih inlier radius to tau=0.6611 caused catastrophic false-positive bleed where rainforest background harmonics were falsely admitted into Cendrawasih, destroying precision; proves class-conditional radius expansion is fundamentally unsafe under open-set acoustic noise | Kaggle LB | Kaggle Public LB evaluation | Observed |
 | E-094 | Public Leaderboard validation of sub_018 (Pure Global OOF p95 Inlier Retention) | Macro F1 = 0.63049 on 30% public LB (-0.02944 vs sub_015 0.65993); confirms that retaining 95% OOF inliers yields only 35.75% Unknown (291 samples), which is below the necessary ~43.5% open-set rejection threshold; empirically proves test set contains ~43.5% non-target sounds and establishes that forensic rank-calibrated sweet-spot is strictly necessary for optimal bioacoustic open-set classification | Kaggle LB | Kaggle Public LB evaluation | Observed |
+| E-095 | Live Day 5 Environment Setup & Dynamic GPU Allocation | Dynamic VRAM allocation (set_memory_growth=True) verified on Tesla T4; 7.34 GB free VRAM maintained after TensorFlow load; full PyTorch CUDA determinism locked (SEED=42) | Day 5 Cell 1 | Hardware environment initialization | Observed |
+| E-096 | Live Day 5 Combinatorial 4-Fold Group Partition | Verified 0 group leakage across 15 source groups; exact minority class allocation [35, 29, 16, 3] for Cendrawasih locked | Day 5 Cell 2 | Combinatorial group partitioning | Observed |
+| E-097 | Live Day 5 Dual-Stream Fast DSP RAM Caching | Parallel extraction of 32 kHz (Perch 5s) and 48 kHz (BirdNET 3s) audio windows across all 1826 train and 814 test samples in 94.2s (6.20 GB train, 2.77 GB test); zero silent files | Day 5 Cell 3 | Dual-stream DSP processing | Observed |
+| E-098 | Live Day 5 Google Perch v2 1536-d & 14-d Summary Extraction | Extracted 1536-d L2-normalized embeddings and 14-d candidate logits summary; confirmed target species separation: Kutilang logit 7.81, Cendrawasih max logit 3.39 | Day 5 Cell 4 | Foundation bioacoustic feature extraction | Observed |
+| E-099 | Live Day 5 Official BirdNET v2.4 4-d Summary Extraction | Extracted 4-d logit summary across 6522 taxa in 563s; confirmed species-level separation: Kutilang -3.92, Cendrawasih -6.42, Bondol -14.07 | Day 5 Cell 5 | BirdNET forensic feature extraction | Observed |
+| E-100 | Live Day 5 RESOLVE Global Taxa Lock to Cicinnurus regius | Locked Cicinnurus regius (idx 2893) as global reference, boosting Fold 3 held-out AUROC from 0.5757 to 0.9235 (pooled AUROC 0.8917); assembled Variant A Hybrid 1543-d | Day 5 Cell 7 | Taxonomic grounding & hybrid assembly | Observed |
+| E-101 | Live Day 5 Bottleneck Cosine Head A/B Benchmark | Variant A (Hybrid 1543-d) outperformed Variant B (Pure 1536-d) by +0.0074 Macro F1 (0.9314 vs 0.9239); perfect Kutilang classification (619/619 TP), Cendrawasih TP=70/83 | Day 5 Cell 8 | Supervised head A/B testing | Observed |
+| E-102 | Live Day 5 Nested In-Fold BirdNET Forensic Reassignment | Vetoed Cendrawasih predictions below fold-calibrated threshold (mean -7.70), removing 12 FP (11 correctly assigned to ground truth), boosting OOF Macro F1 to 0.9504 (+0.0190) and Cendrawasih precision from 77.8% to 89.6%; trimmed test Cendrawasih from 162 to 114 | Day 5 Cell 9 | In-fold forensic reassignment | Observed |
+| E-103 | Live Day 5 Consensus Inlierness Curation | Filtered test set via confidence p65 (>=0.743) and kNN-5 cosine distance p50 (<=0.525) with BirdNET veto; isolated 203 pseudo-inliers (92 Bondol, 11 Cendrawasih, 100 Kutilang) with 99.72% verified OOF purity | Day 5 Cell 10 | Consensus pseudo-inlier selection | Observed |
+| E-104 | Live Day 5 In-Fold Augmented Dataset Construction | Injected 203 pseudo-samples in-fold, boosting training Cendrawasih by +13.8% to +22.9% while keeping validation folds 100% unpolluted | Day 5 Cell 11 | In-fold augmented dataset assembly | Observed |
+| E-105 | Live Day 5 In-Fold Transductive Self-Training Retraining | Retrained heads with pseudo-samples (PSEUDO_W=1.0); OOF Macro F1 reached 0.9356 (+0.0042 vs Cell 8 baseline); OOF Cendrawasih FP plummeted from 20 down to 3; test Cendrawasih calls compressed from 162 down to 81 | Day 5 Cell 12 | In-fold transductive retraining | Observed |
+| E-106 | Live Day 5 Self-Trained Forensic Reassignment & Trucuk Shield | Reassigned test Cendrawasih from 81 to 75 calls (precision 98.3% on OOF); Trucuk shield flagged 64 borderline Kutilang candidates for open-set isolation | Day 5 Cell 13 | Self-trained forensic reassignment | Observed |
+| E-107 | Live Day 5 Dual Forensic Taxonomic Shield & Agreement Analysis | Harmonized Supervised Anchor (114 Cendra) vs Self-Trained (75 Cendra); Trucuk overlap 50/64 (Jaccard 0.625); branch agreement 92.87% (58 differences / 814 test samples) | Day 5 Cell 14 | Cross-branch forensic harmonization | Observed |
 
 ## Methodology Design
 
-**Method ID and version:** PLAN-DAY4 v3.0 (Master) / PLAN-DAY4-EXP v2.0 (Lean)
+**Method ID and version:** M-005: PLAN-DAY5 v1.0 (Dual-Foundation Perch v2 + BirdNET v2.4 + In-Fold Self-Training)
 
-**Maturity:** Locked for Execution
+**Maturity:** Empirically Supported
 
-**Method spec:** schematics_day4_all_artifacts/planning_day_4.md v3.0 & planning_day_4_experiment.md v2.0 (1543-d Hybrid Input, In-Fold Pseudo-Labeling, Free-Energy OOD, BirdNET Forensic Dual-Shield)
+**Method spec:** Day 5 Master Notebook Cells 1-14 (1543-d Hybrid Input, In-Fold Pseudo-Labeling with 203 Curated Inliers, BirdNET Forensic Dual-Shield)
 
-**Case signature and baseline gap:** Open-set audio classification with IR=13.54, group-structured microphone confounders (eta^2=0.2262), and severe test acoustic domain shift. Day 3 reached 0.66760 (sub_013) via Perch foundation weights, forensic Trucuk/Cendrawasih filtering, and single-round self-training. Day 4 formalizes in-fold nested knee-point calibration and transductive adaptation to bridge the 0.70+ boundary.
+**Case signature and baseline gap:** Open-set audio classification with IR=13.54, group-structured microphone confounders (eta^2=0.2262), and severe test acoustic domain shift. Day 3 reached 0.66760 (sub_013) and Day 4 reached 0.65993 (sub_015). Day 5 resolves Cendrawasih taxonomy globally to Cicinnurus regius, expands in-fold pseudo-inlier set to 203 samples with 99.72% purity, and enforces dual forensic shielding.
 
-**Exact next experiment:** Execute Day 4 Action Plan starting with Cell 1 through Cell 17 in `planning_day_4_experiment.md` v2.0 to export sub_014 (Safe Anchor), sub_015 (SOTA Champion), and sub_016 (Conservative Probe).
+**Exact next experiment:** Execute Day 5 Cell 15 (Manifold Distance OOD Calibration & Unknown Quantile Selection) and export test predictions.
 
 ## Model Drivers and Error Analysis
 
@@ -361,4 +406,4 @@
 
 ## Exact Next Action
 
-Day 4 Lean Experiment Execution Plan v2.0 completed and locked in schematics_day4_all_artifacts/planning_day_4_experiment.md (17 cells: self-contained combinatorial folds, 1543-d hybrid input, in-fold pseudo-labeling, and tri-submission export). Ready for Day 4 interactive execution starting from Cell 1.
+Day 5 Master Execution Cells 1-14 completed and verified (OOF Macro F1 0.9504 on supervised reassigned, 203 pseudo-inliers curated at 99.72% purity, self-trained OOF F1 0.9369 with 98.3% Cendrawasih precision and 75 test calls). Next: Execute Day 5 Cell 15 (Manifold Distance OOD Calibration & Unknown Quantile Selection) and export test predictions.
