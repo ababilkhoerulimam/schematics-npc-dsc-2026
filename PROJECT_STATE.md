@@ -7,7 +7,7 @@
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
 **Primary notebook:** notebooks/schematics-day-1.ipynb (Day 1 archive) / notebooks/schematics-day-2.ipynb (Day 2 archive) / notebooks/schematics-day-3.ipynb (Day 3 archive) / notebooks/schematics-day-4.ipynb (Day 4 archive) / notebooks/schematics-day-5.ipynb (Day 5 Master Execution)
-**Last completed cell:** Cell 17 (Day 5 Submissions Validated: sub_023=0.71221 HISTORIC PEAK, sub_022=0.67701, sub_019=0.67359)
+**Last completed cell:** Cell 18 (Day 5 Round-3 Deep Inlier Self-Training sub_024 exported: 292 pseudo-samples, 54 Cendrawasih, 366 Unknown)
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
 
@@ -299,6 +299,7 @@
 | E-112 | Public Leaderboard validation of sub_022 (ALL-TIME PEAK SOTA RECORD LB 0.67701) | Macro F1 = 0.67701 on 30% public LB (+0.00941 vs Day 3 peak sub_013 0.66760, +0.00342 vs sub_019 0.67359); locks 366 Unknown (44.96%) and 54 Cendrawasih; achieves highest score in entire competition history, confirming the 43.5%-45.0% forensic sweet-spot equilibrium | Kaggle LB | Kaggle Public LB evaluation | Observed |
 | E-113 | Live Day 5 Round-2 Iterative Self-Training & Multi-Taxa Pooling | Expanded in-fold pseudo-set to 274 test samples (143 Bondol, 16 Cendra, 115 Kutilang); pooled 8 Paradisaeidae taxa in summary; retrained 4-fold head in 50.7s; 0 False Positives on Bondol (1124/1124 TP); exported experiment 23.csv (sub_023: 49 Cendrawasih, 366 Unknown, MD5 bacc7e31) | Day 5 Cell 17 | Round-2 transductive self-training | Observed |
 | E-114 | Public Leaderboard validation of sub_023 (HISTORIC BREAKTHROUGH ALL-TIME PEAK LB 0.71221) | Macro F1 = 0.71221 on 30% public LB (+0.03520 vs sub_022 0.67701, +0.04461 vs Day 3 peak sub_013 0.66760, +0.06525 vs supervised anchor sub_021 0.64696); definitively breaks the 0.70 milestone barrier; proves the compounded empirical synergy of multi-taxa Paradisaeidae pooling and expanded 274-sample transductive self-training | Kaggle LB | Kaggle Public LB evaluation | Observed |
+| E-115 | Live Day 5 Round-3 Iterative Self-Training Export | Expanded in-fold pseudo-set to 292 test samples (156 Bondol, 20 Cendra, 116 Kutilang); PSEUDO_W=0.80; retrained 4-fold head in 48.2s; exported experiment 24.csv (sub_024: 54 Cendrawasih, 366 Unknown, MD5 1921b891) for Day 6 morning submission | Day 5 Cell 18 | Round-3 deep inlier self-training | Observed |
 
 ## Methodology Design
 
@@ -381,7 +382,8 @@
 | experiment 20.csv | File submission kedua puluh (sub_020: Day 5 Self-Trained Probe Low @ 42.01% Unknown, 56 Cendrawasih, MD5 ec4de6e2) | Passed |
 | experiment 21.csv | File submission kedua puluh satu (sub_021: Day 5 Supervised Anchor @ 43.49% Unknown, 81 Cendrawasih, MD5 8088df7b) | Passed |
 | experiment 22.csv | File submission kedua puluh dua (sub_022: Day 5 Self-Trained Probe High @ 44.96% Unknown, 54 Cendrawasih, MD5 93329651) | Passed |
-| experiment 23.csv | File submission kedua puluh tiga (sub_023: Day 5 Round-2 Self-Trained Multi-Taxa Pooled @ 44.96% Unknown, 49 Cendrawasih, MD5 bacc7e31) | Passed |
+| experiment 23.csv | File submission kedua puluh tiga (sub_023: Day 5 Round-2 Self-Trained Multi-Taxa Pooled @ 44.96% Unknown, 49 Cendrawasih, MD5 bacc7e31) - HISTORIC ALL-TIME PEAK LB 0.71221 | Passed |
+| experiment 24.csv | File submission kedua puluh empat (sub_024: Day 5 Round-3 Deep Inlier Self-Trained @ 44.96% Unknown, 292 pseudo-inliers, 54 Cendrawasih, MD5 1921b891) | Passed |
 | schematics_day3_all_artifacts/ | Folder ekstraksi lengkap model weights, metrics, dan artefak Day 3 | Passed |
 | schematics_day4_all_artifacts/planning_day_4.md | Master Blueprint Day 4 v3.0 (36-sel modular) | Passed |
 | schematics_day4_all_artifacts/planning_day_4_experiment.md | Execution Plan Day 4 v2.0 (17-sel lean) | Passed |
@@ -422,4 +424,4 @@
 
 ## Exact Next Action
 
-Historic milestone achieved: sub_023 (experiment 23.csv) breaks the 0.70 barrier, setting the new all-time competition peak at LB 0.71221 (+0.03520 jump). Day 5 execution concluded with all 5 daily submissions exhausted. sub_023 locked as definitive champion model. Transition 100% effort to authoring the 10-page final competition technical report in Indonesian (65% evaluation weight).
+Submit sub_024 (experiment 24.csv: Round-3 Deep Inlier Self-Training with 292 pseudo-samples @ 44.96% Unknown, 54 Cendrawasih) tomorrow morning as first submission of Day 6. Then transition 100% effort to authoring the 10-page final competition technical report in Indonesian (65% evaluation weight).
