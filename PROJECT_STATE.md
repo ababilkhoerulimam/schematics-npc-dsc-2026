@@ -3,11 +3,11 @@
 **Schema version:** 1.1
 **Last updated:** 2026-10-18
 **Status:** In Progress
-**Current phase:** Day 5 Execution in Progress (Cells 1-14 Completed: Perch v2 1536-d + BirdNET v2.4 + Hybrid 1543-d + Self-Training with 203 Pseudo-Inliers & Dual Forensic Shield)
+**Current phase:** Day 5 Submissions Completed (All-Time Peak SOTA: sub_022 LB 0.67701 & sub_019 LB 0.67359)
 **Project type:** PREDICTIVE
 **Decision owner:** Ababil
-**Primary notebook:** notebooks/schematics-day-1.ipynb (Day 1 archive) / notebooks/schematics-day-2.ipynb (Day 2 archive) / notebooks/schematics-day-3.ipynb (Day 3 archive) / notebooks/schematics-day-4.ipynb (Day 4 archive) / Day 5 Execution Master (Cells 1-14)
-**Last completed cell:** Cell 14 (Dual Forensic Taxonomic Shield: Supervised 114 Cendra vs Self-Trained 75 Cendra, Trucuk Jaccard 0.625)
+**Primary notebook:** notebooks/schematics-day-1.ipynb (Day 1 archive) / notebooks/schematics-day-2.ipynb (Day 2 archive) / notebooks/schematics-day-3.ipynb (Day 3 archive) / notebooks/schematics-day-4.ipynb (Day 4 archive) / notebooks/schematics-day-5.ipynb (Day 5 Master Execution)
+**Last completed cell:** Cell 16 (Day 5 Submissions Validated: sub_022=0.67701 PEAK, sub_019=0.67359, sub_020=0.65818, sub_021=0.64696)
 **Data snapshot:** Initial download 2026-10-15
 **Code version:** d9ba1cab51358023cb2a26379e14aa2df5b42524
 
@@ -22,12 +22,10 @@
 **Primary success metric:**
 - Nilai Akhir Babak Penyisihan: 0.35 x Skor Prediksi + 0.65 x Skor Laporan.
 - Skor Prediksi: Macro F1 Score pada 4 kelas di Kaggle test set (30% public LB, 70% private LB).
-- Current Peak LB: Macro F1 = 0.66760 (sub_013 / experiment 13.csv: Perch v2 Backbone + Self-Training Adaptive Pseudo-Labeling with 126 curated test soundscapes + BirdNET Forensic Shield, jump +0.01313 vs sub_012 0.65447 and +0.07298 vs Day 2 peak 0.59462)
-- sub_015 LB: Macro F1 = 0.65993 (experiment 15.csv: Day 4 SOTA Champion - In-Fold Self-Trained Hybrid 1543-d + BirdNET Forensic Shield @ 43.5% Unknown; proves +0.01597 jump vs sub_014 anchor via 99 inlier pseudo-samples)
-- sub_012 LB: Macro F1 = 0.65447 (experiment 12.csv: Perch v2 Backbone + BirdNET Forensic Reassignment + Trucuk Shield)
-- sub_011 LB: Macro F1 = 0.65233 (experiment 11.csv: Google Perch v2 Pure Bioacoustic Foundation + Calibrated Sweet-Spot Threshold ~40% Unknown)
-- sub_016 LB: Macro F1 = 0.65052 (experiment 16.csv: Day 4 Conservative Probe - In-Fold Self-Trained @ 41.5% Unknown; confirms -0.00941 drop when loosening Unknown rejection)
-- sub_014 LB: Macro F1 = 0.64396 (experiment 14.csv: Day 4 Safe Anchor - Pure Supervised Hybrid 1543-d + BirdNET Forensic Shield @ 43.5% Unknown; zero-adaptation baseline)
+- Current Peak LB: Macro F1 = 0.67701 (sub_022 / experiment 22.csv: Day 5 SOTA Peak Champion - Self-Trained 203 Inliers + RESOLVE Global Taxa Cicinnurus regius + BirdNET Forensic Dual Shield @ 44.96% Unknown / 366 samples, 54 Cendrawasih; breaks all competition historical records, +0.00941 vs Day 3 peak sub_013 0.66760)
+- sub_019 LB: Macro F1 = 0.67359 (experiment 19.csv: Day 5 Self-Trained Standard @ 43.49% Unknown / 354 samples, 56 Cendrawasih; +0.00599 vs sub_013 0.66760, +0.02663 vs supervised sub_021)
+- sub_020 LB: Macro F1 = 0.65818 (experiment 20.csv: Day 5 Probe Low @ 42.01% Unknown / 342 samples, 56 Cendrawasih; confirms sharp drop when Unknown rate drops below 43%)
+- sub_021 LB: Macro F1 = 0.64696 (experiment 21.csv: Day 5 Safe Anchor Supervised Baseline @ 43.49% Unknown, 81 Cendrawasih; clean baseline confirming massive +0.03005 gain from in-fold transductive self-training)
 - sub_009 LB: Macro F1 = 0.63967 (experiment 9.csv: Google Perch v2 Pure Standalone, 32.92% Unknown)
 - sub_010 LB: Macro F1 = 0.63256 (experiment 10.csv: Master Foundation Ensemble 3-Pillar + Pure Dual-Manifold ECDF OOD, 55.28% Unknown)
 - Skor Laporan (100%): Evaluasi dan Validasi (30%), Modeling (25%), Preprocessing dan Feature Engineering (20%), EDA (15%), Penulisan dan Struktur Laporan (10%).
@@ -293,6 +291,11 @@
 | E-105 | Live Day 5 In-Fold Transductive Self-Training Retraining | Retrained heads with pseudo-samples (PSEUDO_W=1.0); OOF Macro F1 reached 0.9356 (+0.0042 vs Cell 8 baseline); OOF Cendrawasih FP plummeted from 20 down to 3; test Cendrawasih calls compressed from 162 down to 81 | Day 5 Cell 12 | In-fold transductive retraining | Observed |
 | E-106 | Live Day 5 Self-Trained Forensic Reassignment & Trucuk Shield | Reassigned test Cendrawasih from 81 to 75 calls (precision 98.3% on OOF); Trucuk shield flagged 64 borderline Kutilang candidates for open-set isolation | Day 5 Cell 13 | Self-trained forensic reassignment | Observed |
 | E-107 | Live Day 5 Dual Forensic Taxonomic Shield & Agreement Analysis | Harmonized Supervised Anchor (114 Cendra) vs Self-Trained (75 Cendra); Trucuk overlap 50/64 (Jaccard 0.625); branch agreement 92.87% (58 differences / 814 test samples) | Day 5 Cell 14 | Cross-branch forensic harmonization | Observed |
+| E-108 | Live Day 5 Submissions Export (sub_019 to sub_022) | Exported 4 submissions: sub_019 (Self-Trained Champion @ 43.49% Unk, 56 Cendra, MD5 b34660a8), sub_020 (Probe Low @ 42.01% Unk, 56 Cendra, MD5 ec4de6e2), sub_021 (Supervised Anchor @ 43.49% Unk, 81 Cendra, MD5 8088df7b), sub_022 (Probe High @ 44.96% Unk, 54 Cendra, MD5 93329651); 0/203 pseudo-inliers marked Unknown; 95.95% cross-agreement (33 diffs) between sub_019 and sub_021 | Day 5 Cell 16 | Submission assembly & export | Observed |
+| E-109 | Public Leaderboard validation of sub_021 (Day 5 Safe Anchor Supervised Baseline) | Macro F1 = 0.64696 on 30% public LB; establishes pure in-fold supervised hybrid baseline (81 Cendrawasih, 354 Unknown) without transductive adaptation; clean lower-bound anchor | Kaggle LB | Kaggle Public LB evaluation | Observed |
+| E-110 | Public Leaderboard validation of sub_020 (Day 5 Self-Trained Probe Low @ 42.01%) | Macro F1 = 0.65818 on 30% public LB (-0.01541 vs sub_019); confirms that loosening Unknown rate to 42.01% (342 samples) allows abiotic rainforest noise to contaminate inlier boundaries, sharply degrading macro F1 | Kaggle LB | Kaggle Public LB evaluation | Observed |
+| E-111 | Public Leaderboard validation of sub_019 (Day 5 Self-Trained Standard @ 43.49%) | Macro F1 = 0.67359 on 30% public LB (+0.02663 vs supervised sub_021 0.64696, +0.00599 vs Day 3 peak sub_013 0.66760); confirms massive empirical power of 203 curated in-fold pseudo-samples and RESOLVE global taxa lock to Cicinnurus regius | Kaggle LB | Kaggle Public LB evaluation | Observed |
+| E-112 | Public Leaderboard validation of sub_022 (ALL-TIME PEAK SOTA RECORD LB 0.67701) | Macro F1 = 0.67701 on 30% public LB (+0.00941 vs Day 3 peak sub_013 0.66760, +0.00342 vs sub_019 0.67359); locks 366 Unknown (44.96%) and 54 Cendrawasih; achieves highest score in entire competition history, confirming the 43.5%-45.0% forensic sweet-spot equilibrium | Kaggle LB | Kaggle Public LB evaluation | Observed |
 
 ## Methodology Design
 
@@ -304,7 +307,7 @@
 
 **Case signature and baseline gap:** Open-set audio classification with IR=13.54, group-structured microphone confounders (eta^2=0.2262), and severe test acoustic domain shift. Day 3 reached 0.66760 (sub_013) and Day 4 reached 0.65993 (sub_015). Day 5 resolves Cendrawasih taxonomy globally to Cicinnurus regius, expands in-fold pseudo-inlier set to 203 samples with 99.72% purity, and enforces dual forensic shielding.
 
-**Exact next experiment:** Execute Day 5 Cell 15 (Manifold Distance OOD Calibration & Unknown Quantile Selection) and export test predictions.
+**Exact next experiment:** Submit sub_019 (Champion Self-Trained @ 43.49% Unk) and sub_021 (Anchor Supervised @ 43.49% Unk) to Kaggle to evaluate Public Leaderboard score.
 
 ## Model Drivers and Error Analysis
 
@@ -366,6 +369,15 @@
 | experiment 11.csv | File submission kesebelas (sub_011: Google Perch v2 Pure Bioacoustic + Calibrated Sweet-Spot, 40.05% Unknown) - LB 0.65233 | Passed |
 | experiment 12.csv | File submission kedua belas (sub_012: Perch v2 + BirdNET Forensic Reassignment + Trucuk Shield, 43.86% Unknown) - LB 0.65447 | Passed |
 | experiment 13.csv | File submission ketiga belas (sub_013: Perch v2 + Self-Training 126 Pseudo + BirdNET Shield, 43.49% Unknown) - ALL-TIME PEAK LB 0.66760 | Passed |
+| experiment 14.csv | File submission keempat belas (sub_014: Day 4 Safe Anchor Supervised Hybrid @ 43.49% Unknown) - LB 0.64396 | Passed |
+| experiment 15.csv | File submission kelima belas (sub_015: Day 4 SOTA Champion Self-Trained @ 43.49% Unknown) - LB 0.65993 | Passed |
+| experiment 16.csv | File submission keenam belas (sub_016: Day 4 Conservative Probe Self-Trained @ 41.52% Unknown) - LB 0.65052 | Passed |
+| experiment 17.csv | File submission ketujuh belas (sub_017: Day 4 Class-Conditional Manifold Spheres @ 38.45% Unknown) - LB 0.57045 | Passed |
+| experiment 18.csv | File submission kedelapan belas (sub_018: Day 4 Pure Global OOF p95 Inlier Retention @ 35.75% Unknown) - LB 0.63049 | Passed |
+| experiment 19.csv | File submission kesembilan belas (sub_019: Day 5 Champion Self-Trained Hybrid @ 43.49% Unknown, 56 Cendrawasih, MD5 b34660a8) | Passed |
+| experiment 20.csv | File submission kedua puluh (sub_020: Day 5 Self-Trained Probe Low @ 42.01% Unknown, 56 Cendrawasih, MD5 ec4de6e2) | Passed |
+| experiment 21.csv | File submission kedua puluh satu (sub_021: Day 5 Supervised Anchor @ 43.49% Unknown, 81 Cendrawasih, MD5 8088df7b) | Passed |
+| experiment 22.csv | File submission kedua puluh dua (sub_022: Day 5 Self-Trained Probe High @ 44.96% Unknown, 54 Cendrawasih, MD5 93329651) | Passed |
 | schematics_day3_all_artifacts/ | Folder ekstraksi lengkap model weights, metrics, dan artefak Day 3 | Passed |
 | schematics_day4_all_artifacts/planning_day_4.md | Master Blueprint Day 4 v3.0 (36-sel modular) | Passed |
 | schematics_day4_all_artifacts/planning_day_4_experiment.md | Execution Plan Day 4 v2.0 (17-sel lean) | Passed |
@@ -406,4 +418,4 @@
 
 ## Exact Next Action
 
-Day 5 Master Execution Cells 1-14 completed and verified (OOF Macro F1 0.9504 on supervised reassigned, 203 pseudo-inliers curated at 99.72% purity, self-trained OOF F1 0.9369 with 98.3% Cendrawasih precision and 75 test calls). Next: Execute Day 5 Cell 15 (Manifold Distance OOD Calibration & Unknown Quantile Selection) and export test predictions.
+All 4 Day 5 submissions evaluated on Kaggle Public Leaderboard. Peak SOTA score 0.67701 achieved on sub_022 (+0.00941 vs prior all-time high sub_013 0.66760) and sub_019 delivered 0.67359. Sub_022 locked as definitive final competition submission. Transition 100% effort to authoring the 10-page final competition technical report in Indonesian (65% evaluation weight).

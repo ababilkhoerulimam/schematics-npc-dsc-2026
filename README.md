@@ -112,6 +112,10 @@ Submissions follow an empirical validation protocol on the Kaggle Leaderboard:
 | **sub_016** | `experiment 16.csv` | In-Fold Self-Trained Hybrid (1543-d) @ 41.5% | 41.52% (338) | 0.65052 | Conservative Probe (-0.00941 drop) |
 | **sub_017** | `experiment 17.csv` | Class-Conditional Manifold Spheres (p95 per class) | 38.45% (313) | 0.57045 | Intrinsic OOD (False Positive Bleed) |
 | **sub_018** | `experiment 18.csv` | Pure Global OOF Inlier Retention (p95 tau=0.6106) | 35.75% (291) | 0.63049 | Intrinsic OOD (Under-rejection) |
+| **sub_019** | `experiment 19.csv` | In-Fold Self-Trained (203 Inliers) + BirdNET Shield @ 43.5% | 43.49% (354) | 0.67359 | Day 5 SOTA (+0.02663 vs sub_021) |
+| **sub_020** | `experiment 20.csv` | In-Fold Self-Trained (203 Inliers) Probe Low @ 42.0% | 42.01% (342) | 0.65818 | Probe Low (-0.01541 drop) |
+| **sub_021** | `experiment 21.csv` | Pure Supervised Hybrid Anchor (81 Cendra) @ 43.5% | 43.49% (354) | 0.64696 | Day 5 Safe Anchor Baseline |
+| **sub_022** | `experiment 22.csv` | In-Fold Self-Trained (203 Inliers) Probe High @ 45.0% | 44.96% (366) | **0.67701** | **ALL-TIME PEAK RECORD (+0.00941 vs sub_013)** |
 
 ## Repository Structure
 
