@@ -1,0 +1,7 @@
+{
+  "resolve_strategy": "global_lock",
+  "locked_species": "Cicinnurus regius",
+  "locked_idx": 2893,
+  "locked_col": 2,
+  "zscore_stats": "resolve_zscore_stats.npz"
+}

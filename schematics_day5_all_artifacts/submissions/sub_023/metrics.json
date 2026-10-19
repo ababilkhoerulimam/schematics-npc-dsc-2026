@@ -1,0 +1,16 @@
+{
+  "submission_id": "sub_023",
+  "filename": "experiment 23.csv",
+  "strategy": "Day5_Round2_SelfTrained_MultiTaxa_BirdNET_45.0pct",
+  "scientific_role": "Historic SOTA Peak Champion: Round-2 transductive self-training with 274 inliers + 8-taxa Paradisaeidae pooling @ 44.96% Unknown",
+  "n_samples": 814,
+  "unknown_percentage": 44.96,
+  "distribution": {
+    "Unknown": 366,
+    "Bondol Jawa": 254,
+    "Kutilang": 145,
+    "Cendrawasih": 49
+  },
+  "md5": "bacc7e31e313e23f38d45dadb89973d0",
+  "public_lb_score": 0.71221
+}

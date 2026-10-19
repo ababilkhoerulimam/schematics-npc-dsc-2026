@@ -385,10 +385,13 @@
 | experiment 23.csv | File submission kedua puluh tiga (sub_023: Day 5 Round-2 Self-Trained Multi-Taxa Pooled @ 44.96% Unknown, 49 Cendrawasih, MD5 bacc7e31) - HISTORIC ALL-TIME PEAK LB 0.71221 | Passed |
 | experiment 24.csv | File submission kedua puluh empat (sub_024: Day 5 Round-3 Deep Inlier Self-Trained @ 44.96% Unknown, 292 pseudo-inliers, 54 Cendrawasih, MD5 1921b891) | Passed |
 | schematics_day3_all_artifacts/ | Folder ekstraksi lengkap model weights, metrics, dan artefak Day 3 | Passed |
+| schematics_day4_all_artifacts/ | Folder ekstraksi lengkap model weights, metrics, dan artefak Day 4 | Passed |
+| schematics_day5_all_artifacts/ | Folder ekstraksi lengkap artefak, metrics, dan bundel submission Day 5 (sub_019 s.d. sub_024) | Passed |
 | schematics_day4_all_artifacts/planning_day_4.md | Master Blueprint Day 4 v3.0 (36-sel modular) | Passed |
 | schematics_day4_all_artifacts/planning_day_4_experiment.md | Execution Plan Day 4 v2.0 (17-sel lean) | Passed |
 | notebooks/schematics-day-3.ipynb | Notebook master Day 3 terintegrasi 32 sel (Perch v2, BirdNET v2.4, Self-Training) | Passed |
 | notebooks/schematics-day-4.ipynb | Notebook eksekusi Day 4 (17 sel lean terverifikasi) | Passed |
+| notebooks/schematics-day-5.ipynb | Notebook master Day 5 terintegrasi 19 sel (Perch v2, BirdNET v2.4, Round 1-3 Self-Training, Peak LB 0.71221) | Passed |
 | submissions/sub_001_*/ | Bundel submission sub_001 (experiment 1.csv, test_predictions_detailed.csv, metrics.json) | Passed |
 | submissions/sub_002_*/ | Bundel submission sub_002 (experiment 2.csv, metrics.json) | Passed |
 | submissions/sub_003_*/ | Bundel submission sub_003 (experiment 3.csv, metrics.json) | Passed |

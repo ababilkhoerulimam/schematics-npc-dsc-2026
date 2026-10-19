@@ -128,6 +128,7 @@ schematics-npc-dsc-2026/
 │   ├── schematics-day-2.ipynb          Master production notebook Day 2 (Cells 1-28, Peak LB 0.59462)
 │   ├── schematics-day-3.ipynb          Master production notebook Day 3 (Cells 1-32, Peak LB 0.66760)
 │   ├── schematics-day-4.ipynb          Master production notebook Day 4 (Cells 1-19, Champion LB 0.65993)
+│   ├── schematics-day-5.ipynb          Master production notebook Day 5 (Cells 1-19, Historic SOTA Peak LB 0.71221)
 │   ├── notebook_jere.ipynb             EDA & Kruskal-Wallis confounder analysis notebook
 │   ├── notebook_jere.md                Markdown transcript of Jere analysis
 │   └── ANALYSIS_STATE.md               State ledger for exploratory confounder analysis
@@ -160,12 +161,22 @@ schematics-npc-dsc-2026/
 │   ├── quantile_locking_meta.json      Sweet-spot manifold quantile locking parameters
 │   ├── download_day4_submissions.html  Self-contained browser-native submission downloader
 │   └── submissions/                    Submissions 14 to 18 bundles (sub_014 to sub_018)
+├── schematics_day5_all_artifacts/      Day 5 artifacts, Perch 1536-d + BirdNET v2.4 + Round 1-3 Self-Training
+│   ├── metadata_with_folds.csv         Verified 4-Fold StratifiedGroupKFold metadata
+│   ├── perch_taxa_indices.json         Perch v2 taxa metadata with 8 Paradisaeidae candidates
+│   ├── nested_forensic_thresholds.json In-fold Youden knee-point calibration parameters
+│   ├── curated_inlier_meta.json        Consensus 203 inlier curation metadata (99.72% purity)
+│   ├── augmented_in_fold_meta.json     In-fold augmented dataset metadata
+│   ├── dual_forensics_meta.json        Supervised vs Self-Trained cross-branch agreement (92.87%)
+│   ├── quantile_locking_meta.json      Sweet-spot manifold quantile locking parameters
+│   ├── selftrained_reassignment_meta.json Reassignment audit and Trucuk shield metrics
+│   └── submissions/                    Submissions 19 to 24 bundles (sub_019 to sub_024)
 ├── papers/                             Curated open-set audio literature and paper directory
 │   ├── README.md                       Literature review and mathematical taxonomy
 │   ├── Energy_based_OOD_detection_2010.03759.pdf NeurIPS 2020 foundation paper on Free Energy
 │   ├── Multi_label_open_set_audio_classification_2310.13759.pdf DCASE 2023 open-set audio taxonomy
 │   └── ROLE_few_shot_open_set_audio_classification_2607.26607.pdf SCUT 2026 transductive prototype refinement
-├── PROJECT_STATE.md                    Persistent machine-readable evidence ledger and decisions log (E-001 to E-094)
+├── PROJECT_STATE.md                    Persistent machine-readable evidence ledger and decisions log (E-001 to E-115)
 ├── LICENSE                             Repository license
 └── README.md                           Publication-grade documentation
 ```
@@ -196,4 +207,7 @@ jupyter notebook notebooks/schematics-day-3.ipynb
 
 # Day 4 Transductive In-Fold Self-Training & Intrinsic OOD (Day 4 Champion LB 0.65993)
 jupyter notebook notebooks/schematics-day-4.ipynb
+
+# Day 5 Multi-Taxa Paradisaeidae Pooling & Iterative Self-Training (Historic Peak LB 0.71221)
+jupyter notebook notebooks/schematics-day-5.ipynb
 ```

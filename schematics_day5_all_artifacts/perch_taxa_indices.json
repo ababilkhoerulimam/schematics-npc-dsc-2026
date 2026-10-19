@@ -1,0 +1,34 @@
+{
+  "bondol": 7329,
+  "kutilang": 11701,
+  "cendra": {
+    "Cicinnurus regius": 2893,
+    "Paradisaea apoda": 9634,
+    "Paradisaea decora": 9635,
+    "Paradisaea guilielmi": 9636,
+    "Paradisaea minor": 9637,
+    "Paradisaea raggiana": 9638,
+    "Paradisaea rubra": 9639,
+    "Seleucidis melanoleucus": 12538
+  },
+  "summary_layout": [
+    "bondol",
+    "kutilang",
+    "Cicinnurus regius",
+    "Paradisaea apoda",
+    "Paradisaea decora",
+    "Paradisaea guilielmi",
+    "Paradisaea minor",
+    "Paradisaea raggiana",
+    "Paradisaea rubra",
+    "Seleucidis melanoleucus",
+    "max_nt",
+    "top5_nt",
+    "energy",
+    "entropy"
+  ],
+  "summary_dim": 14,
+  "logit_key": "label",
+  "model_dir": "/kaggle/input/models/google/bird-vocalization-classifier/tensorflow2/perch_v2/2",
+  "labels_path": "/kaggle/input/models/google/bird-vocalization-classifier/tensorflow2/perch_v2/2/assets/labels.csv"
+}

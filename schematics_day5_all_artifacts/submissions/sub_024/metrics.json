@@ -1,0 +1,15 @@
+{
+  "submission_id": "sub_024",
+  "filename": "experiment 24.csv",
+  "strategy": "Day5_Round3_SelfTrained_DeepInlier_45.0pct",
+  "scientific_role": "Round-3 deep inlier self-training with 292 inliers + 8-taxa Paradisaeidae pooling @ 44.96% Unknown",
+  "n_samples": 814,
+  "unknown_percentage": 44.96,
+  "distribution": {
+    "Unknown": 366,
+    "Bondol Jawa": 248,
+    "Kutilang": 146,
+    "Cendrawasih": 54
+  },
+  "md5": "1921b891f259bb84e17a4e5fda0055d4"
+}

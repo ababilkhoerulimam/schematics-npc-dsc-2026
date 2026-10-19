@@ -1,0 +1,50 @@
+{
+  "oof_macro_f1_raw": 0.9313852460418542,
+  "oof_macro_f1_reassigned": 0.9503726675452167,
+  "oof_reassigned_samples": 13,
+  "oof_fp_removed": 12,
+  "oof_fp_fixed": 11,
+  "oof_tp_lost": 1,
+  "oof_cendra_recall_raw": 0.8433734939759037,
+  "oof_cendra_recall_reassigned": 0.8313253012048193,
+  "oof_cendra_precision_raw": 0.7777777777777778,
+  "oof_cendra_precision_reassigned": 0.8961038961038961,
+  "test_cendra_raw": 162,
+  "test_cendra_reassigned": 48,
+  "test_cendra_clean": 114,
+  "cm_raw": [
+    [
+      1104,
+      20,
+      0
+    ],
+    [
+      12,
+      70,
+      1
+    ],
+    [
+      0,
+      0,
+      619
+    ]
+  ],
+  "cm_reassigned": [
+    [
+      1115,
+      8,
+      1
+    ],
+    [
+      13,
+      69,
+      1
+    ],
+    [
+      0,
+      0,
+      619
+    ]
+  ],
+  "optimistic_note": "metode ambang p80 dipilih dari eksplorasi sebelumnya"
+}

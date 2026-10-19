@@ -1,0 +1,18 @@
+{
+  "variant_A_f1": 0.9313852460418542,
+  "variant_A_per_class": [
+    0.9857142857142858,
+    0.8092485549132948,
+    0.9991928974979822
+  ],
+  "variant_B_f1": 0.9239356590416001,
+  "variant_B_per_class": [
+    0.9843260188087775,
+    0.7931034482758621,
+    0.9943775100401606
+  ],
+  "winner": "hybrid_1543d",
+  "winner_in_features": 1543,
+  "loss_fix": "alpha_by_target",
+  "emb_note": "256d embeddings from different folds are not in a shared space"
+}
