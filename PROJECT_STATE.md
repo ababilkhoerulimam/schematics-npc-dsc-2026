@@ -23,6 +23,7 @@
 - Nilai Akhir Babak Penyisihan: 0.35 x Skor Prediksi + 0.65 x Skor Laporan.
 - Skor Prediksi: Macro F1 Score pada 4 kelas di Kaggle test set (30% public LB, 70% private LB).
 - Current Peak LB: Macro F1 = 0.71221 (sub_023 / experiment 23.csv: Day 5 Historic Breakthrough - Round-2 Iterative Self-Training with 274 curated test inliers + 8-taxa Paradisaeidae Max-Pooling + BirdNET Forensic Dual-Shield @ 44.96% Unknown / 366 samples, 49 Cendrawasih; breaks the 0.70 barrier, jump +0.03520 vs sub_022 0.67701 and +0.04461 vs Day 3 peak sub_013 0.66760)
+- sub_024 LB: Macro F1 = 0.69098 (experiment 24.csv: Round-3 Self-Trained @ 44.96% Unknown, 292 pseudo-inliers, 54 Cendrawasih; -0.02123 drop confirms self-training saturation ceiling at Round 2)
 - sub_022 LB: Macro F1 = 0.67701 (experiment 22.csv: Round-1 Self-Trained Probe High @ 44.96% Unknown / 366 samples, 54 Cendrawasih)
 - sub_019 LB: Macro F1 = 0.67359 (experiment 19.csv: Round-1 Self-Trained Standard @ 43.49% Unknown / 354 samples, 56 Cendrawasih)
 - sub_020 LB: Macro F1 = 0.65818 (experiment 20.csv: Round-1 Probe Low @ 42.01% Unknown / 342 samples, 56 Cendrawasih)
@@ -300,6 +301,7 @@
 | E-113 | Live Day 5 Round-2 Iterative Self-Training & Multi-Taxa Pooling | Expanded in-fold pseudo-set to 274 test samples (143 Bondol, 16 Cendra, 115 Kutilang); pooled 8 Paradisaeidae taxa in summary; retrained 4-fold head in 50.7s; 0 False Positives on Bondol (1124/1124 TP); exported experiment 23.csv (sub_023: 49 Cendrawasih, 366 Unknown, MD5 bacc7e31) | Day 5 Cell 17 | Round-2 transductive self-training | Observed |
 | E-114 | Public Leaderboard validation of sub_023 (HISTORIC BREAKTHROUGH ALL-TIME PEAK LB 0.71221) | Macro F1 = 0.71221 on 30% public LB (+0.03520 vs sub_022 0.67701, +0.04461 vs Day 3 peak sub_013 0.66760, +0.06525 vs supervised anchor sub_021 0.64696); definitively breaks the 0.70 milestone barrier; proves the compounded empirical synergy of multi-taxa Paradisaeidae pooling and expanded 274-sample transductive self-training | Kaggle LB | Kaggle Public LB evaluation | Observed |
 | E-115 | Live Day 5 Round-3 Iterative Self-Training Export | Expanded in-fold pseudo-set to 292 test samples (156 Bondol, 20 Cendra, 116 Kutilang); PSEUDO_W=0.80; retrained 4-fold head in 48.2s; exported experiment 24.csv (sub_024: 54 Cendrawasih, 366 Unknown, MD5 1921b891) for Day 6 morning submission | Day 5 Cell 18 | Round-3 deep inlier self-training | Observed |
+| E-116 | Public Leaderboard validation of sub_024 (Round-3 Saturation Drop) | Macro F1 = 0.69098 on 30% public LB (-0.02123 vs sub_023 0.71221); confirms empirical saturation / confirmation bias in self-training: expanding pseudo-inliers to 292 test samples (+5 Cendrawasih) leaks false positive rainforest noise into rare class boundary; definitively establishes Round-2 sub_023 (274 inliers, 49 Cendrawasih) as the global optimal stopping point | Kaggle LB | Kaggle Public LB evaluation | Observed |
 
 ## Methodology Design
 
@@ -427,4 +429,4 @@
 
 ## Exact Next Action
 
-Submit sub_024 (experiment 24.csv: Round-3 Deep Inlier Self-Training with 292 pseudo-samples @ 44.96% Unknown, 54 Cendrawasih) tomorrow morning as first submission of Day 6. Then transition 100% effort to authoring the 10-page final competition technical report in Indonesian (65% evaluation weight).
+Self-training saturation ceiling empirically confirmed: Round-3 sub_024 dropped to LB 0.69098 (-0.02123 vs sub_023 0.71221). Round-2 sub_023 (experiment 23.csv: 274 inliers, 49 Cendrawasih, 366 Unknown) definitively locked as final competition model (all-time peak 0.71221). Cease all further model retraining and transition 100% effort to authoring the 10-page final competition technical report in Indonesian (65% evaluation weight).

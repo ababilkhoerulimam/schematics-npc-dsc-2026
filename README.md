@@ -117,7 +117,7 @@ Submissions follow an empirical validation protocol on the Kaggle Leaderboard:
 | **sub_021** | `experiment 21.csv` | Pure Supervised Hybrid Anchor (81 Cendra) @ 43.5% | 43.49% (354) | 0.64696 | Day 5 Safe Anchor Baseline |
 | **sub_022** | `experiment 22.csv` | In-Fold Self-Trained (203 Inliers) Probe High @ 45.0% | 44.96% (366) | 0.67701 | Round-1 High Probe (+0.00941) |
 | **sub_023** | `experiment 23.csv` | Round-2 Self-Trained (274 Inliers) Multi-Taxa Pooled @ 45.0% | 44.96% (366) | **0.71221** | **ALL-TIME PEAK SOTA (+0.03520 jump, 0.70+ Milestone)** |
-| **sub_024** | `experiment 24.csv` | Round-3 Self-Trained (292 Inliers) Multi-Taxa Pooled @ 45.0% | 44.96% (366) | Queued | Day 6 Morning Submission (54 Cendrawasih) |
+| **sub_024** | `experiment 24.csv` | Round-3 Self-Trained (292 Inliers) Multi-Taxa Pooled @ 45.0% | 44.96% (366) | 0.69098 | Round-3 Saturation Drop (-0.02123 vs sub_023) |
 
 ## Repository Structure
 
