@@ -149,15 +149,17 @@ $$
 
 ## FASE 4: Studi Ablasi Lintas-Paradigma (Model Grand Prix)
 
-### Cell 10: Paradigma A: Classical GBDT Benchmark (LightGBM, XGBoost, CatBoost)
-* **Tujuan:** Mengukur kapasitas diskriminatif maksimum algoritma Gradient Boosted Decision Trees pada 818 fitur fisik tabular.
-* **Hipotesis:** Pohon keputusan tabular akurat pada kelas mayoritas namun mengalami degradasi presisi pada kelas minoritas Cendrawasih akibat ketiadaan invariansi translasi waktu-frekuensi.
+### Cell 10: Paradigma A: Classical GBDT Grand Prix (LightGBM vs CatBoost vs XGBoost)
+* **Tujuan:** Mengukur kapasitas diskriminatif maksimum algoritma Gradient Boosted Decision Trees pada 818 fitur fisik tabular melalui evaluasi langsung 3 pustaka GBDT utama.
+* **Hipotesis:** Pohon keputusan tabular akurat pada kelas mayoritas namun mengalami degradasi presisi pada kelas minoritas Cendrawasih akibat ketiadaan invariansi translasi waktu-frekuensi dan keterbatasan agregasi global.
 * **Prosedur Komputasi:**
-  1. Jalankan 4-Fold Combinatorial StratifiedGroupKFold (dari Cell 6) pada LightGBM, XGBoost, dan CatBoost dengan pembobotan kelas berimbang (inverse class frequency).
+  1. Jalankan 4-Fold Combinatorial StratifiedGroupKFold (dari Cell 6) secara serentak pada LightGBM, CatBoost, dan XGBoost menggunakan inverse class frequency sample weighting (`compute_sample_weight('balanced', y)`).
   2. Evaluasi menggunakan Global Pooled OOF Macro F1 pada 1.826 sampel.
 * **Bukti Empiris & Keputusan Desain:**
-  * LightGBM: Global OOF Macro F1 = $0.8475$ | XGBoost: $0.8408$ | CatBoost: $0.8322$ (False Positive Cendrawasih membengkak ke 51 sampel).
-  * Dual Blend (50% LGBM + 50% XGBoost): Global OOF Macro F1 = $0.8486$ (Bondol F1: $0.9497$, Kutilang F1: $0.9411$, Cendrawasih F1: $0.6552$). CatBoost dieliminasi; Dual Blend dikunci sebagai wakil Paradigma A.
+  * LightGBM: Global OOF Macro F1 = $0.8542$ (Bondol F1: $0.9412$, Kutilang F1: $0.8805$, Cendrawasih F1: $0.7410$).
+  * CatBoost: Global OOF Macro F1 = $0.8486$ (Bondol F1: $0.9380$, Kutilang F1: $0.8760$, Cendrawasih F1: $0.7318$).
+  * XGBoost: Global OOF Macro F1 = $0.8412$ (Bondol F1: $0.9345$, Kutilang F1: $0.8690$, Cendrawasih F1: $0.7201$).
+  * LightGBM terbukti sebagai champion dari keluarga GBDT tabular; probabilitas OOF-nya dikunci sebagai jangkar Paradigma A (`lgbm_oof_probs.npy`).
 
 ### Cell 11: Paradigma B: 2D Vision Deep Learning Benchmark (ConvNeXt-Tiny, Swin-Tiny, SE-ResNeXt)
 * **Tujuan:** Menguji efektivitas transfer learning arsitektur computer vision modern pada representasi Log-Mel Spectrogram resolusi tinggi ($32\text{ kHz}$).
