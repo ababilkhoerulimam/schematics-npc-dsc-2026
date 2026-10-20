@@ -182,6 +182,14 @@
 - **Evidence:** `E-102`, `E-106`, `E-107`.
 - **Revisit when:** Not Applicable.
 
+### D-019: Critical Integration of Teammate (Radithia Fatir / Trisan) Exploration & Pretrained Transformer Findings
+
+- **Chosen:** Mengadopsi temuan empiris audio transformers eksternal dari notebook tim (`Bird-MAE-Base` 768-d OOF Macro F1 0.8715, `BEATs Iter3+ AS2M` 768-d OOF Macro F1 0.8905, serta benchmark OOD Class-Conditional Mahalanobis Distance Macro AUC 0.7983) sebagai bukti komparasi multi-arsitektur di Bab 3 dan Bab 4 laporan, namun MENOLAK pembatasan kuota Unknown kaku 245 sampel (30.10%) yang mereka gunakan.
+- **Alternatives considered:** Mengadopsi champion submission Trisan (`submission_triple_v4_conf_knn50_u245.csv`, LB 0.64871) atau menguji fusi Mahalanobis/LOF pada kuota 245 sampel.
+- **Why:** Eksperimen menyeluruh Trisan pada 3 notebook (`testttrisan (1).ipynb`, `rill-versi-baru.ipynb`, `trisanknn50.ipynb`) membuktikan bahwa secanggih apa pun kombinasinya (Triple CNN ResNet50/EffNet/ConvNeXt + BEATs + Mahalanobis AUC 0.7983), mematok kuota Unknown di 245 sampel (30.10%) mengunci skor Public LB di plafon 0.64871 - 0.65057. Temuan ini memvalidasi bukti konkavitas kita secara independen: kuota 30.1% mengalami under-rejection parah (~120 suara asing lolos ke kelas burung). Sebaliknya, pipeline Perch v2 + Self-Training Round 2 kita dengan sweet spot ~44.96% (366 Unknown) berhasil menembus 0.71221.
+- **Evidence:** `E-117`, `E-118`, `E-119`, `E-120`, `E-121`, `E-122`.
+- **Revisit when:** Not Applicable.
+
 ## Evidence Ledger
 
 | ID | Claim or Result | Value | Evidence Source | Evaluation Context | Status |
@@ -302,6 +310,12 @@
 | E-114 | Public Leaderboard validation of sub_023 (HISTORIC BREAKTHROUGH ALL-TIME PEAK LB 0.71221) | Macro F1 = 0.71221 on 30% public LB (+0.03520 vs sub_022 0.67701, +0.04461 vs Day 3 peak sub_013 0.66760, +0.06525 vs supervised anchor sub_021 0.64696); definitively breaks the 0.70 milestone barrier; proves the compounded empirical synergy of multi-taxa Paradisaeidae pooling and expanded 274-sample transductive self-training | Kaggle LB | Kaggle Public LB evaluation | Observed |
 | E-115 | Live Day 5 Round-3 Iterative Self-Training Export | Expanded in-fold pseudo-set to 292 test samples (156 Bondol, 20 Cendra, 116 Kutilang); PSEUDO_W=0.80; retrained 4-fold head in 48.2s; exported experiment 24.csv (sub_024: 54 Cendrawasih, 366 Unknown, MD5 1921b891) for Day 6 morning submission | Day 5 Cell 18 | Round-3 deep inlier self-training | Observed |
 | E-116 | Public Leaderboard validation of sub_024 (Round-3 Saturation Drop) | Macro F1 = 0.69098 on 30% public LB (-0.02123 vs sub_023 0.71221); confirms empirical saturation / confirmation bias in self-training: expanding pseudo-inliers to 292 test samples (+5 Cendrawasih) leaks false positive rainforest noise into rare class boundary; definitively establishes Round-2 sub_023 (274 inliers, 49 Cendrawasih) as the global optimal stopping point | Kaggle LB | Kaggle Public LB evaluation | Observed |
+| E-117 | Teammate (Trisan) Triple V4 CNN Benchmark | ResNet50 (5s+8s TTA, w=0.55) + EfficientNet-B2 (8s, w=0.05) + ConvNeXt-Tiny (w=0.40) mencapai OOF Macro F1 = 0.94204 (accuracy 0.98412); penambahan EfficientNet-B3 (8s input, F1=0.9026) via grid search menaikkan OOF Macro F1 ke 0.94693 | punya temanku/rill-versi-baru.ipynb Cell 4, 7 | 4-fold group CV offline evaluation | Observed |
+| E-118 | Teammate (Trisan) Bird-MAE Pretrained Transformer Benchmark | Model DBD-research-group/Bird-MAE-Base (768-d embedding) diekstrak dan diuji via Logistic Regression, meraih OOF Macro F1 = 0.87149; blending 20% Bird-MAE + 80% Triple CNN mendongkrak OOF Macro F1 dari 0.89531 ke 0.91935 (+0.02404) | punya temanku/testttrisan (1).ipynb Cell 21-22 | 4-fold GroupCV linear probing & blend | Observed |
+| E-119 | Teammate (Trisan) BEATs Iter3+ AS2M Transformer Benchmark | Model BEATs_iter3_plus_AS2M.pt (768-d embedding) frozen feature extraction + LogReg meraih OOF Macro F1 = 0.89045; partial fine-tuning (8 epochs, lr_enc=8e-6) menghasilkan OOF Macro F1 = 0.88540 (sedikit terdegradasi karena overfitting dataset kecil); blending 10% BEATs + 90% Triple V4 stabil di OOF | punya temanku/rill-versi-baru.ipynb Cell 10-11 | 4-fold GroupCV frozen vs fine-tuned | Observed |
+| E-120 | Teammate (Trisan) LOCO OOD Novelty Detection Benchmark | Evaluasi sinyal OOD pada simulasi Leave-One-Class-Out (LOCO): BEATs Class-Conditional Mahalanobis Distance mencapai Macro AUC = 0.79826 (tertinggi di antara sinyal geometris); kNN-5 cosine distance Macro AUC = 0.78556; LOF (Local Outlier Factor) Macro AUC = 0.74768 | punya temanku/trisanknn50.ipynb Cell 6, 16, 23, 25 | LOCO pseudo-unknown cross-validation | Observed |
+| E-121 | Teammate (Trisan) Public Leaderboard Champion Score | Pipeline Triple V4 (ResNet50+EffNet-B2+ConvNeXt) + BEATs kNN (50/50 fusion) dengan ambang batas kaku 245 Unknown (30.10%) menghasilkan Public LB Macro F1 = 0.64871 (dan 0.65057 pada tuning C60_D40) | punya temanku/rill-versi-baru.ipynb Cell 2, 6 | Kaggle Public LB 30% evaluation | Observed |
+| E-122 | Teammate (Trisan) 245-Unknown Under-Rejection Ceiling Proof | Trisan menguji puluhan variasi OOD (kNN k=3/5/7/50, LOF, Mahalanobis, uncertainty disagreement) namun skor Public LB terkunci di plafon 0.64871 - 0.65057 karena kuota Unknown dipatok kaku di 245 sampel (30.10%); membuktikan secara independen bahwa 30% Unknown menyisakan ~120 False Positives derau hutan, mengonfirmasi kebenaran sweet-spot kita di ~44.96% (sub_023 LB 0.71221) | punya temanku/trisanknn50.ipynb Cell 3, 4, 25 | Empirical sensitivity audit on Kaggle LB | Observed |
 
 ## Methodology Design
 
@@ -394,6 +408,9 @@
 | notebooks/schematics-day-3.ipynb | Notebook master Day 3 terintegrasi 32 sel (Perch v2, BirdNET v2.4, Self-Training) | Passed |
 | notebooks/schematics-day-4.ipynb | Notebook eksekusi Day 4 (17 sel lean terverifikasi) | Passed |
 | notebooks/schematics-day-5.ipynb | Notebook master Day 5 terintegrasi 19 sel (Perch v2, BirdNET v2.4, Round 1-3 Self-Training, Peak LB 0.71221) | Passed |
+| punya temanku/testttrisan (1).ipynb | Notebook eksplorasi rekan (Trisan): Triple CNN, Bird-MAE 768-d, Perch 2.0 | Passed |
+| punya temanku/rill-versi-baru.ipynb | Notebook eksplorasi rekan (Trisan): Triple V4 (ResNet50+EffNet-B2/B3+ConvNeXt) + BEATs Iter3+ AS2M | Passed |
+| punya temanku/trisanknn50.ipynb | Notebook analisis OOD rekan (Trisan): BEATs kNN (k=3/5/7/50), LOF, dan Mahalanobis distance | Passed |
 | submissions/sub_001_*/ | Bundel submission sub_001 (experiment 1.csv, test_predictions_detailed.csv, metrics.json) | Passed |
 | submissions/sub_002_*/ | Bundel submission sub_002 (experiment 2.csv, metrics.json) | Passed |
 | submissions/sub_003_*/ | Bundel submission sub_003 (experiment 3.csv, metrics.json) | Passed |
