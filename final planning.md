@@ -1,415 +1,510 @@
-# MASTER RESEARCH BLUEPRINT (`final planning.md`)
+# MASTER RESEARCH BLUEPRINT v3.0 (`final planning.md`)
 **Judul Proyek:** End-to-End Bioacoustic Open-Set Recognition via Transductive Foundation Model Alignment and Orthogonal Forensic Shielding  
 **Target Artefak:** Notebook Komputasi (`notebooks/schematics_master_pipeline.ipynb`) & Naskah Laporan Teknis 10 Halaman  
-**Standar Metodologi:** Zero Data Leakage, 100% Hardware-Isolated Validation, Zero LB-Probing Quota (100% Intrinsic OOF Calibration)
+**Standar:** Zero Data Leakage · Full Retrain from Raw FLAC · Zero LB-Probing Quota · Inline Visualization  
+**Total Sel:** 31 | **Estimasi Runtime:** ~5–6 jam (T4 GPU)
 
 ---
 
-## Ringkasan Eksekutif & Struktur 8 Fase Riset
+## Peta 10 Fase × 31 Sel
 
-Cetak biru ini merancang 25 sel komputasi deterministik yang terbagi ke dalam 8 fase riset independen. Setiap keputusan arsitektur diturunkan secara kausal dari pembuktian statistik dan fisika sinyal pada fase sebelumnya, tanpa penggunaan magic numbers ataupun penyesuaian kuota berbasis Public Leaderboard probing.
-
-| Fase | Rentang Sel | Fokus Utama | Kontribusi Ilmiah & Metodologis |
+| Fase | Sel | Fokus | Figur Dihasilkan |
 | :--- | :---: | :--- | :--- |
-| **Fase 1** | Cell 1 | Inisialisasi, Akselerasi Hardware & Determinisme | Isolasi koeksistensi VRAM TFHub - PyTorch & kunci determinisme penuh CUDA. |
-| **Fase 2** | Cell 2 - 6 | Bioacoustic EDA & Audit Forensik Confounder | Pembuktian harmonik bimodal Cendrawasih ($8\text{--}16\text{ kHz}$) & isolasi bocoran mikrofon ($\eta^2 = 0.2366$). |
-| **Fase 3** | Cell 7 - 9 | DSP Engine, VAD-Guided Caching & Fitur Fisik | Normalisasi Active-RMS anti-clipping, O(N) VAD-guided windowing, & ekstraksi 818 fitur fisik. |
-| **Fase 4** | Cell 10 - 13 | Studi Ablasi Lintas-Paradigma (Model Grand Prix) | Pembuktian batas kapasitas GBDT, 2D Vision CNN/ViT, dan kegagalan AST 16 kHz. |
-| **Fase 5** | Cell 14 - 16 | Bioacoustic Foundation Model & Grounding Taksonomi | Multi-Taxa Paradisaeidae Max-Pooling pada Perch v2 & kalibrasi ECE Cosine Bottleneck Head. |
-| **Fase 6** | Cell 17 - 18 | Validasi Forensik Silang & Dual-Shielding | Integrasi juri ortogonal BirdNET v2.4 (48 kHz) untuk Cendrawasih Veto & isolasi parasit Trucuk. |
-| **Fase 7** | Cell 19 - 22 | Adaptasi Domain Transduktif & Bukti Konvergensi | 4-Gate Consensus Inlier Curation (kemurnian 99.72%) & bukti matematis saturasi di Round 3. |
-| **Fase 8** | Cell 23 - 25 | Formulasi Batas Open-Set Organik & Dual-Delivery | Eliminasi kuota statis via 2 batas organik ortogonal: Manifold Hypersphere vs Taxonomic Free-Energy. |
+| **1. Setup** | 1 | Environment, VRAM, determinisme | - |
+| **2. EDA** | 2–7 | Dataset, distribusi, sinyal, spektral, confounder, fold | 6 figur |
+| **3. Preprocessing & FE** | 8–10 | DSP engine, caching, 818-d fitur, SHAP | 3 figur |
+| **4. Model Grand Prix** | 11–15 | GBDT, CNN, AST, summary, ROC/PR | 4 figur |
+| **5. Foundation Models** | 16–19 | Perch v2, Multi-Taxa, BirdNET, Hybrid CosineHead | 3 figur |
+| **6. Forensic Shield** | 20–21 | Threshold BirdNET, Dual Shield | 2 figur |
+| **7. Self-Training** | 22–24 | Curation, R1+R2, R3 saturation proof | 2 figur |
+| **8. Architecture Optim.** | 25–28 | Head ablation, augmentation, ensemble, threshold sweep | 4 figur |
+| **9. Grand Synthesis** | 29–30 | Optimal config, final submission export | 1 figur |
+| **10. Delivery** | 31 | Ablation table, archiving, hash | 1 figur |
+| | | | **~26 figur total** |
 
 ---
 
-## FASE 1: Inisialisasi Environment, Akselerasi Hardware, dan Determinisme
+## FASE 1: Environment
 
-### Cell 1: Environment Setup, Dynamic VRAM Allocation, and Reproducibility Protocol
-* **Tujuan:** Mengunci determinisme penuh sistem dan mencegah benturan alokasi memori GPU antara TensorFlow Hub (ekstraktor Perch v2) dan PyTorch (pelatihan jaringan saraf & GBDT GPU).
-* **Hipotesis:** Tanpa pembatasan dynamic memory growth, inisialisasi runtime TensorFlow C++ akan mengakuisisi 100% blok VRAM secara serakah (greedy pre-allocation), memicu CUDA Out-of-Memory (OOM) saat PyTorch menginisialisasi autograd graph.
-* **Prosedur Komputasi:**
-  1. Konfigurasi variabel lingkungan pra-impor: `os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"`, `os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"`, dan `os.environ["PYTHONHASHSEED"] = "42"`.
-  2. Eksekusi `tf.config.experimental.set_memory_growth(gpu, True)` pada seluruh physical devices GPU sebelum inisialisasi konteks CUDA PyTorch.
-  3. Kunci random seed global ($S = 42$) pada `random`, `numpy`, `torch.manual_seed`, `torch.cuda.manual_seed_all`, dan `tf.random.set_seed`, serta aktifkan `torch.use_deterministic_algorithms(True, warn_only=True)` dan `cudnn.benchmark = False`.
-  4. Deklarasikan fungsi sanitasi memori `purge_vram()` yang mengeksekusi `gc.collect()`, `torch.cuda.empty_cache()`, dan `torch.cuda.ipc_collect()` antar-transisi fase.
-  5. Sediakan saklar eksekusi `USE_CACHED_FEATURE_ARRAYS = True` untuk memfasilitasi fast-path reproducibility bagi tim penilai.
-* **Bukti Empiris & Keputusan Desain:** VRAM NVIDIA Tesla T4 teralokasi secara elastis (tersedia bebas $14.46\text{ GB}$ dari total $14.56\text{ GB}$ pasca-inisialisasi ganda). Determinisme numerik operasi matriks terkunci hingga presisi $10^{-7}$.
-
----
-
-## FASE 2: Comprehensive Bioacoustic EDA dan Audit Forensik Confounder
-
-### Cell 2: Dataset Discovery, Schema Verification, and Label Distribution Audit
-* **Tujuan:** Memetakan struktur dataset mentah dan mengkuantifikasi tingkat ketimpangan distribusi kelas target secara informasi-teoretis.
-* **Hipotesis:** Dataset pelatihan mengalami ketimpangan kelas ekstrem (extreme long-tailed imbalance) yang akan membuat fungsi objektif Cross-Entropy standar mengalami kolaps gradien pada kelas minoritas.
-* **Prosedur Komputasi:**
-  1. Verifikasi integritas skema metadata latih ($N_{\text{train}} = 1.826$ file audio) dan daftar target uji ($N_{\text{test}} = 814$ file audio).
-  2. Hitung distribusi frekuensi absolut $n_c$, proporsi relatif $p_c$, serta Imbalance Ratio ($IR$) dan Shannon Diversity Index ($H'$):
-
-$$
-IR = \frac{\max_c(n_c)}{\min_c(n_c)}, \quad H' = -\sum_{c=1}^{C} p_c \ln(p_c)
-$$
-
-* **Bukti Empiris & Keputusan Desain:**
-  * **Bondol Jawa (*Lonchura leucogastroides*):** $1.124\text{ sampel}$ ($61.56\%$).
-  * **Kutilang (*Pycnonotus aurigaster*):** $619\text{ sampel}$ ($33.90\%$).
-  * **Cendrawasih (*Paradisaeidae spp.*):** $83\text{ sampel}$ ($4.55\%$).
-  * Terbukti $IR = 13.54$ dan $H' = 0.832$ (jauh di bawah entropi seragam $\ln(3) \approx 1.0986$). **Keputusan:** Wajib mengimplementasikan Class-Balanced Focal Loss ($\beta = 0.99, \gamma = 2.0$) dengan bobot efektif $E_n = (1 - \beta^n)/(1 - \beta)$ pada seluruh arsitektur deep learning.
-
-### Cell 3: Native Audio Header Parser, Duration Shift Test, and Clipping Forensics
-* **Tujuan:** Mengidentifikasi karakteristik fisik sinyal pada level biner dan menguji invarian distribusi durasi serta integritas amplitudo.
-* **Hipotesis:** Terdapat pergeseran distribusi durasi (duration covariate shift) antara data latih dan uji, serta distorsi non-linier akibat saturasi perangkat perekam (hard clipping).
-* **Prosedur Komputasi:**
-  1. Bangun binary header parser native untuk format FLAC guna mengekstrak sampling rate, bit depth, channel count, dan jumlah sampel tanpa mendekode keseluruhan waveform ke RAM.
-  2. Jalankan uji non-parametrik dua sampel Kolmogorov-Smirnov (KS-test) pada distribusi durasi $D_{\text{train}}$ vs $D_{\text{test}}$:
-
-$$
-D_{\text{KS}} = \sup_t \left\vert F_{\text{train}}(t) - F_{\text{test}}(t) \right\vert
-$$
-
-  3. Audit rasio clipping per file: proporsi sampel waktu $t$ yang memenuhi $\vert x(t)\vert \ge 0.99$, serta hitung korelasi Pearson antar-kanal stereo $r_{L,R}$.
-* **Bukti Empiris & Keputusan Desain:**
-  * Seluruh $2.640\text{ file}$ seragam pada $48.000\text{ Hz}$, stereo 2-kanal, PCM 16-bit, dengan rentang durasi $5.27\text{ hingga }14.90\text{ detik}$.
-  * KS-test menghasilkan $D_{\text{KS}} = 0.0302$ ($p\text{-value} = 0.6695 > 0.05$). Hipotesis nol diterima: tidak ada pergeseran distribusi durasi antara train dan test.
-  * **Temuan Forensik Kritis:** Terdeteksi severe clipping pada $40\%\text{ hingga }55\%$ rekaman. **Keputusan:** Peak normalization ($\tilde{x} = x / \max\vert x\vert$) dilarang keras karena akan menekan energi rata-rata rekaman yang memiliki satu lonjakan clipping transien; sistem wajib menggunakan Active-Frame RMS Normalization.
-  * Korelasi antar-kanal tinggi ($r_{L,R} \in [0.724, 0.800]$), membuktikan downmix aritmetik mono $x_{\text{mono}}(t) = \frac{1}{2}(x_L(t) + x_R(t))$ bebas dari risiko destructive phase cancellation.
-
-### Cell 4: Welch PSD 4-Band Spectral Decomposition and Bimodal Harmonic Audit
-* **Tujuan:** Mengisolasi sebaran densitas daya spektral (Power Spectral Density) per spesies guna menentukan batas frekuensi Nyquist minimum yang sah secara biologis.
-* **Hipotesis:** Kicauan Cendrawasih memiliki struktur harmonik bimodal pada frekuensi tinggi ($>8\text{ kHz}$) yang akan terpotong habis (aliasing/truncation) apabila audio di-downsample ke standar konvensional ucapan manusia ($16\text{ kHz}$, Nyquist $8\text{ kHz}$).
-* **Prosedur Komputasi:**
-  1. Hitung estimasi PSD metode Welch (jendela Hann, $N_{\text{FFT}} = 2048$, overlap $50\%$) dan integrasikan fraksi daya relatif pada 5 pita biologis: Band 1 ($0\text{--}2\text{ kHz}$), Band 2 ($2\text{--}4\text{ kHz}$), Band 3 ($4\text{--}6\text{ kHz}$), Band 4 ($6\text{--}8\text{ kHz}$), dan Pita Harmonik Tinggi ($8\text{--}16\text{ kHz}$).
-  2. Evaluasi signifikansi separabilitas antar-spesies di setiap pita menggunakan uji non-parametrik Kruskal-Wallis.
-* **Bukti Empiris & Keputusan Desain:**
-  * Kutilang mendominasi mutlak Band 2 ($2\text{--}4\text{ kHz}$) dengan $57.2\%$ total energi ($p = 1.14 \times 10^{-6}$).
-  * Cendrawasih terbukti memiliki tanda akustik bimodal: frekuensi dasar (fundamental) di $0\text{--}2\text{ kHz}$ ($43.3\%$ daya) serta lonjakan harmonik kedua di $6\text{--}8\text{ kHz}$ ($16.5\%$ daya) dan pita $8\text{--}16\text{ kHz}$ sebesar $9.08\%$ daya.
-  * **Keputusan:** Opsi downsampling ke $16\text{ kHz}$ dibatalkan secara permanen karena membuang $9.08\%$ energi diskriminatif Cendrawasih. Sampling rate minimum dikunci pada $32\text{ kHz}$ (Nyquist $16\text{ kHz}$) untuk jalur ekstraksi fitur dan Perch v2, serta $48\text{ kHz}$ native untuk jalur BirdNET v2.4.
-
-### Cell 5: Confounder Investigation: Microphone Fingerprint and Kruskal-Wallis Eta-Squared
-* **Tujuan:** Membuktikan secara matematis apakah atribut metadata `source_group` menyimpan bias instrumen perekam (hardware/environmental confounder).
-* **Hipotesis:** Rekaman yang berasal dari `source_group` yang sama berbagi profil noise floor dan respon frekuensi mikrofon yang identik, sehingga memicu korelasi artifisial non-biologis.
-* **Prosedur Komputasi:**
-  1. Partisi sampel di dalam masing-masing kelas spesies berdasarkan identitas `source_group` ($k$ grup).
-  2. Hitung statistik Kruskal-Wallis $H$ pada fitur spektral latar dan kuantifikasi ukuran efek (effect size) menggunakan Eta-squared non-parametrik ($\eta^2$):
-
-$$
-\eta^2 = \frac{H - k + 1}{n - k}
-$$
-
-* **Bukti Empiris & Keputusan Desain:**
-  * Pada populasi Bondol Jawa: $H = 270.32$, $p = 1.855 \times 10^{-55}$, dengan $\eta^2 = 0.2366$ (artinya $23.66\%$ varians akustik dikendalikan oleh identitas alat/sesi perekam, bukan vokal burung).
-  * Pada populasi Kutilang: $H = 27.36$, $p = 4.942 \times 10^{-6}$, $\eta^2 = 0.0396$.
-  * **Keputusan:** Penggunaan `KFold` atau `StratifiedKFold` acak standar dilarang mutlak karena menyebabkan microphone fingerprint leakage yang menggelembungkan skor validasi lokal secara palsu.
-
-### Cell 6: Combinatorial 4-Fold StratifiedGroupKFold Generator & Minority Variance Safeguard
-* **Tujuan:** Membangun skema partisi validasi silang yang mengisolasi $100\%$ identitas `source_group` sekaligus menjaga representasi kelas langka Cendrawasih di setiap fold.
-* **Hipotesis:** Algoritma greedy `StratifiedGroupKFold` bawaan scikit-learn gagal menyeimbangkan kelas Cendrawasih karena seluruh $83\text{ sampel}$ Cendrawasih hanya terdistribusi di 4 grup perekaman (Grup 3, 16, 29, dan 35).
-* **Prosedur Komputasi:**
-  1. Jalankan pencarian kombinatorial eksak (`itertools.product`) untuk memetakan 15 `source_group` ke dalam $K=4$ fold dengan kendala keras (hard constraint): tepat 1 grup Cendrawasih per fold dan himpunan grup saling lepas ($G_i \cap G_j = \emptyset, \forall i \neq j$).
-  2. Minimalkan fungsi objektif gabungan: $\mathcal{L}_{\text{split}} = \sigma(\text{FoldSize}) + \lambda \sum_c \sigma(\text{ClassRatio}_c)$.
-  3. **Protokol Anti-Distorsi Varians Minoritas:** Karena Fold 3 hanya memiliki 3 sampel Cendrawasih pada validation split-nya, tetapkan dua aturan evaluasi ketat:
-     * Seluruh evaluasi model wajib menggunakan **Global Pooled OOF Macro F1** (menggabungkan 1.826 prediksi OOF terlebih dahulu sebelum menghitung F1, bukan merata-ratakan F1 per fold).
-     * Seluruh kalibrasi kuantil ambang batas in-fold wajib dihitung pada **In-Fold Training Split** (di mana Fold 3 memiliki $35+29+16 = 80\text{ sampel}$ Cendrawasih yang stabil secara statistik).
-* **Bukti Empiris & Keputusan Desain:** Terdistribusi tepat 1 grup Cendrawasih per fold (Fold 0: 35, Fold 1: 29, Fold 2: 16, Fold 3: 3 sampel) dengan kebocoran grup $0\%$ ($G_i \cap G_j = \emptyset$). Artefak disimpan ke `metadata_with_folds.csv`.
+### Cell 1: Environment Setup, VRAM Allocation & Determinisme
+* **Prosedur:**
+  1. Variabel lingkungan: `CUBLAS_WORKSPACE_CONFIG=":4096:8"`, `TF_CPP_MIN_LOG_LEVEL="2"`, `PYTHONHASHSEED="42"`.
+  2. `tf.config.experimental.set_memory_growth(gpu, True)` sebelum PyTorch init.
+  3. Seed global $S=42$: `random`, `numpy`, `torch`, `tf`. Aktifkan `torch.use_deterministic_algorithms(True, warn_only=True)`, `cudnn.benchmark=False`.
+  4. Helper: `purge_vram()`, `seed_worker()`, `make_generator()`.
+  5. Helper visualisasi: `setup_plot_style()` (DPI 150, sans-serif, tight_layout), `save_fig(fig, name)`.
+  6. **Tanpa saklar cache.** Seluruh pipeline dari raw `.flac`.
+* **Output:** Tabel versi library + status GPU di stdout.
 
 ---
 
-## FASE 3: Pemrosesan Sinyal Bioakustik dan Ekstraksi Fitur Fisik
+## FASE 2: Comprehensive Bioacoustic EDA
 
-### Cell 7: Audio Preprocessing Engine v2.0: Butterworth, Active-RMS, and O(N) VAD Engine
-* **Tujuan:** Meredam derau angin/antropogenik frekuensi rendah, menormalisasi energi vokal tanpa terdistorsi clipping, dan melokalisasi segmen vokal aktif secara presisi.
-* **Hipotesis:** Energi gemuruh lingkungan di bawah $300\text{ Hz}$ mendominasi varians amplitudo waveform dan mengaburkan kontur formant burung pada model berbasis fitur fisik dan spektrogram 2D.
-* **Prosedur Komputasi:**
-  1. Filter IIR Butterworth High-Pass Orde-4 ($f_c = 300\text{ Hz}$ untuk jalur DSP/Vision; konfigurasi terpisah $f_c = 100\text{ Hz}$ disiapkan untuk Foundation Model di Cell 8 guna menghindari distorsi fase pada frontend mel-filterbank bawaan Perch v2) yang diimplementasikan via Second-Order Sections (`scipy.signal.sosfiltfilt`, zero-phase distortion).
-  2. Active-Frame RMS Normalization: Bagi sinyal ke dalam frame pendek, estimasi noise floor dari persentil ke-10 energi frame, ambil hanya frame aktif yang melampaui $+10\text{ dB}$ di atas noise floor, lalu normalisasi RMS frame aktif tersebut ke target $-18\text{ dBFS}$.
-  3. Cumulative $O(N)$ Voice Activity Detection (VAD) Locator: Hitung array energi kuadrat kumulatif $E_{\text{cum}}[t] = \sum_{\tau=0}^{t} x_{\text{clean}}^2[\tau]$ untuk mengekstrak posisi jendela berenergi vokal maksimum dalam kompleksitas waktu konstan $O(1)$ per kueri jendela.
-* **Bukti Empiris & Keputusan Desain:** Noise floor frekuensi rendah berhasil ditekan sebesar $24\text{ dB}$, rasio SNR lokal meningkat tajam tanpa memicu clipping baru. Parameter disimpan ke `preprocess_config.json`.
+### Cell 2: Dataset Discovery, Schema & Class Distribution
+* **Tujuan:** Verifikasi integritas data dan kuantifikasi ketimpangan kelas.
+* **Prosedur:**
+  1. Verifikasi skema metadata latih ($N_{\text{train}} = 1.826$) dan uji ($N_{\text{test}} = 814$).
+  2. Hitung $IR = \max(n_c)/\min(n_c) = 13.54$, $H' = -\sum p_c \ln p_c = 0.832$.
+  3. **Figur `fig_eda_class_distribution`** (3-panel, 12×4):
+     * Panel A: Horizontal bar chart + annotasi $n_c$ dan $p_c\%$.
+     * Panel B: Donut chart dengan $N_{\text{total}}$ di pusat.
+     * Panel C: Effective number $E_n = (1-\beta^n)/(1-\beta)$ untuk $\beta \in \{0.9, 0.99, 0.999\}$.
+* **Keputusan:** Class-Balanced Focal Loss ($\beta=0.99, \gamma=2.0$) wajib pada semua arsitektur DL.
 
-### Cell 8: VAD-Guided Dual-Stream Fast DSP RAM Pre-Caching
-* **Tujuan:** Menyimpan seluruh dataset latih dan uji ke dalam RAM dalam dua spesifikasi sampling rate berbeda hanya dengan 1 kali pembacaan disk, dipandu oleh kurva energi VAD Cell 7.
-* **Hipotesis:** Pemotongan jendela statis (kiri-tengah-kanan) berisiko melewatkan kicauan pendek pada rekaman berdurasi $14.9\text{ detik}$, sementara pembacaan FLAC berulang per epoch memicu CPU I/O bottleneck.
-* **Prosedur Komputasi:**
-  1. Gunakan Joblib multiprocessing workers dengan pre-alokasi contiguous NumPy array (`np.empty`, `float32`).
-  2. Algoritma VAD-Guided Top-3 Peak Windowing: Menggunakan kurva $E_{\text{cum}}[t]$ dari Cell 7, pilih 3 jendela non-redundan dengan densitas energi vokal tertinggi. Untuk rekaman pendek (mis. durasi $5.27\text{ detik}$ pada jendela $5.0\text{ detik}$), terapkan Adaptive Stride Windowing dengan pergeseran terukur ($\Delta t = (L - W)/2$) ditambah micro-jitter deterministik agar ketiga jendela menangkap variasi fase STFT tanpa zero-padding kosong.
-  3. Stream A (Jalur Perch v2 & 2D Vision: 32 kHz): Resampling polifase FIR anti-aliasing ke $32\text{ kHz}$, HPF $100\text{ Hz}$ (menjaga kompatibilitas mel-frontend Perch v2), ekstraksi 3 window @ $5.0\text{ detik}$ ($160.000\text{ sampel}$).
-  4. Stream B (Jalur BirdNET v2.4: 48 kHz Native): Pertahankan $48\text{ kHz}$ native, ekstraksi 3 window @ $3.0\text{ detik}$ ($144.000\text{ sampel}$) yang berpusat pada 3 koordinat puncak VAD yang sama dengan Stream A.
-* **Bukti Empiris & Keputusan Desain:** Train cache ($1.826 \times 3 \times 160.000$, $6.20\text{ GB}$) dan Test cache ($814 \times 3 \times 160.000$, $2.77\text{ GB}$) terekstraksi dalam $94.2\text{ detik}$ dengan 0 sampel hening (zero silent windows) dan cakupan vokal $100\%$ pada rekaman panjang.
+### Cell 3: Audio Properties, Duration Shift Test & Clipping Forensics
+* **Tujuan:** Properti fisik sinyal, invarian durasi, dan integritas amplitudo.
+* **Prosedur:**
+  1. Binary FLAC header parser → sampling rate, bit depth, channel, duration.
+  2. KS-test durasi train vs test: $D_{\text{KS}} = 0.0302$, $p = 0.6695$.
+  3. Audit clipping rate ($|x(t)| \ge 0.99$) dan korelasi stereo $r_{L,R}$.
+  4. **Figur `fig_eda_signal_audit`** (2×2, 14×8):
+     * Panel A: Overlapping histogram + KDE durasi train vs test.
+     * Panel B: Violin plot durasi per kelas.
+     * Panel C: Boxplot clipping rate per kelas.
+     * Panel D: Scatter $r_{L,R}$ vs $\Delta_{\text{RMS}}$, diwarnai per kelas.
+* **Keputusan:** Peak normalization dilarang → Active-RMS. Downmix mono $(ch_0+ch_1)/2$ aman.
 
-### Cell 9: High-Dimensional Bioacoustic DSP Tabular Extraction (818 Dimensi)
-* **Tujuan:** Mengekstrak vektor deskriptor akustik fisik berdimensi tinggi ($d=818$) untuk memetakan batas performa model non-deep learning.
-* **Hipotesis:** Statistik agregat domain waktu-frekuensi dan rasio energi harmonik eksplisit mampu menangkap struktur stasioner kicauan burung.
-* **Prosedur Komputasi:**
-  1. Ekstraksi statistik kuantil & momen (mean, std, skew, max) dari 128-band Log-Mel Spectrogram, $\Delta$, dan $\Delta^2$ ($512\text{ dimensi}$).
-  2. Ekstraksi kontur spektral fisik: Spectral Centroid, Bandwidth, Roll-off (85%), Flatness, Zero-Crossing Rate, RMS Energy, dan 7-band Spectral Contrast ($256\text{ dimensi}$).
-  3. Bioacoustic Cendrawasih Bimodal Ratios (Indeks 792-803): Rasio daya $E_{6\text{--}8\text{kHz}} / E_{2\text{--}4\text{kHz}}$, rasio harmonik tinggi $E_{8\text{--}16\text{kHz}} / E_{\text{total}}$, dan hasil kali energi bimodal $E_{0\text{--}2\text{kHz}} \cdot E_{6\text{--}16\text{kHz}}$.
-  4. Temporal Rhythm Autocorrelation (Indeks 804-817): Koefisien autokorelasi amplop energi pada lag periodisitas kicauan.
-* **Bukti Empiris & Keputusan Desain:** Matriks $X_{\text{train}} \in \mathbb{R}^{1826 \times 818}$ dan $X_{\text{test}} \in \mathbb{R}^{814 \times 818}$ bebas dari nilai `NaN`/`Inf`. Tersimpan sebagai `track_a_X_train_32k_v2.npy` dan `track_a_X_test_32k_v2.npy`.
+### Cell 4: Waveform Gallery & Mel-Spectrogram Comparison
+* **Tujuan:** Representasi visual kualitatif per spesies untuk Bab EDA laporan.
+* **Prosedur:**
+  1. Pilih 1 sampel representatif per kelas (median RMS).
+  2. Hitung 128-band Log-Mel Spectrogram (32 kHz, $N_{\text{FFT}}=2048$, hop=512).
+  3. **Figur `fig_eda_waveform_spectrogram`** (2×3, 16×8):
+     * Baris 1: Waveform mono + VAD overlay per spesies.
+     * Baris 2: Mel-spectrogram per spesies, shared colorbar. Garis putus-putus di pita frekuensi kunci.
 
----
+### Cell 5: Welch PSD Spectral Decomposition & Nyquist Decision
+* **Tujuan:** Bukti kuantitatif sampling rate minimum dan tanda akustik bimodal Cendrawasih.
+* **Prosedur:**
+  1. Welch PSD (Hann, $N_{\text{FFT}}=2048$, overlap 50%) pada seluruh 1.826 file.
+  2. Integrasi fraksi daya 5 pita: 0–2, 2–4, 4–6, 6–8, 8–16 kHz.
+  3. Kruskal-Wallis per pita.
+  4. **Figur `fig_eda_spectral_energy`** (1×3, 16×4):
+     * Panel A: PSD overlay (mean ± std shaded) per kelas, garis Nyquist di 8 kHz dan 16 kHz.
+     * Panel B: 100% stacked bar proporsi energi per kelas per pita.
+     * Panel C: Waterfall kehilangan energi saat downsample 48→32→16 kHz.
+* **Keputusan:** 32 kHz default (melindungi 9.08% harmonik Cendrawasih). 48 kHz native untuk BirdNET.
 
-## FASE 4: Studi Ablasi Lintas-Paradigma (Model Grand Prix)
+### Cell 6: Confounder Audit & StratifiedGroupKFold Justification
+* **Tujuan:** Pembuktian bias mikrofon dan justifikasi skema validasi.
+* **Prosedur:**
+  1. Kruskal-Wallis $H$ + $\eta^2 = (H-k+1)/(n-k)$ per kelas per fitur.
+  2. **Figur `fig_eda_confounder`** (1×3, 16×4):
+     * Panel A: Bar chart $\eta^2$ per kelas, garis ambang efek medium ($\eta^2=0.06$).
+     * Panel B: Heatmap source_group × fitur spektral (Bondol Jawa).
+     * Panel C: Perbandingan OOF F1 random-KFold vs GroupKFold (LightGBM cepat).
+* **Keputusan:** StratifiedGroupKFold wajib. $\eta^2 = 0.2366$ pada Bondol Jawa.
 
-### Cell 10: Paradigma A: Classical GBDT Grand Prix (LightGBM vs CatBoost vs XGBoost)
-* **Tujuan:** Mengukur kapasitas diskriminatif maksimum algoritma Gradient Boosted Decision Trees pada 818 fitur fisik tabular melalui evaluasi langsung 3 pustaka GBDT utama.
-* **Hipotesis:** Pohon keputusan tabular akurat pada kelas mayoritas namun mengalami degradasi presisi pada kelas minoritas Cendrawasih akibat ketiadaan invariansi translasi waktu-frekuensi dan keterbatasan agregasi global.
-* **Prosedur Komputasi:**
-  1. Jalankan 4-Fold Combinatorial StratifiedGroupKFold (dari Cell 6) secara serentak pada LightGBM, CatBoost, dan XGBoost menggunakan inverse class frequency sample weighting (`compute_sample_weight('balanced', y)`).
-  2. Evaluasi menggunakan Global Pooled OOF Macro F1 pada 1.826 sampel.
-* **Bukti Empiris & Keputusan Desain:**
-  * LightGBM: Global OOF Macro F1 = $0.8542$ (Bondol F1: $0.9412$, Kutilang F1: $0.8805$, Cendrawasih F1: $0.7410$).
-  * CatBoost: Global OOF Macro F1 = $0.8486$ (Bondol F1: $0.9380$, Kutilang F1: $0.8760$, Cendrawasih F1: $0.7318$).
-  * XGBoost: Global OOF Macro F1 = $0.8412$ (Bondol F1: $0.9345$, Kutilang F1: $0.8690$, Cendrawasih F1: $0.7201$).
-  * LightGBM terbukti sebagai champion dari keluarga GBDT tabular; probabilitas OOF-nya dikunci sebagai jangkar Paradigma A (`lgbm_oof_probs.npy`).
-
-### Cell 11: Paradigma B: 2D Vision Deep Learning Benchmark (ConvNeXt-Tiny, Swin-Tiny, SE-ResNeXt)
-* **Tujuan:** Menguji efektivitas transfer learning arsitektur computer vision modern pada representasi Log-Mel Spectrogram resolusi tinggi ($32\text{ kHz}$).
-* **Hipotesis:** Kernel depthwise separable convolution $7 \times 7$ pada ConvNeXt menangkap kontur formant frekuensi lokal lebih tajam dibandingkan shifted-window self-attention (Swin) maupun konvolusi $3 \times 3$ standar.
-* **Prosedur Komputasi:**
-  1. Bangun on-the-fly GPU Log-Mel Frontend (`torch.stft`, 128 mel bins, $f_{\max} = 16\text{ kHz}$).
-  2. Terapkan protokol LP-FT (Linear Probing then Fine-Tuning): 5 epoch linear probing (backbone beku) agar gradien awal kepala acak tidak merusak bobot pre-trained, dilanjutkan 18 epoch full fine-tuning dengan Cosine Annealing LR dan Class-Balanced Focal Loss ($\beta = 0.99, \gamma = 2.0$).
-* **Bukti Empiris & Keputusan Desain:**
-  * ConvNeXt-Tiny v2.0: Global OOF Macro F1 = $0.9323$ (Cendrawasih F1 = $0.9448$, hanya 3 FP dari 1.826 sampel).
-  * Swin-Tiny Transformer v2.0: Global OOF Macro F1 = $0.9098$ (Cendrawasih F1 = $0.8671$).
-  * SE-ResNeXt-50 (32x4d): Global OOF Macro F1 = $0.9005$ | EfficientNet-B0: $0.8721$ (29 FP Cendrawasih).
-  * ConvNeXt-Tiny terbukti unggul signifikan ($+0.0837$ F1 di atas GBDT) berkat kapasitas representasi lokalnya.
-
-### Cell 12: Paradigma C: Investigasi dan Bukti Kegagalan Audio Transformer 16 kHz (Bird-MAE & BEATs)
-* **Tujuan:** Menguji Self-Supervised Audio Spectrogram Transformers (Bird-MAE & BEATs) dan membuktikan secara matematis penyebab kegagalannya pada dataset ini.
-* **Hipotesis:** Meskipun dilatih pada jutaan audio, arsitektur berbasis patch $16\text{ kHz}$ akan kalah dari ConvNeXt $32\text{ kHz}$ karena kehilangan pita harmonik tinggi ($8\text{--}16\text{ kHz}$) dan bias domain pre-training AudioSet umum (musik/ucapan manusia).
-* **Prosedur Komputasi:**
-  1. Ekstraksi embedding 768-d dari `DBD-research-group/Bird-MAE-Base` dan `BEATs_iter3_plus_AS2M.pt`, lalu evaluasi via 4-Fold GroupCV (baik linear probing maupun partial fine-tuning 8 epoch).
-  2. Korelasikan residu galat prediksi dengan rasio energi pita $8\text{--}16\text{ kHz}$ dari Cell 4.
-* **Bukti Empiris & Keputusan Desain:**
-  * Bird-MAE-Base: Global OOF Macro F1 = $0.8715$.
-  * BEATs Iter3+ AS2M: Global OOF Macro F1 = $0.8905$ (turun ke $0.8854$ saat di-fine-tune akibat overfitting jumlah parameter terhadap ukuran grup).
-  * Bukti Matematis: Mayoritas False Negative Cendrawasih pada kedua model terjadi pada sampel yang memiliki rasio energi $8\text{--}16\text{ kHz}$ tinggi, mengonfirmasi hipotesis Cell 4 bahwa batas Nyquist $8\text{ kHz}$ membutakan model terhadap tanda bimodal Cendrawasih. Paradigma C resmi dieliminasi.
-
-### Cell 13: Acoustic Noise-Conditioned Dynamic Gating Synthesis (Batas Atas Paradigma Konvensional)
-* **Tujuan:** Menguji batas performa maksimal yang bisa dicapai dari penyatuan Paradigma A (GBDT) dan Paradigma B (ConvNeXt) melalui pembobotan adaptif berbasis Signal-to-Noise Ratio (SNR).
-* **Hipotesis:** Fitur fisik agregat GBDT membantu menstabilkan prediksi pada rekaman dengan derau stasioner pekat (SNR rendah), sementara ConvNeXt unggul mutlak pada vokal jernih.
-* **Prosedur Komputasi:**
-  1. Hitung skor kualitas sinyal $s_i$ dari komplemen spectral flatness dan rasio energi residu, lalu terapkan fungsi gating non-linier:
-
-$$
-w_{\text{tab}}(s_i) = w_{\max} \cdot \left[ 1 - \text{rank\_norm}(s_i) \right]^\gamma
-$$
-
-  2. Terapkan Two-Way Cendrawasih Shield: Jika $P_{\text{ConvNeXt}}(\text{Cendra}) \ge 0.50$, kunci $w_{\text{tab}} = 0$ untuk mencegah dilusi probabilitas dari pohon tabular.
-* **Bukti Empiris & Keputusan Desain:** Global OOF Macro F1 mencapai $0.9380$ (NLL: $0.1938$). Namun, evaluasi pada data uji eksternal (`sub_006`, Public LB: $0.59462$) menunjukkan bahwa model yang dilatih dari bobot visual ImageNet (ConvNeXt) masih rentan terhadap domain shift akustik hutan tropis dan spesies open-set baru. Temuan ini menjadi landasan ilmiah transisi menuju Fase 5 (Bioacoustic Foundation Models).
+### Cell 7: 4-Fold Combinatorial Generator & Fold Visualization
+* **Tujuan:** Partisi validasi silang dengan isolasi 100% source_group.
+* **Prosedur:**
+  1. Pencarian kombinatorial: 15 grup → 4 fold, kendala 1 grup Cendrawasih per fold, $G_i \cap G_j = \emptyset$.
+  2. Evaluasi wajib: **Global Pooled OOF Macro F1** (bukan rata-rata per-fold).
+  3. **Figur `fig_eval_folds`** (1×2, 12×4):
+     * Panel A: Stacked bar per fold (train/val) per kelas.
+     * Panel B: Heatmap biner 15×4 (group × fold), highlight Cendrawasih.
+* **Artefak:** `metadata_with_folds.csv`.
 
 ---
 
-## FASE 5: Bioacoustic Foundation Model dan Grounding Taksonomi
+## FASE 3: Preprocessing, Feature Engineering & Interpretabilitas
 
-### Cell 14: Google Perch v2 1536-d Feature Extraction and Taxonomic Logits Summarization
-* **Tujuan:** Memanfaatkan prior pengetahuan biologis global dari Google Perch v2 yang telah dilatih pada $14.795\text{ taksa}$ biofoni dunia pada sampling rate $32\text{ kHz}$.
-* **Hipotesis:** Ruang laten Perch v2 telah memiliki invarian terhadap mikrofon dan derau hutan hujan, serta menyediakan ribuan logit spesies latar yang dapat dimanfaatkan sebagai detektor Out-of-Distribution (OOD) intrinsik.
-* **Prosedur Komputasi:**
-  1. Muat model TFHub `google/bird-vocalization-classifier/tensorFlow2/perch_v2/2` dan jalankan inferensi pada Stream A Cache ($32\text{ kHz}$, 3 window VAD @ $5.0\text{ detik}$).
-  2. Ekstrak vektor 1536-d L2-normalized embedding ($\hat{e} \in \mathbb{S}^{1535}$) beserta norma pra-normalisasi ($\Vert e\Vert_2$) dan seluruh $14.795\text{ logit}$ taksonomi.
-  3. Petakan indeks taksa target: Bondol Jawa `[7329]`, Kutilang `[11701]`, serta 8 kandidat taksa Cendrawasih Paradisaeidae.
-* **Bukti Empiris & Keputusan Desain:** Tanpa pelatihan apa pun (zero-shot logit), rata-rata logit target menunjukkan separabilitas biologis ekstrem: Kutilang = $+7.81$, Cendrawasih = $+3.39$, Bondol Jawa = $+0.36$. Artefak disimpan ke `perch_v2_train_emb.npy` dan `perch_v2_test_emb.npy`.
+### Cell 8: Preprocessing v2.0 & VAD-Guided Dual-Stream Caching
+* **Tujuan:** DSP engine + caching seluruh dataset ke RAM dari raw FLAC.
+* **Prosedur:**
+  1. **Butterworth HPF Orde-4:** $f_c=300$ Hz (DSP/Vision), $f_c=100$ Hz (Foundation Model). `sosfiltfilt` zero-phase.
+  2. **Active-RMS Normalization:** noise floor dari P10, frame aktif > +10 dB, target $-18$ dBFS.
+  3. **Cumulative $O(N)$ VAD:** $E_{\text{cum}}[t]$ untuk top-3 jendela vokal non-redundan.
+  4. **Stream A (32 kHz):** Polyphase FIR resample, 3 window × 5.0 s (160.000 sampel).
+  5. **Stream B (48 kHz):** Native, 3 window × 3.0 s (144.000 sampel).
+  6. **Figur `fig_preprocess_before_after`** (2×3, 14×8):
+     * Baris 1: Raw waveform + mel-spectrogram (1 per kelas).
+     * Baris 2: Processed + VAD markers + mel-spectrogram sesudah.
+* **Output:** Train cache ~6.2 GB, Test cache ~2.8 GB, 0 silent windows.
 
-### Cell 15: Taxonomic Investigation: The Cendrawasih Multi-Taxa Pooling Solution
-* **Tujuan:** Mendiagnosis keragaman spesies di dalam label generik `Cendrawasih` dan menghilangkan bias penguncian spesies tunggal (single-taxon bottleneck).
-* **Hipotesis:** Label `Cendrawasih` pada dataset bukan berasal dari satu spesies biologis tunggal, melainkan agregasi tingkat famili (Paradisaeidae) yang berbeda antar-lokasi perekaman (`source_group`).
-* **Prosedur Komputasi:**
-  1. Evaluasi skor AUROC zero-shot dari masing-masing 8 taksa Paradisaeidae di Perch v2 secara terpisah pada keempat fold validasi.
-  2. Rumuskan operator Multi-Taxa Paradisaeidae Max-Pooling untuk menyatukan respon vokal seluruh anggota famili tanpa mendilusi sinyal:
+### Cell 9: 818-d DSP Feature Extraction & Correlation Analysis
+* **Tujuan:** Fitur tabular fisik + audit korelasi.
+* **Prosedur:**
+  1. 128-band Log-Mel statistik + $\Delta$ + $\Delta^2$ (512-d).
+  2. Kontur spektral: centroid, bandwidth, roll-off, flatness, ZCR, RMS, 7-band contrast (256-d).
+  3. Bioacoustic bimodal ratios (12-d) + temporal autocorrelation (14-d) + custom (24-d).
+  4. **Figur `fig_preprocess_features`** (1×2, 14×6):
+     * Panel A: Clustered correlation heatmap (hierarchical dendrogram).
+     * Panel B: Ridge plot top-20 fitur varians tertinggi, dikondisikan per kelas.
+* **Output:** $X_{\text{train}} \in \mathbb{R}^{1826 \times 818}$, $X_{\text{test}} \in \mathbb{R}^{814 \times 818}$.
 
-$$
-z_{\text{Cendra, pooled}}(x) = \max_{s \in \mathcal{S}_{\text{Paradisaeidae}}} z_s(x)
-$$
-
-* **Bukti Empiris & Keputusan Desain:**
-  * Temuan Biologis Kunci: Sampel Cendrawasih pada Fold 0 dan Fold 1 terpetakan dengan presisi tinggi ke spesies Cendrawasih Raja (*Cicinnurus regius*) (AUROC $0.8897$ dan $0.9721$), sedangkan sampel pada Fold 2 dan Fold 3 terpetakan ke Cendrawasih Merah (*Paradisaea rubra*) (AUROC $0.7386$).
-  * Operator Max-Pooling membebaskan model dari keharusan menebak sub-spesies mana yang muncul di data uji, sekaligus meningkatkan konsistensi lintas-fold secara drastis.
-
-### Cell 16: Hybrid 1543-d Assembly, Supervised Cosine Head (Round 0), and ECE Calibration Audit
-* **Tujuan:** Menggabungkan geometri ruang laten 1536-d dengan 7 indikator energi fisik/taksonomi, melatih kepala klasifikasi induktif murni, dan memverifikasi kalibrasi probabilitasnya.
-* **Hipotesis:** Menambahkan ringkasan logit fisik 7-d (termasuk Helmholtz Free-Energy dan Non-Target Margin) ke dalam embedding 1536-d akan memulihkan informasi magnitudo aktivasi yang hilang akibat normalisasi L2 ($\mathbb{S}^{1535}$), sementara skala temperatur $\tau=16$ pada CosineLinear menjaga kalibrasi probabilitas meskipun dilatih dengan Focal Loss.
-* **Prosedur Komputasi:**
-  1. Rakit vektor hibrida 1543-d = Konkatenasi `[1536-d L2 Embedding]` $\oplus$ `[7-d Z-scored Physical Summary]`:
-     * $z_{\text{Bondol}}$, $z_{\text{Kutilang}}$, $z_{\text{Cendra, pooled}}$ (3 fitur logit target).
-     * $z_{\text{NonTarget, max}} = \max_{u \notin \text{Target}} z_u$ dan rata-rata $\text{Top-5 } z_{\text{NonTarget}}$ (2 fitur kompetitor latar).
-     * Taxonomic OOD Margin: $\Delta z_{\text{OOD}} = \max_{c \in \text{Target}} z_c - z_{\text{NonTarget, max}}$ (1 fitur).
-     * Logit Helmholtz Free-Energy:
-
-$$
-E_{\text{free}}(z) = -T \ln \sum_{k=1}^{14795} \exp(z_k / T)
-$$
-
-  2. Latih 4-fold `PerchBottleneckCosineHead` (`Linear(1543 -> 256) -> LayerNorm -> SiLU -> Dropout(0.2) -> CosineLinear(256 -> 3, scale=16.0)`) dengan Class-Balanced Focal Loss.
-  3. Audit Kalibrasi Probabilitas: Hitung Expected Calibration Error (ECE, 15 bins) dan Multiclass Brier Score pada prediksi OOF untuk memastikan probabilitas softmax valid digunakan sebagai ambang batas di fase hilir.
-* **Bukti Empiris & Keputusan Desain:**
-  * Uji ablasi membuktikan Hybrid 1543-d (Global OOF Macro F1 = $0.9314$) mengungguli embedding murni 1536-d (F1 = $0.9239$, $+0.0075$).
-  * Faktor skala $\tau = 16.0$ pada CosineLinear terbukti bertindak sebagai implicit temperature scaling yang mengkompensasi efek under-confidence dari Focal Loss, menghasilkan skor OOF ECE rendah ($0.0241$) dan Brier Score ($0.0418$).
-  * Pada evaluasi eksternal (`sub_021`), model induktif murni ini langsung melompat ke $0.64696$ ($+0.05234$ di atas ensemble Fase 4), memvalidasi superioritas representasi Perch v2.
+### Cell 10: SHAP Feature Importance Analysis
+* **Tujuan:** Interpretabilitas model-agnostik untuk Bab Preprocessing laporan.
+* **Prosedur:**
+  1. Latih 1-fold LightGBM cepat (fold 0, 200 trees).
+  2. `shap.TreeExplainer` pada $\sim 1.323$ sampel latih fold 0.
+  3. **Figur `fig_feature_shap`** (1×3, 16×10):
+     * Panel A: SHAP beeswarm plot (top-25 fitur).
+     * Panel B: Per-class mean $|\text{SHAP}|$ bar chart (top-15).
+     * Panel C: Dependence plot untuk 2 fitur teratas.
 
 ---
 
-## FASE 6: Validasi Forensik Silang dan Dual-Shielding
+## FASE 4: Model Grand Prix & Learning Dynamics
 
-### Cell 17: Official BirdNET v2.4 (48 kHz) Logit Extraction and In-Fold Training Calibration
-* **Tujuan:** Mengintegrasikan foundation model bioakustik independen kedua (BirdNET v2.4, $6.522\text{ spesies}$, input $48\text{ kHz}$ native) sebagai juri forensik ortogonal.
-* **Hipotesis:** Dua foundation model dengan arsitektur, resolusi waktu-frekuensi ($48\text{ kHz}$ vs $32\text{ kHz}$), dan korpus pelatihan yang berbeda tidak akan membuat kesalahan False Positive pada sampel derau yang sama.
-* **Prosedur Komputasi:**
-  1. Jalankan inferensi BirdNET v2.4 pada Stream B Cache ($48\text{ kHz}$ native, 3 window VAD @ $3.0\text{ detik}$) dan ekstrak 4 fitur logit utama: $b_{\text{Bondol}}$ `[3260]`, $b_{\text{Kutilang}}$ `[5133]`, $b_{\text{Cendra}} = \max(\text{17 taksa Paradisaeidae})$, dan $b_{\text{NonTarget, max}}$.
-  2. Protokol Kalibrasi In-Fold Bebas Bocoran: Untuk setiap fold $k \in \{0,1,2,3\}$, hitung ambang batas kuantil biologis hanya menggunakan sampel pada In-Fold Training Split ($N_{\text{cendra, train}} \ge 48\text{ hingga }80\text{ sampel}$ per fold, sehingga bebas dari masalah ukuran sampel kecil Fold 3):
-     * Ambang Veto Cendrawasih $\tau_{\text{cendra}}^{(k)}$ = Kuantil ke-20 (retensi positif $80\%$, p80) dari distribusi $b_{\text{Cendra}}$ pada kelas Cendrawasih latih.
-     * Ambang Veto Kutilang $\tau_{\text{kutilang}}^{(k)}$ = Kuantil ke-5 (retensi positif $95\%$, p95) dari distribusi $b_{\text{Kutilang}}$ pada kelas Kutilang latih.
-* **Bukti Empiris & Keputusan Desain:** Nilai ambang batas in-fold sangat konvergen dan stabil di seluruh 4 fold: $\bar{\tau}_{\text{cendra}} = -7.70 \pm 0.04$ dan $\bar{\tau}_{\text{kutilang}} = -8.11 \pm 0.04$. Disimpan ke `nested_forensic_thresholds.json`.
+### Cell 11: Paradigma A - GBDT Grand Prix *(Full Retrain)*
+* **Tujuan:** Baseline tabular: LightGBM, XGBoost, CatBoost secara simultan.
+* **Prosedur:**
+  1. 4-Fold StratifiedGroupKFold pada ketiga model, `compute_sample_weight('balanced', y)`.
+  2. Simpan OOF probs (untuk ensemble dan SHAP).
+  3. **Figur `fig_model_gbdt`** (1×2, 12×4):
+     * Panel A: Normalized confusion matrix LightGBM (champion GBDT).
+     * Panel B: Grouped bar per-fold per-class F1.
+* **Hasil:** LGBM $0.8542$, CatBoost $0.8486$, XGBoost $0.8412$.
 
-### Cell 18: Dual Forensic Taxonomic Shield Execution (Cendrawasih Veto & Trucuk Isolation)
-* **Tujuan:** Mengeliminasi False Positive Cendrawasih dan menyaring spesies burung pengecoh (avian confounder) yang secara taksonomi berkerabat dekat dengan Kutilang.
-* **Hipotesis:** Burung Trucuk (*Pycnonotus goiavier* / Yellow-vented Bulbul), yang satu genus (*Pycnonotus*) dengan Kutilang, memiliki kemiripan formant yang mengecoh kepala klasifikasi 3-kelas Perch v2 menjadi prediksi Kutilang ber-confidence menengah, namun dapat dideteksi melalui ketidaksepakatan logit spesifik spesies pada BirdNET v2.4.
-* **Prosedur Komputasi:**
-  1. Mechanism 1: Cendrawasih Soft-Reassignment Veto. Jika $\arg\max P_{\text{Perch}}(x) = \text{Cendrawasih}$ namun juri BirdNET menolak ($b_{\text{Cendra}}(x) < \tau_{\text{cendra}}^{(k)} = -7.70$), batalkan status Cendrawasih dan alihkan massa probabilitas ke kelas peringkat ke-2 pada Perch:
+### Cell 12: Paradigma B - CNN Grand Prix: ConvNeXt, Swin, SE-ResNeXt *(Full Retrain)*
+* **Tujuan:** Transfer learning 3 arsitektur vision pada Log-Mel Spectrogram 32 kHz.
+* **Prosedur:**
+  1. On-the-fly GPU Log-Mel Frontend (128 mel, $f_{\max}=16$ kHz).
+  2. **LP-FT setiap model:** 5 epoch linear probing + 18 epoch full fine-tuning. Cosine Annealing LR + CB-Focal Loss.
+  3. **Rekam per epoch:** train loss, val loss, val Macro F1, val Cendrawasih F1.
+  4. Simpan OOF probs + best checkpoint per fold (untuk Exp-D ensemble nanti).
+  5. **Figur `fig_model_cnn_learning`** (2×2, 14×10):
+     * Panel A: Training loss overlay (3 model, mean±std 4 fold).
+     * Panel B: Val Macro F1 overlay. Garis transisi LP→FT di epoch 5.
+     * Panel C: Val Cendrawasih F1 overlay.
+     * Panel D: Confusion matrix ConvNeXt-Tiny (champion CNN).
+* **Hasil:** ConvNeXt $0.9323$, Swin $0.9098$, SE-ResNeXt $0.9005$.
 
-$$
-P_{\text{corr}}(x) = \text{Reassign}_{c_1 \to c_2}\left(P_{\text{Perch}}(x) \;\middle|\; b_{\text{Cendra}}(x) < \tau_{\text{cendra}}^{(k)}\right)
-$$
+### Cell 13: Paradigma C - Audio Transformer Investigation & Failure Proof *(Full Retrain)*
+* **Tujuan:** Menguji Bird-MAE & BEATs dan membuktikan kegagalan arsitektur 16 kHz.
+* **Prosedur:**
+  1. Embedding 768-d + 4-Fold linear probing + partial fine-tune 8 epoch.
+  2. Korelasikan FN Cendrawasih dengan rasio energi $8\text{–}16$ kHz.
+  3. Inline: scatter plot FN vs high-freq energy ratio.
+* **Hasil:** Bird-MAE $0.8715$, BEATs $0.8905$. Paradigma C **dieliminasi** - Nyquist 8 kHz membutakan Cendrawasih.
 
-  2. Mechanism 2: Pycnonotidae Confounder Shield (Trucuk Shield). Tandai sampel dengan bendera `is_trucuk_confounder = True` (untuk dialihkan ke `Unknown` pada tahap Open-Set) apabila memenuhi kondisi konjungtif:
+### Cell 14: Grand Prix Summary Dashboard
+* **Tujuan:** Figur sinopsis seluruh Model Grand Prix.
+* **Prosedur:**
+  1. **Figur `fig_model_summary`** (2×2, 14×10):
+     * Panel A: Radar chart (6 model × 5 metrik: Macro F1, per-class F1, 1−ECE).
+     * Panel B: Grouped bar F1 per kelas per model, descending.
+     * Panel C: One-vs-Rest ROC curves ConvNeXt vs LightGBM (per-class AUROC).
+     * Panel D: McNemar heatmap $p$-value antar-pasangan model.
 
-$$
-\left(\arg\max P_{\text{corr}}(x) = \text{Kutilang}\right) \land \left(P_{\text{corr}}(\text{Kutilang}) < 0.60\right) \land \left(b_{\text{Kutilang}}(x) < \tau_{\text{kutilang}}^{(k)} = -8.11\right)
-$$
-
-* **Bukti Empiris & Keputusan Desain:**
-  * Pada evaluasi Global Pooled OOF (1.826 sampel): 12 dari 15 False Positive Cendrawasih berhasil dieliminasi dengan tepat (11 kembali ke label aslinya, hanya 1 TP terkoreksi). Presisi OOF Cendrawasih melonjak dari $77.8\%$ menjadi $89.6\%$, mengangkat Global OOF Macro F1 dari $0.9314$ ke $0.9504$ ($+0.0190$).
-  * Pada himpunan data uji ($814\text{ sampel}$): Klaim Cendrawasih yang terindikasi false alarm derau serangga dipangkas dari 162 menjadi 114 sampel, dan 64 sampel berhasil diidentifikasi sebagai kandidat kuat parasit vokal Trucuk.
-
----
-
-## FASE 7: Adaptasi Domain Transduktif dan Uji Konvergensi Semi-Supervised
-
-### Cell 19: Consensus Inlierness Curation Engine (The 4-Gate Sterile Filter)
-* **Tujuan:** Menyaring subset data uji tak berlabel yang memiliki kemurnian kelas mendekati $100\%$ (sterile pseudo-inliers) untuk menjembatani kesenjangan distribusi mikrofon (domain shift) tanpa memicu confirmation bias.
-* **Hipotesis:** Dalam skenario Open-Set di mana data uji mengandung ribuan suara asing (`Unknown`), pseudo-labeling konvensional berbasis ambang confidence tunggal pasti gagal karena menyerap sampel `Unknown` ke dalam siklus pelatihan.
-* **Prosedur Komputasi:**
-  1. Hitung jarak manifold kosinus in-fold $d_{\text{perch}}^{(k)}(x)$ terhadap $k=5$ tetangga terdekat (kNN-5) dari data latih pada ruang embedding yang telah di-mean-centering per fold.
-  2. Terapkan 4-Gate Sterile Filter (sampel uji $x_j$ hanya diterima sebagai pseudo-inlier jika lolos keempat gerbang sekaligus):
-     * Gate 1 (Calibrated Confidence): $\max_c P_{\text{corr}}(x_j) \ge Q_{0.55}(P_{\text{OOF}})$.
-     * Gate 2 (Geometric Hypersphere Inlier): $d_{\text{perch}}(x_j) \le Q_{0.60}(d_{\text{OOF}}) \land E_{\text{free}}(x_j) \le Q_{0.85}(E_{\text{free, OOF}})$ (menjamin sampel berada di inti klaster sekaligus memiliki energi aktivasi di atas batas derau statis).
-     * Gate 3 (Bilateral Cendrawasih Verification): Jika label kandidat adalah Cendrawasih, wajib memenuhi $b_{\text{Cendra}}(x_j) \ge -7.70$.
-     * Gate 4 (Confounder Immunity): Bebas dari bendera Trucuk Shield (`is_trucuk_confounder == False`).
-* **Bukti Empiris & Keputusan Desain:** Simulasi verifikasi buta (blind diagnostic audit) dari aturan 4-gerbang ini pada prediksi OOF data latih membuktikan kemurnian label mencapai $99.72\%$ (351 benar dari 352 sampel yang lolos). Kurasi menghasilkan 203 sterile pseudo-inliers pada Round 1 dan 274 sterile pseudo-inliers pada Round 2.
-
-### Cell 20: Strictly In-Fold Transductive Self-Training: Round 1 Execution
-* **Tujuan:** Menyelaraskan batas keputusan kepala jaringan dengan karakteristik akustik mikrofon data uji secara ketat di dalam masing-masing fold (zero validation leakage).
-* **Hipotesis:** Menginjeksi sterile pseudo-inliers ke dalam training split memperluas cakupan manifold kelas target tanpa menggeser pusat prototipe kelas.
-* **Prosedur Komputasi:**
-  1. Untuk setiap fold $k$, gabungkan $203\text{ pseudo-inliers}$ (yang dikurasi menggunakan parameter spesifik fold $k$) hanya ke dalam himpunan latih fold $k$ ($\mathcal{D}_{\text{train}}^{(k)} \cup \mathcal{D}_{\text{pseudo}}^{(k)}$) dengan bobot sampel $\lambda_{\text{pseudo}} = 1.0$. Himpunan validasi $\mathcal{D}_{\text{val}}^{(k)}$ dijaga 100% murni data asli.
-  2. Latih ulang `PerchBottleneckCosineHead` dari awal selama 40 epoch.
-* **Bukti Empiris & Keputusan Desain:** Global Pooled OOF Macro F1 (sebelum shielding) naik dari $0.9314$ ke $0.9356$, dengan False Positive Cendrawasih OOF turun drastis dari 20 menjadi 3 sampel. Evaluasi eksternal (`sub_022`) mencatat lonjakan skor $+0.03005$ (dari $0.64696$ ke $0.67701$).
-
-### Cell 21: Transductive Self-Training Round 2: Manifold Consolidation
-* **Tujuan:** Menjalankan iterasi kedua adaptasi transduktif menggunakan probabilitas Round 1 yang telah terkalibrasi dan representasi Multi-Taxa Pooling.
-* **Hipotesis:** Setelah mikrofon data uji terakomodasi di Round 1, vokalisasi burung target yang berjarak agak jauh dari mikrofon (efek atenuasi kanopi hutan) kini dapat dikenali dengan confidence tinggi pada kurasi tahap kedua.
-* **Prosedur Komputasi:**
-  1. Jalankan ulang 4-Gate Sterile Filter pada distribusi prediksi Round 1, menghasilkan 274 pseudo-inliers (143 Bondol Jawa, 115 Kutilang, 16 Cendrawasih).
-  2. Injeksi secara in-fold dengan regularisasi peluruhan bobot $\lambda_{\text{pseudo}} = 0.85$ untuk mencegah over-domination sampel uji terhadap gradien sampel asli.
-  3. Latih ulang 4-fold `PerchBottleneckCosineHead` dan audit kembali metrik kalibrasi ECE.
-* **Bukti Empiris & Keputusan Desain:**
-  * Konvergensi Kelas Mayoritas Sempurna: Pada evaluasi OOF, kelas Bondol Jawa mencapai akurasi $100.0\%$ ($1.124 / 1.124\text{ sampel}$, 0 FP, 0 FN).
-  * Global OOF Macro F1 pasca-shielding mencapai titik puncak tertinggi $0.9542$ (ECE terjaga di $0.0219$). Evaluasi eksternal mencapai tonggak tertinggi kompetisi ($0.71221$).
-
-### Cell 22: Transductive Self-Training Round 3 and Convergence Saturation Proof
-* **Tujuan:** Menguji secara matematis batas konvergensi (stopping criterion) dari transductive self-training dan membuktikan titik dimulainya degradasi confirmation bias.
-* **Hipotesis:** Pada iterasi ke-3 ($t=3$), batas manifold inlier mulai meluas melampaui margin keamanan biologis, sehingga menyerap derau serangga frekuensi tinggi ke dalam kelas minoritas Cendrawasih.
-* **Prosedur Komputasi:**
-  1. Eksekusi kurasi Round 3 (menghasilkan 292 pseudo-inliers, termasuk +5 kandidat Cendrawasih baru di ambang batas marjinal) dan latih ulang dengan $\lambda_{\text{pseudo}} = 0.80$.
-  2. Analisis pergeseran pusat kosinus (prototype drift) $\Delta \mu_c = 1 - \cos(\mu_c^{(t)}, \mu_c^{(t-1)})$ dan perubahan entropi prediksi antar-iterasi.
-* **Bukti Empiris & Keputusan Desain:**
-  * Terdeteksi lonjakan prototype drift pada vektor bobot kelas Cendrawasih sebesar $3.4\times$ dibanding transisi Round 1 $\to$ 2. Audit spektrogram terhadap 5 sampel tambahan menunjukkan bahwa kelimanya adalah stridulasi serangga Cicadidae pita $7\text{--}12\text{ kHz}$ yang menyusup ke celah harmonik kedua Cendrawasih.
-  * Skor eksternal (`sub_024`) terbukti mengalami regresi ke $0.69098$ ($-0.02123$).
-  * Keputusan Ilmiah: Konvergensi transduktif terbukti mencapai titik jenuh optimal (Pareto-optimal stopping point) tepat pada Round 2 ($t=2$). Bobot model Round 2 dikunci secara permanen untuk fase Open-Set.
+### Cell 15: Dynamic Gating Synthesis - Batas Atas Paradigma Konvensional
+* **Tujuan:** Penyatuan GBDT + ConvNeXt via SNR-gating. Membuktikan ceiling dan justifikasi transisi ke Foundation Models.
+* **Prosedur:**
+  1. Skor kualitas: komplemen spectral flatness + rasio energi residu.
+  2. Gating: $w_{\text{tab}}(s_i) = w_{\max} \cdot [1-\text{rank\_norm}(s_i)]^\gamma$.
+  3. Two-Way Cendrawasih Shield.
+* **Hasil:** OOF $0.9380$ - ceiling konvensional. External LB $0.59462$ membuktikan kerentanan domain shift. **→ Transisi ke Fase 5.**
 
 ---
 
-## FASE 8: Formulasi Batas Open-Set Organik dan Ekspor Dual-Delivery
+## FASE 5: Bioacoustic Foundation Models & Grounding Taksonomi
 
-### Cell 23: Open-Set Boundary Mechanics: Geometric Hypersphere vs Taxonomic Energy Margin
-* **Tujuan:** Merumuskan dua kriteria penolakan Open-Set (`Unknown`) yang 100% diturunkan secara intrinsik dari distribusi data latih OOF (tanpa ketergantungan pada kuota persentase data uji), serta memetakan hubungannya terhadap kurva sensitivitas empiris.
-* **Hipotesis:** Anomali Open-Set pada bioakustik terbagi menjadi dua kategori ortogonal: (1) Anomali Fisik Non-Avian (hujan, angin, alat berat, serangga) yang terpisah secara geometris dari manifold vokal burung, dan (2) Anomali Taksonomi Avian (spesies burung liar lain di luar 3 kelas target) yang secara akustik mirip burung target namun memicu aktivasi tinggi pada ribuan neuron spesies latar di Perch v2 dan BirdNET v2.4.
-* **Prosedur Komputasi:**
-  1. Kalibrasi Batas Organik 1: Intrinsic Geometric Hypersphere ($\tau_{\text{geo}}$).
-     Agar jarak kNN invarian terhadap pergeseran mikrofon data uji (domain shift offset) sekaligus kebal terhadap ilusi normalisasi L2 pada rekaman hening, definisikan skor anomali geometris gabungan $A_{\text{geo}}(x)$ yang menggabungkan jarak kosinus kNN-5 terhadap expanded anchor (Train + 274 Sterile Inliers) dan penalti energi bebas:
+### Cell 16: Google Perch v2 Extraction & Embedding Visualization *(dari RAM cache)*
+* **Tujuan:** Ekstrasi embedding 1536-d + logit 14.795 taksa.
+* **Prosedur:**
+  1. TFHub `perch_v2/2`, inferensi Stream A (32 kHz, 3 window).
+  2. Embedding L2-norm $\hat{e} \in \mathbb{S}^{1535}$ + norma pra-normalisasi + logit taksonomi.
+  3. Peta indeks target: Bondol `[7329]`, Kutilang `[11701]`, 8 kandidat Paradisaeidae.
+  4. **Figur `fig_model_perch_embedding`** (1×3, 16×5):
+     * Panel A: t-SNE Perch 1536-d, diwarnai per spesies.
+     * Panel B: t-SNE yang sama, diwarnai per source_group (bukti invarian mikrofon).
+     * Panel C: t-SNE train + test overlay.
+* **Hasil:** Zero-shot logit separability: Kutilang $+7.81$, Cendrawasih $+3.39$, Bondol $+0.36$.
 
-$$
-A_{\text{geo}}(x) = \tilde{d}_{\text{perch}}(x) + \alpha \cdot \max\left(0, \; E_{\text{free}}(x) - Q_{0.90}(E_{\text{free, OOF}})\right)
-$$
+### Cell 17: Multi-Taxa Paradisaeidae & RESOLVE Global Taxa Lock
+* **Tujuan:** Diagnosa sub-spesies Cendrawasih + penguncian taksa global.
+* **Prosedur:**
+  1. AUROC zero-shot 8 taksa Paradisaeidae × 4 fold.
+  2. Multi-Taxa Max-Pooling: $z_{\text{Cendra,pooled}}(x) = \max_{s \in \mathcal{S}_{\text{Para}}} z_s(x)$.
+  3. RESOLVE: kunci ke *Cicinnurus regius* (idx 2893) setelah verifikasi AUROC.
+  4. Inline: heatmap 8 taksa × 4 fold AUROC.
+* **Hasil:** Pooled AUROC $0.8917$. Variansi taksa antar-fold dieliminasi.
 
-     Tetapkan ambang batas intrinsik dari retensi $95\%$ inlier data latih OOF:
+### Cell 18: BirdNET v2.4 (48 kHz) Extraction *(dari RAM cache)*
+* **Tujuan:** Juri forensik ortogonal independen (6.522 spesies, 48 kHz native).
+* **Prosedur:**
+  1. Inferensi Stream B (48 kHz, 3 window @ 3.0 s).
+  2. Ekstrak 4 logit: $b_{\text{Bondol}}$, $b_{\text{Kutilang}}$, $b_{\text{Cendra}} = \max(\text{17 Paradisaeidae})$, $b_{\text{NonTarget,max}}$.
+* **Output:** `birdnet_train_summary` (1826×4), `birdnet_test_summary` (814×4).
 
-$$
-\tau_{\text{OOF, p95}} = \text{Percentile}\left(A_{\text{geo, OOF}}, \; 95.0\right) = 0.5846
-$$
-
-  2. Kalibrasi Batas Organik 2: Bilateral Taxonomic Energy-Margin ($\tau_{\text{tax}}$).
-     Tanpa menggunakan metrik jarak kosinus sedikit pun, definisikan penolakan `Unknown` murni berdasarkan kompetisi logit biologis antara 3 spesies target melawan $14.792\text{ spesies}$ latar Perch v2 dan $6.519\text{ spesies}$ latar BirdNET v2.4:
-
-$$
-\mathcal{R}_{\text{tax}}(x) = \mathbb{I}\Big[ \Delta z_{\text{OOD, Perch}}(x) < \delta_{\text{Perch, OOF, p05}} \;\lor\; \Delta b_{\text{OOD, BirdNET}}(x) < \delta_{\text{BirdNET, OOF, p05}} \;\lor\; E_{\text{free}}(x) > \tau_{E\text{, OOF, p95}} \Big]
-$$
-
-  3. Verifikasi Konvergensi terhadap Kurva Sensitivitas Empiris: Plot proporsi `Unknown` yang dihasilkan secara alami oleh kedua rumus intrinsik di atas pada data uji dan bandingkan posisinya terhadap kurva evaluasi referensi historis ($30.1\% \to 47.5\%$).
-* **Bukti Empiris & Keputusan Desain:** Tanpa memasukkan angka kuota buatan, mekanisme $\tau_{\text{OOF, p95}}$ menghasilkan $36.5\%$ Unknown dan mekanisme $\mathcal{R}_{\text{tax}}$ menghasilkan $41.8\%$ Unknown secara organik pada data uji. Keduanya jatuh tepat di lembah stabilitas kurva konkavitas, membuktikan keselarasan antara teori OOF Inlier Retention dengan realitas distribusi data uji.
-
-### Cell 24: Dual-Delivery Final Submission Assembly: Orthogonal Organic Risk Hedging
-* **Tujuan:** Menghasilkan 2 file submisi final resmi yang keduanya 100% bebas kuota hardcoded, namun saling melengkapi secara ortogonal untuk menjamin ketahanan maksimum pada Private Leaderboard (70% data uji).
-* **Hipotesis:** Mengirimkan pasangan model yang satu berbasis Geometri Manifold ($\mathbb{S}^{1535}$) dan satu berbasis Konsensus Taksonomi Bilateral (21.317 taksa gabungan) memberikan perlindungan sempurna (orthogonal hedging) terhadap perubahan rasio prevalensi `Unknown` maupun perubahan jenis pengganggu di Private LB.
-* **Prosedur Komputasi:**
-  1. Slot Final 1: `sub_organic_manifold.csv` (Jaring Pengaman Geometris-Invarian)
-     * Mesin Prediksi: Bobot Round 2 Transductive CosineHead + Multi-Taxa Pooling.
-     * Aturan Keputusan Open-Set: Sampel dilabeli `Unknown` jika dan hanya jika:
-
-$$
-\left(A_{\text{geo}}(x) \ge \tau_{\text{OOF, p95}} = 0.5846\right) \;\lor\; \text{TrucukShield}(x)
-$$
-
-     * Proteksi Kelas Langka: Cendrawasih Soft-Reassignment Veto ($b_{\text{Cendra}} < -7.70$).
-     * Karakteristik Strategis: $100\%$ invarian terhadap berapapun persentase `Unknown` di Private LB (baik $20\%$ maupun $70\%$). Sangat unggul apabila mayoritas `Unknown` di Private LB berupa suara non-burung, derau hujan/angin, atau serangga hutan.
-  2. Slot Final 2: `sub_organic_consensus.csv` (Jaring Pengaman Biologis/Taksonomis-Invarian)
-     * Mesin Prediksi: Bobot Round 2 Transductive CosineHead + Multi-Taxa Pooling.
-     * Aturan Keputusan Open-Set: Nol ketergantungan pada jarak ruang embedding; sampel dilabeli `Unknown` jika dan hanya jika:
-
-$$
-\mathcal{R}_{\text{tax}}(x) = 1 \;\lor\; \text{TrucukShield}(x) \;\lor\; \left(\max_c P_{\text{corr}}(x) < \tau_{P\text{, OOF, p05}}\right)
-$$
-
-     * Proteksi Kelas Langka: Strict Bilateral Agreement (prediksi Cendrawasih dan Kutilang wajib disetujui secara simultan oleh kuantil in-fold Perch v2 dan BirdNET v2.4).
-     * Karakteristik Strategis: Sangat unggul apabila mayoritas `Unknown` di Private LB berupa spesies burung tropis lain (avian confounders) yang secara geometri berdekatan dengan burung target tetapi langsung dikenali identitas aslinya oleh ribuan neuron latar Perch v2 & BirdNET v2.4.
-  3. Audit Integritas Submisi: Pastikan kedua file memiliki tepat 814 baris, skema kolom `file_id,label` yang sah, 0 nilai `NaN`/`null`, kesesuaian proporsi Cendrawasih yang logis ($\sim 45\text{--}52\text{ panggilan}$), dan checksum MD5 yang terverifikasi.
-* **Bukti Empiris & Keputusan Desain:** Kedua file submisi organik berhasil dirakit dan diverifikasi. Tingkat kesepakatan (Cohen's Kappa) antara kedua slot mencapai $\kappa = 0.894$, di mana $10.6\%$ perbedaan prediksinya secara presisi memisahkan kasus batas geometri vs batas taksonomi.
-
-### Cell 25: Automated Artifact Archiving, Checksum Hashing, and Reproducibility Bundle
-* **Tujuan:** Mengemas seluruh bobot model, matriks probabilitas OOF, ambang batas JSON, tabel metrik ablasi, dan kedua file submisi final ke dalam satu bundel reproduksibilitas berstandar audit forensik.
-* **Prosedur Komputasi:**
-  1. Bangun skrip pengarsipan otomatis yang mengecualikan direktori sementara (`__pycache__`, `.ipynb_checkpoints`, `.git`).
-  2. Cetak tabel Master Ablation Summary (Fase 4 s.d. Fase 8) lengkap dengan Global Pooled OOF Macro F1, Cendrawasih Precision/Recall, ECE, dan Brier Score untuk langsung disalin ke naskah Laporan Teknis 10 halaman.
-  3. Hitung dan simpan SHA-256 / MD5 hash manifest untuk seluruh artefak utama (`metadata_with_folds.csv`, `preprocess_config.json`, `nested_forensic_thresholds.json`, checkpoint `.pt`, `sub_organic_manifold.csv`, dan `sub_organic_consensus.csv`).
-  4. Ekspor ke `schematics_master_pipeline_artifacts.zip` dan render widget unduhan `IPython.display.FileLink`.
-* **Bukti Empiris & Keputusan Desain:** Seluruh alur riset dari pembacaan biner FLAC mentah hingga kedua submisi final terdokumentasi secara transparan, bebas kebocoran data, bebas LB probing, dan siap diaudit penuh oleh dewan juri.
+### Cell 19: Hybrid 1543-d Assembly, CosineHead Training & Calibration *(Full Retrain)*
+* **Tujuan:** Rakit input hibrida, latih kepala klasifikasi, dan audit kalibrasi.
+* **Prosedur:**
+  1. Hybrid 1543-d = `[1536-d L2 emb]` ⊕ `[7-d Z-scored summary]`:
+     * $z_{\text{Bondol}}, z_{\text{Kutilang}}, z_{\text{Cendra,pooled}}, z_{\text{NonTarget,max}}, \text{Top5 mean}, \Delta z_{\text{OOD}}, E_{\text{free}}$.
+  2. **A/B Test:** Latih `PerchBottleneckCosineHead` 4-fold pada Pure 1536-d **dan** Hybrid 1543-d.
+     * Arsitektur: `Linear(d→256) → LayerNorm → SiLU → Dropout(0.2) → CosineLinear(256→3, scale=16)`.
+     * 40 epoch, CB-Focal Loss.
+  3. Audit ECE (15 bins) + Brier Score.
+  4. **Figur `fig_model_hybrid_calibration`** (2×2, 14×8):
+     * Panel A: A/B bar chart (Pure vs Hybrid OOF F1, per-class breakdown).
+     * Panel B: Learning curves overlay (val F1 per epoch, Pure vs Hybrid).
+     * Panel C: Reliability diagram (confidence bins vs accuracy) Hybrid.
+     * Panel D: Confidence histogram diwarnai benar/salah.
+* **Hasil:** Pure $0.9239$, Hybrid $0.9314$ (+0.0075). ECE $0.0241$.
 
 ---
 
-## Lampiran: Tabel Master Ablasi untuk Naskah Laporan Teknis 10 Halaman
+## FASE 6: Forensic Shielding & Error Analysis
 
-Tabel berikut merangkum progresi matematis lintas-fase yang menjadi tulang punggung narasi di dalam laporan:
+### Cell 20: BirdNET In-Fold Threshold Calibration
+* **Tujuan:** Kalibrasi ambang batas forensik secara in-fold bebas bocoran.
+* **Prosedur:**
+  1. Per fold $k$, hitung pada In-Fold Training Split:
+     * $\tau_{\text{cendra}}^{(k)}$: P20 (retensi 80%) distribusi $b_{\text{Cendra}}$ kelas Cendrawasih.
+     * $\tau_{\text{kutilang}}^{(k)}$: P5 (retensi 95%) distribusi $b_{\text{Kutilang}}$ kelas Kutilang.
+  2. **Figur `fig_eval_birdnet_thresholds`** (1×3, 14×4):
+     * Panel A: Violin $b_{\text{Cendra}}$ (True Cendra vs Non-Cendra), garis $\tau = -7.70$.
+     * Panel B: Violin $b_{\text{Kutilang}}$, garis $\tau = -8.11$.
+     * Panel C: Line chart stabilitas $\tau$ per fold.
+* **Hasil:** $\bar{\tau}_{\text{cendra}} = -7.70 \pm 0.04$, $\bar{\tau}_{\text{kutilang}} = -8.11 \pm 0.04$. → `nested_forensic_thresholds.json`.
 
-| ID Eksperimen / Fase | Paradigma & Konfigurasi Arsitektur | Resolusi Audio | Global Pooled OOF Macro F1 | OOF Cendra F1 (FP Count) | OOF ECE (Kalibrasi) | Status & Peran dalam Pipeline |
-| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
-| **Cell 10 (Paradigma A)** | Dual GBDT Blend (LGBM + XGBoost, 818 DSP Features) | 32 kHz | $0.8486$ | $0.6552$ (28 FP) | $0.0512$ | Baseline Fitur Fisik Tabular |
-| **Cell 12 (Paradigma C)** | Bird-MAE-Base / BEATs Iter3+ (Audio SSL Transformer) | 16 kHz | $0.8905$ | $0.7410$ (19 FP) | $0.0440$ | Dieliminasi (Gagal menangkap pita $8\text{--}16\text{ kHz}$) |
-| **Cell 11 (Paradigma B)** | ConvNeXt-Tiny v2.0 (LP-FT + CB-Focal Loss) | 32 kHz | $0.9323$ | $0.9448$ (3 FP) | $0.0315$ | Baseline 2D Vision Terbaik |
-| **Cell 13 (Fase 4 Peak)** | Dynamic SNR-Gated Synthesis (ConvNeXt + GBDT) | 32 kHz | $0.9380$ | $0.9480$ (3 FP) | $0.0289$ | Batas Atas Paradigma Non-Foundation |
-| **Cell 16 (Fase 5 Base)** | Perch v2 (1536-d Pure Embedding + CosineHead) | 32 kHz | $0.9239$ | $0.8312$ (22 FP) | $0.0264$ | Ablasi Tanpa Fitur Fisik 7-d |
-| **Cell 16 (Round 0)** | **Perch v2 Hybrid 1543-d + Multi-Taxa Pooling** | 32 kHz | $0.9314$ | $0.8571$ (15 FP) | $0.0241$ | **Inductive Foundation Anchor** |
-| **Cell 18 (Fase 6 Shield)** | Round 0 + **Dual Forensic Shield (BirdNET 48kHz)** | 32k + 48k | $0.9504$ | $0.9189$ (3 FP) | $0.0228$ | Lompatan Presisi via Veto Ortogonal |
-| **Cell 20 (Round 1)** | Transductive Self-Training R1 (203 Sterile Inliers) | 32k + 48k | $0.9521^*$ | $0.9295$ (3 FP) | $0.0223$ | Adaptasi Mikrofon Tahap 1 |
-| **Cell 21 (Round 2)** | **Transductive Self-Training R2 (274 Sterile Inliers)** | **32k + 48k** | **$0.9542^*$** | **$0.9367$ (2 FP)** | **$0.0219$** | **Titik Konvergensi Optimal (Final Weights)** |
-| **Cell 22 (Round 3)** | Transductive Self-Training R3 (292 Inliers - Saturated) | 32k + 48k | $0.9488^*$ | $0.9012$ (7 FP) | $0.0275$ | Bukti Saturasi & Cicadidae Drift |
+### Cell 21: Dual Forensic Shield Execution & Impact Analysis
+* **Tujuan:** Eliminasi FP Cendrawasih + isolasi Trucuk.
+* **Prosedur:**
+  1. **Cendrawasih Veto:** Jika $\arg\max P = \text{Cendra}$ tapi $b_{\text{Cendra}} < \tau_{\text{cendra}}^{(k)}$ → reassign ke kelas ranking ke-2.
+  2. **Trucuk Shield:** Tandai `is_trucuk = True` jika Kutilang confidence < 0.60 dan $b_{\text{Kutilang}} < \tau_{\text{kutilang}}^{(k)}$.
+  3. **Figur `fig_eval_shield_impact`** (1×3, 16×5):
+     * Panel A: Side-by-side confusion matrix (sebelum vs sesudah shield).
+     * Panel B: Sankey flow diagram reassignment.
+     * Panel C: 3 mel-spectrogram specimen error yang di-reassign.
+* **Hasil:** 12/15 FP Cendrawasih dieliminasi. Presisi OOF Cendrawasih $77.8\% \to 89.6\%$. OOF F1 $0.9314 \to 0.9504$.
 
-*\*Catatan: Skor Global Pooled OOF Macro F1 pada Round 1–3 dihitung setelah penerapan Dual Forensic Shield yang terkalibrasi secara ketat di dalam masing-masing fold.*
+---
+
+## FASE 7: Adaptasi Domain Transduktif
+
+### Cell 22: 4-Gate Consensus Inlier Curation
+* **Tujuan:** Menyaring pseudo-inliers berkemurnian $\approx 100\%$ dari data uji.
+* **Prosedur:**
+  1. kNN-5 cosine distance in-fold pada embedding mean-centered.
+  2. **4-Gate Sterile Filter:**
+     * Gate 1 (Confidence): $\max_c P_{\text{corr}} \ge Q_{0.55}(P_{\text{OOF}})$.
+     * Gate 2 (Geometric): $d_{\text{perch}} \le Q_{0.60}(d_{\text{OOF}}) \land E_{\text{free}} \le Q_{0.85}(E_{\text{free,OOF}})$.
+     * Gate 3 (Bilateral Cendra): $b_{\text{Cendra}} \ge -7.70$ jika label = Cendrawasih.
+     * Gate 4 (Confounder): `is_trucuk == False`.
+  3. **Figur `fig_eval_pseudo_quality`** (1×3, 16×4):
+     * Panel A: Scatter confidence × kNN distance, hijau = inlier, merah = rejected.
+     * Panel B: Funnel chart (814 → post-G1 → post-G2 → post-G3 → post-G4).
+     * Panel C: Bar distribusi kelas inliers.
+* **Hasil:** Kemurnian OOF $99.72\%$ (351/352). Round 1: 203 inliers.
+
+### Cell 23: Transductive Self-Training Round 1 + Round 2 *(Full Retrain)*
+* **Tujuan:** Domain adaptation via pseudo-inlier injection, 2 putaran.
+* **Prosedur:**
+  1. **Round 1:** Injeksi 203 inliers ke train split per fold ($\lambda=1.0$). Retrain CosineHead 40 epoch. Val split murni.
+  2. Re-curation menggunakan Round 1 probs → 274 inliers.
+  3. **Round 2:** Injeksi 274 inliers ($\lambda=0.85$). Retrain 40 epoch.
+  4. Terapkan Forensic Shield ulang pada Round 2 output.
+  5. Rekam: OOF F1 per round, FP Cendrawasih count, ECE.
+* **Hasil:** R1 OOF F1 = $0.9521$, R2 OOF F1 = $\mathbf{0.9542}$. Bondol akurasi $100\%$. ECE $0.0219$.
+
+### Cell 24: Round 3 Saturation Proof & Convergence Visualization
+* **Tujuan:** Membuktikan stopping criterion secara matematis.
+* **Prosedur:**
+  1. Kurasi Round 3 → 292 inliers (+5 Cendrawasih marginal). Retrain $\lambda=0.80$.
+  2. Prototype drift: $\Delta\mu_c = 1 - \cos(\mu_c^{(t)}, \mu_c^{(t-1)})$.
+  3. **Figur `fig_eval_convergence`** (2×2, 14×10):
+     * Panel A: OOF Macro F1 per round (R0→R1→R2→R3). R2 = puncak.
+     * Panel B: Prototype drift bar per kelas per transisi.
+     * Panel C: t-SNE R0 vs R2 vs R3.
+     * Panel D: Mel-spectrogram 3 spesimen Cicadidae yang menyusup di R3.
+* **Keputusan:** Round 2 = Pareto-optimal. R3 turun ke $0.9488$ (-0.0054). **Bobot R2 dikunci.**
+
+---
+
+## FASE 8: Architecture Optimization (Last Experiments)
+
+> Setiap eksperimen memiliki *decision gate*: hanya konfigurasi yang melampaui baseline + 0.002 yang diadopsi. Seluruh eksperimen dari **full retrain** (tanpa load checkpoint).
+
+### Cell 25: Exp-A - CosineHead Architecture Ablation
+* **Tujuan:** Grid search konfigurasi head yang belum pernah diuji.
+* **Prosedur:**
+  1. Grid (Round 0 supervised only, 4-fold, tanpa self-training):
+     ```
+     hidden_dim: [128, 256, 384]
+     dropout:    [0.1, 0.2, 0.3]
+     scale:      [8, 16, 24]
+     ```
+     → 27 configs × 4 folds = 108 runs (~30 menit total, 1 run ≈ 15 detik).
+  2. Ranking berdasarkan Global OOF Macro F1.
+  3. **Gate A:** Jika top-1 > baseline (256, 0.2, 16) + 0.002 → adopt `BEST_HEAD`.
+  4. Inline: heatmap ablation (dim × dropout, sliced per scale).
+* **Output:** `BEST_HEAD_CONFIG` atau retain default.
+
+### Cell 26: Exp-B - Embedding Augmentation + Exp-C - λ Ablation
+* **Tujuan:** Dua eksperimen ringan dalam satu sel.
+* **Prosedur - Exp-B:**
+  1. Modifikasi training loop:
+     ```python
+     if training:
+         # Augmentasi 1: Gaussian noise + Feature dropout
+         x = x + torch.randn_like(x) * sigma
+         mask = torch.bernoulli(torch.ones_like(x) * (1 - feat_drop))
+         x = x * mask / (1 - feat_drop)
+         # Augmentasi 2: Intra-class Mixup (khusus Cendrawasih, 83 sampel)
+         if use_mixup:
+             idx = torch.randperm(x.size(0))
+             lam = torch.distributions.Beta(alpha, alpha).sample()
+             x = lam * x + (1 - lam) * x[idx]
+             # Label tetap (intra-class only: pasangan di-filter per kelas)
+     ```
+  2. Sweep tahap 1 - Noise+Dropout: $\sigma \in \{0.01, 0.02, 0.05\}$ × $\text{feat\_drop} \in \{0.0, 0.05, 0.10\}$ → 9 configs (Round 0, 4-fold).
+  3. Sweep tahap 2 - Mixup (pada top-1 noise config): $\alpha \in \{0.2, 0.4, 0.6\}$ × scope $\in \{\text{all-class}, \text{Cendrawasih-only}\}$ → 6 configs.
+     * *Justifikasi:* Gaussian noise menambah isotropic jitter, tapi Mixup menginterpolasi antar-sampel nyata di manifold - khususnya powerful untuk Cendrawasih yang hanya punya 83 sampel dari 4 source group. Keduanya komplementer.
+  4. **Gate B:** Top-1 overall > baseline + 0.002 → adopt `BEST_AUG` (bisa noise-only, mixup-only, atau kombinasi).
+* **Prosedur - Exp-C:**
+  1. Gunakan `BEST_HEAD` + `BEST_AUG`. Jalankan full R0→R1→R2 pipeline.
+  2. Sweep $\lambda_{\text{R2}} \in \{0.60, 0.70, 0.80, 0.85, 0.90, 0.95, 1.00\}$ → 7 configs.
+  3. **Gate C:** $\lambda^* > 0.85$ + 0.002 → adopt `BEST_LAMBDA`.
+* **Inline figur:** 2-panel - bar chart augmentation results + line chart λ vs F1.
+
+### Cell 27: Exp-D - Inlier Ensemble (Perch × ConvNeXt)
+* **Tujuan:** Blend probabilitas 3-kelas dari 2 arsitektur ortogonal. OOD tetap dari Perch.
+* **Prosedur:**
+  1. ConvNeXt OOF probs sudah tersedia dari Cell 12 (retrained). Jika tidak, retrain inference pass saja.
+  2. Blend: `blended = w * perch_probs + (1-w) * conv_probs`.
+  3. Sweep $w \in \{0.50, 0.55, ..., 0.95, 1.00\}$ → 11 configs.
+  4. Terapkan Forensic Shield pada blended probs → evaluasi OOF F1.
+  5. Analisis error overlap: Venn diagram error eksklusif Perch vs ConvNeXt.
+  6. **Gate D:** Best $w < 1.0$ yang > baseline + 0.002 → adopt `BEST_W`. Jika semua $w < 1.0$ kalah → Perch solo champion.
+  7. Jika Gate D passed, jalankan full R0→R2 pipeline dengan blended probs untuk curation.
+* **Inline figur:** line chart $w$ vs F1 + Venn error.
+
+### Cell 28: Exp-E - Unknown Rate Threshold Sweep
+* **Tujuan:** Optimasi kuantil retensi OOF untuk batas Open-Set.
+* **Prosedur:**
+  1. Hitung skor anomali geometris $A_{\text{geo}}(x) = \tilde{d}_{\text{perch}}(x) + \alpha \cdot \max(0, E_{\text{free}}(x) - Q_{0.90}(E_{\text{free,OOF}}))$.
+  2. **Sweep Geometric:** $p \in \{88, 89, ..., 98\}$ → 11 titik, hitung $\tau_p$ dan proporsi Unknown.
+  3. **Sweep Taxonomic:** $p_{\text{Perch}} \times p_{\text{BirdNET}} \in \{3,5,7,10\}^2$ → 16 configs.
+  4. Proxy metric: 4-class OOF Macro F1 (Unknown = sampel di-reject).
+  5. **Figur `fig_exp_threshold_sweep`** (1×3, 16×4):
+     * Panel A: Line chart Unknown-rate vs proxy-F1 (geometric).
+     * Panel B: Heatmap $p_{\text{Perch}} \times p_{\text{BirdNET}}$ → proxy-F1 (taxonomic).
+     * Panel C: Overlay posisi optimal kedua boundary.
+  6. **Gate E:** Lock `BEST_GEO_P` dan `BEST_TAX_CONFIG`.
+
+---
+
+## FASE 9: Grand Synthesis & Submission
+
+### Cell 29: Optimal Configuration Assembly & Final Pipeline
+* **Tujuan:** Gabungkan semua keputusan Gate A–E + window pooling ablation, jalankan pipeline final dari awal.
+* **Prosedur:**
+  1. **Window Pooling Ablation** (5 menit, zero extra training):
+     * Saat ini 3 VAD windows di-*mean-pool* → 1 embedding 1536-d. Uji 3 strategi:
+       * **Mean pooling** (baseline): $\bar{e} = \frac{1}{3}\sum_{w=1}^{3} e_w$
+       * **Max pooling**: $\bar{e}_j = \max_w e_{w,j}$ per dimensi
+       * **Attention pooling**: $\bar{e} = \sum_w \alpha_w e_w$, di mana $\alpha_w = \text{softmax}(\|e_w\|_2)$ (higher-norm window = lebih vokal)
+     * Evaluasi ketiga strategi pada Round 0 OOF (4-fold, `BEST_HEAD` config). Adopt jika Δ > +0.002.
+     * *Justifikasi:* Mean pooling bisa dilute sinyal vokal jika 1 dari 3 window menangkap noise/silence. Attention pooling memberi bobot lebih ke window dengan energi vokal tertinggi.
+  2. Cetak ringkasan konfigurasi final:
+     ```
+     FINAL CONFIG:
+       Head:      BEST_HEAD_CONFIG  (Gate A)
+       Augment:   BEST_AUG_CONFIG   (Gate B)
+       Lambda R2: BEST_LAMBDA       (Gate C)
+       Ensemble:  BEST_W_PERCH      (Gate D, atau 1.0)
+       Geo p:     BEST_GEO_P        (Gate E)
+       Tax cfg:   BEST_TAX_CONFIG   (Gate E)
+       Pooling:   BEST_POOL         (mean/max/attention)
+     ```
+  3. Full pipeline dari Cell 19 output: R0 → Shield → R1 → Re-curation → R2 → Shield → OOD.
+  4. Evaluasi Global OOF Macro F1 pasca-shield. **Target: > 0.9542.**
+
+### Cell 30: Submission Export & Cross-Milestone Comparison
+* **Tujuan:** Generate 5 submission CSV dari milestone pipeline, audit integritas, strategi submit.
+* **Prosedur:**
+  1. **Generate 5 submissions** dari checkpoint pipeline yang sudah terkomputasi:
+
+     | # | File | Teknik | Sumber |
+     |:---:|:---|:---|:---:|
+     | 1 | `sub_perch_hybrid_baseline.csv` | Perch Hybrid 1543-d CosineHead + p95 OOD (tanpa Shield, tanpa ST) | Cell 19 |
+     | 2 | `sub_forensic_shielded.csv` | + Dual Forensic Shield (Cendrawasih Veto + Trucuk) | Cell 21 |
+     | 3 | `sub_selftrain_r2_shielded.csv` | + Self-Training R2 (274 inliers, λ=0.85) + Shield | Cell 23 |
+     | 4 | `sub_optimized_geometric.csv` | Optimal Config A–E + **Geometric OOD** (`BEST_GEO_P`) | Cell 29 |
+     | 5 | `sub_optimized_taxonomic.csv` | Optimal Config A–E + **Taxonomic OOD** (`BEST_TAX_CONFIG`) | Cell 29 |
+
+  2. Setiap CSV: 814 baris, kolom `file_id,label`, label ∈ {Bondol Jawa, Kutilang, Cendrawasih, Unknown}. 0 NaN.
+  3. **Tabel perbandingan** (printed + figur):
+     * Per-submission: jumlah per kelas, Unknown count, Unknown rate (%).
+     * Cohen's Kappa pairwise antara sub 3–5.
+     * Row-by-row diff sub 3 vs sub 4 vs sub 5.
+  4. **Figur `fig_final_predictions`** (2×3, 16×8):
+     * Panel A: Donut distribusi prediksi sub 4 (geometric).
+     * Panel B: Donut distribusi prediksi sub 5 (taxonomic).
+     * Panel C: t-SNE Perch 1536-d - train + test (per prediksi sub 4) + Unknown (×).
+     * Panel D: Stacked bar perbandingan 5 submissions (jumlah per kelas).
+     * Panel E: Diff heatmap sub 4 vs sub 5 (agreement/disagreement per kelas).
+     * Panel F: Progression line chart OOF F1 across 5 milestones.
+  5. **Strategi submit ke Kaggle (max 5/hari):**
+     * Prioritas 1: `sub_optimized_geometric.csv` (expected strongest)
+     * Prioritas 2: `sub_optimized_taxonomic.csv` (diversifikasi OOD boundary)
+     * Prioritas 3: `sub_selftrain_r2_shielded.csv` (safety fallback - proven 0.71221)
+     * Sub 1–2 disimpan sebagai diagnostik, tidak perlu di-submit kecuali kuota sisa.
+* **Artefak:** 5 CSV files + `submission_comparison_report.txt`.
+
+---
+
+## FASE 10: Delivery & Reproduksibilitas
+
+### Cell 31: Master Ablation Table, Archiving & Hash Manifest
+* **Tujuan:** Tabel sinopsis lengkap + bundel reproduksibilitas.
+* **Prosedur:**
+  1. **Figur `fig_master_ablation`** (single, 18×10):
+
+| Tahap | Konfigurasi | OOF F1 | Cendra F1 (FP) | ECE | Status |
+|:---|:---|:---:|:---:|:---:|:---|
+| GBDT (Cell 11) | LightGBM 818-d | 0.8542 | 0.7410 (28) | 0.0512 | Baseline Tabular |
+| AST (Cell 13) | BEATs 16 kHz | 0.8905 | 0.7410 (19) | 0.0440 | Dieliminasi |
+| CNN (Cell 12) | ConvNeXt LP-FT 32 kHz | 0.9323 | 0.9448 (3) | 0.0315 | Best Vision |
+| Gating (Cell 15) | ConvNeXt + GBDT | 0.9380 | 0.9480 (3) | 0.0289 | Ceiling Konvensional |
+| Perch Pure (Cell 19) | 1536-d CosineHead | 0.9239 | 0.8312 (22) | 0.0264 | Ablasi |
+| Perch Hybrid (Cell 19) | 1543-d CosineHead | 0.9314 | 0.8571 (15) | 0.0241 | Foundation Anchor |
+| Shield (Cell 21) | + Dual Forensic | 0.9504 | 0.9189 (3) | 0.0228 | Shield Boost |
+| R1 (Cell 23) | Self-Train 203 inliers | 0.9521 | 0.9295 (3) | 0.0223 | Domain Adapt |
+| **R2 (Cell 23)** | **Self-Train 274 inliers** | **0.9542** | **0.9367 (2)** | **0.0219** | **Baseline Optimal** |
+| R3 (Cell 24) | 292 inliers - Saturated | 0.9488 | 0.9012 (7) | 0.0275 | Bukti Saturasi |
+| **FINAL (Cell 29)** | **Optimal Config A–E** | **?** | **?** | **?** | **Last Experiment** |
+
+  2. SHA-256/MD5 manifest untuk semua artefak kunci.
+  3. Zip ke `schematics_master_pipeline_artifacts.zip`.
+  4. Cetak ringkasan keputusan Gate A–E (adopted/rejected + alasan).
+
+---
+
+## Estimasi Waktu Eksekusi (T4 GPU)
+
+| Fase | Sel | Estimasi |
+|:---|:---:|:---:|
+| Setup + EDA | 1–7 | ~20 menit (I/O + PSD) |
+| Preprocessing + FE + SHAP | 8–10 | ~15 menit |
+| GBDT Grand Prix | 11 | ~7 menit |
+| CNN Grand Prix (3 model × 4 fold × 23 ep) | 12 | ~120 menit |
+| AST Investigation | 13 | ~40 menit |
+| Summary + Gating | 14–15 | ~10 menit |
+| Perch + BirdNET extraction | 16–18 | ~30 menit |
+| Hybrid CosineHead A/B | 19 | ~10 menit |
+| Forensic Shield | 20–21 | ~5 menit |
+| Self-Training R1+R2+R3 | 22–24 | ~25 menit |
+| **Exp-A: Head ablation (27 configs)** | **25** | **~30 menit** |
+| **Exp-B+C: Aug + Mixup + λ (15+7 configs)** | **26** | **~60 menit** |
+| **Exp-D: Ensemble blend** | **27** | **~15 menit** |
+| **Exp-E: Threshold sweep** | **28** | **~5 menit** |
+| Grand Synthesis (+ pooling ablation) + Export | 29–30 | ~20 menit |
+| Delivery | 31 | ~3 menit |
+| **Total** | | **~6 jam** |
+
+---
+
+## Pemetaan ~12 Figur Terbaik ke Laporan 10 Halaman
+
+| Bab (Bobot) | Figur Pilihan | Hal. |
+|:---|:---|:---:|
+| **EDA (15%)** | `fig_eda_class_distribution`, `fig_eda_waveform_spectrogram`, `fig_eda_spectral_energy` | 1.5 |
+| **Preprocessing (20%)** | `fig_preprocess_before_after`, `fig_feature_shap` | 1.5 |
+| **Modeling (25%)** | `fig_model_cnn_learning`, `fig_model_summary`, `fig_model_perch_embedding` | 2.0 |
+| **Evaluasi (30%)** | `fig_eval_folds`, `fig_eval_shield_impact`, `fig_eval_convergence`, `fig_exp_threshold_sweep` | 2.5 |
+| **Struktur (10%)** | `fig_master_ablation` (tabel) | 0.5 |
+| **Total** | **~12 figur** | **~8 hal. konten** |

@@ -1,0 +1,16 @@
+{
+  "bondol": 7329,
+  "kutilang": 11701,
+  "cendra": {
+    "Cicinnurus regius": 2893,
+    "Paradisaea apoda": 9634,
+    "Paradisaea decora": 9635,
+    "Paradisaea guilielmi": 9636,
+    "Paradisaea minor": 9637,
+    "Paradisaea raggiana": 9638,
+    "Paradisaea rubra": 9639,
+    "Seleucidis melanoleucus": 12538
+  },
+  "summary_dim": 14,
+  "logit_key": "label"
+}

@@ -1,0 +1,66 @@
+{
+  "fold_thresholds": {
+    "0": {
+      "cendra": -7.903021335601807,
+      "kutilang": -8.581260681152344,
+      "chosen_cendra": -7.903021335601807,
+      "chosen_kutilang": -8.581260681152344,
+      "heldout_cendra_tpr_fpr": [
+        0.9142857142857143,
+        0.17307692307692307
+      ],
+      "heldout_kutilang_tpr_fpr": [
+        0.9621212121212122,
+        0.0646900269541779
+      ]
+    },
+    "1": {
+      "cendra": -7.9685869216918945,
+      "kutilang": -8.538213729858398,
+      "chosen_cendra": -7.9685869216918945,
+      "chosen_kutilang": -8.538213729858398,
+      "heldout_cendra_tpr_fpr": [
+        1.0,
+        0.21247113163972287
+      ],
+      "heldout_kutilang_tpr_fpr": [
+        0.9370629370629371,
+        0.05329153605015674
+      ]
+    },
+    "2": {
+      "cendra": -7.933818817138672,
+      "kutilang": -8.539596557617188,
+      "chosen_cendra": -7.933818817138672,
+      "chosen_kutilang": -8.539596557617188,
+      "heldout_cendra_tpr_fpr": [
+        0.75,
+        0.1896551724137931
+      ],
+      "heldout_kutilang_tpr_fpr": [
+        1.0,
+        0.0546875
+      ]
+    },
+    "3": {
+      "cendra": -8.005188941955566,
+      "kutilang": -8.420581817626953,
+      "chosen_cendra": -8.005188941955566,
+      "chosen_kutilang": -8.420581817626953,
+      "heldout_cendra_tpr_fpr": [
+        1.0,
+        0.23623853211009174
+      ],
+      "heldout_kutilang_tpr_fpr": [
+        1.0,
+        0.022988505747126436
+      ]
+    }
+  },
+  "global_mean_thr_cendra": -7.952654004096985,
+  "global_mean_thr_kutilang": -8.51991319656372,
+  "final_thr_cendra": -7.9518022537231445,
+  "final_thr_kutilang": -8.51382064819336,
+  "cendra_confidence_floor": 0.6,
+  "kutilang_confidence_floor": 0.6
+}

@@ -1,0 +1,42 @@
+{
+  "Gate_A_Head_Ablation": {
+    "Adopted": false,
+    "Best_Config": {
+      "hidden_dim": 256,
+      "dropout": 0.2,
+      "scale": 16.0
+    }
+  },
+  "Gate_B_Augmentation": {
+    "Adopted": true,
+    "Best_Config": {
+      "sigma": 0.0,
+      "feat_drop": 0.0,
+      "mix_alpha": 0.2,
+      "mix_scope": "all",
+      "name": "mixup_all_0.2"
+    }
+  },
+  "Gate_C_Lambda": {
+    "Adopted": false,
+    "Best_Lambda": 0.85
+  },
+  "Gate_D_Ensemble": {
+    "Adopted": true,
+    "Best_w_perch": 0.65
+  },
+  "Gate_E_Thresholds": {
+    "Geometric_p": 95.0,
+    "Taxonomic_cfg": {
+      "p_perch": 10,
+      "p_birdnet": 5,
+      "unknown_rate": 44.47174447174447,
+      "tau_perch": 0.6136037111282349,
+      "tau_bnet": -11.569940567016602
+    }
+  },
+  "Window_Pooling": {
+    "Adopted_Strategy": "static_max"
+  },
+  "Final_OOF_Macro_F1": 0.9467699196841912
+}

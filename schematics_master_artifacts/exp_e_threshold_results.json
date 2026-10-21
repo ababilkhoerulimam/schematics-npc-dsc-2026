@@ -1,0 +1,12 @@
+{
+  "BEST_GEO_P": 95,
+  "tau_geo_p95": 0.6584444046020508,
+  "geo_test_unknown": 22.604422604422606,
+  "BEST_TAX_CONFIG": {
+    "p_perch": 10,
+    "p_birdnet": 5,
+    "unknown_rate": 44.47174447174447,
+    "tau_perch": 0.6136037111282349,
+    "tau_bnet": -11.569940567016602
+  }
+}

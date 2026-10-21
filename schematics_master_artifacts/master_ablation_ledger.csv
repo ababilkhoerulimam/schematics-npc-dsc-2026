@@ -1,0 +1,12 @@
+Stage,Config,OOF_F1,Status
+GBDT (Cell 11),LightGBM 818-d DSP,0.8025,Tabular Baseline
+AST (Cell 13),16 kHz Mel Linear Probe,0.6565146876381561,Eliminated (Nyquist)
+CNN (Cell 12),ConvNeXt LP-FT 32 kHz,0.9043163629370975,Vision Champion
+Gating (Cell 15),ConvNeXt + CatBoost Gating,0.9009166752713913,Conventional Ceiling
+Perch Pure (Cell 19),1536-d CosineHead,0.9296396587160806,Foundation Pure
+Perch Hybrid (Cell 19),1543-d CosineHead,0.9205221727498598,Foundation Anchor
+Shield (Cell 21),Dual Forensic Shield,0.9371507272369528,Shield Boost (+0.0166)
+Self-Train R1 (Cell 23),4-Gate Inliers (lambda=1.0),0.9313207005198567,Domain Adaptation
+Self-Train R2 (Cell 23),Re-curated Inliers (lambda=0.85),0.9381383979230442,Optimal Saturation
+Self-Train R3 (Cell 24),Marginal Inliers (lambda=0.80),0.9307551956592505,Saturated Proof
+FINAL (Cell 29),Optimal A-E Pipeline,0.9467699196841912,Champion Architecture

@@ -1,0 +1,18 @@
+SCHEMATICS NPC DSC 2026 - FINAL SUBMISSION AUDIT REPORT
+
+         Submission  Bondol Jawa  Kutilang  Cendrawasih  Unknown Unknown_Rate(%)
+  1_hybrid_baseline          232       173          134      275           33.8%
+2_forensic_shielded          260       185           94      275           33.8%
+     3_selftrain_r2          244       149           50      371           45.6%
+    4_optimized_geo          335       204           91      184           22.6%
+    5_optimized_tax          254       146           62      352           43.2%
+
+Pairwise Cohen's Kappa Metrics:
+  Sub 3 vs Sub 4 (Geometric Adaptation) : kappa = 0.6558
+  Sub 4 vs Sub 5 (Orthogonal Boundary)  : kappa = 0.5054
+  Sub 3 vs Sub 5 (Taxonomic Adaptation) : kappa = 0.4935
+
+Kaggle Submission Strategy (Dual-Organic Delivery):
+  Slot 1 (Priority 1) : sub_optimized_geometric.csv  (Inlier Ensemble + Manifold Anomaly)
+  Slot 2 (Priority 2) : sub_optimized_taxonomic.csv  (Inlier Ensemble + Consensus Boundary)
+  Fallback Slot       : sub_selftrain_r2_shielded.csv (Historical Round 2 Peak Anchor)

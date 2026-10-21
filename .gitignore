@@ -224,6 +224,7 @@ schematics-2026/
 NPC Guidebook - Data Science REVISED.pdf
 papers/*.pdf
 *.npy
+*.npz
 *.pt
 *.pth
 *.zip

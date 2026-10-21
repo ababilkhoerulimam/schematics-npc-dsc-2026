@@ -1,0 +1,27 @@
+{
+  "cendra_species": [
+    "Cicinnurus regius",
+    "Paradisaea apoda",
+    "Paradisaea decora",
+    "Paradisaea guilielmi",
+    "Paradisaea minor",
+    "Paradisaea raggiana",
+    "Paradisaea rubra",
+    "Seleucidis melanoleucus"
+  ],
+  "cendra_indices": [
+    2893,
+    9634,
+    9635,
+    9636,
+    9637,
+    9638,
+    9639,
+    12538
+  ],
+  "resolve_global_cendra_col": 0,
+  "best_single_species": "Cicinnurus regius",
+  "feature_mode": "pooled",
+  "pooled_auroc": 0.8903013085042407,
+  "single_auroc": 0.8922021995036947
+}
