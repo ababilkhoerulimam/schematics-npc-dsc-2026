@@ -25,11 +25,29 @@ Komposisi data:
 * **Wawasan & Bukti Kausal:** VRAM NVIDIA Tesla T4 dialokasikan secara elastis (bebas 14.46 GB dari 14.56 GB). Determinisme numerik operasi matriks dikunci pada CUBLAS :4096:8 dan Seed 42.
 * **Visualisasi Terkait:** Tidak menghasilkan figur (Setup & Environment Framework).
 
+```text
+environment_init | tf_cpp_min_log_level=3 | cublas_workspace=:4096:8 | seed=42
+hardware_init    | gpu=Tesla T4 | vram_free=14.46GB | vram_total=14.56GB | dynamic_growth=True
+determinism      | cudnn_benchmark=False | torch_deterministic=True
+```
+
+
+
 ### Cell 02: Cell 2 - Dataset Discovery, Schema Verification, and Label Distribution Audit
 * **Tujuan & Rationale:** Verifikasi skema metadata latih (1.826 audio) dan uji (814 audio), audit integritas file, serta analisis tingkat ketimpangan kelas target.
 * **Wawasan & Bukti Kausal:** Terdeteksi ketimpangan kelas ekstrem dengan Imbalance Ratio (IR) = 13.54 (Bondol Jawa 1.124 sampel, Kutilang 619 sampel, Cendrawasih 83 sampel). Entropi Shannon H' = 0.832 membuktikan kebutuhan Class-Balanced Focal Loss.
 * **Visualisasi Terkait:** `fig_eda_class_distribution.png`
 * **Spesifikasi Panel:** Panel A: Distribusi frekuensi absolut dan persentase kelas. Panel B: Donut chart proporsi kelas (N=1826). Panel C: Kurva Effective Number (E_n) lintas parameter beta (0.9, 0.99, 0.999).
+
+```text
+dataset | n_train=1826 | n_test=814 | n_groups=15
+imbalance | IR=13.54 | H_prime=0.832
+  Bondol Jawa    : count=1124 (61.56%) | groups=7
+  Kutilang       : count= 619 (33.90%) | groups=4
+  Cendrawasih    : count=  83 ( 4.55%) | groups=4
+saved_figure | path=fig_eda_class_distribution.png
+cell2_completed | elapsed=1.2s
+```
 
 ```python
 # Kode Plotting Cell 2 (fig_eda_class_distribution.png)
@@ -1013,9 +1031,6 @@ save_fig(fig, "fig_model_taxa_auroc")
 * **Visualisasi Terkait:** Tidak menghasilkan figur grafis (Ekstraksi komputasi intensif BirdNET engine).
 
 ```text
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 208.7/208.7 kB 4.8 MB/s eta 0:00:00
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 21.8/21.8 MB 78.3 MB/s eta 0:00:00
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.8/23.8 MB 81.8 MB/s eta 0:00:00
 birdnet_loaded | engine=litert
 birdnet_taxa_resolved | total_species=6522 | Bondol=3260 | Kutilang=5133 | Cendra_genera_taxa=17
 extracting_birdnet_train_summary...
@@ -1697,7 +1712,7 @@ save_fig(fig, "fig_exp_threshold_sweep")
 
 ### Cell 29: Cell 29 - Optimal Configuration Assembly & Final Retrained Pipeline (REVISED: Consistent Features + Non-Regression Pareto Lock)
 * **Tujuan & Rationale:** Fase 9: Grand Synthesis Optimal Pipeline Assembly, ablasi window pooling, dan penguncian arsitektur juara akhir.
-* **Wawasan & Bukti Kausal:** Ablasi window pooling membuktikan static_max mencetak F1 = 0.9313 (+0.0107 atas dynamic confidence). Mekanisme Pareto Lock mengunci probabilitas puncak Cell 27 (OOF Macro F1 = 0.9468) sebagai deliverable final.
+* **Wawasan & Bukti Kausal:** Ablasi window pooling membuktikan static_max mencetak F1 = 0.9313 (+0.0107 atas dynamic confidence). Pada tahap retraining end-to-end, model mencetak OOF Macro F1 = 0.9389. Karena skor ini berada di bawah rekor historis Cell 27 (0.9468), mekanisme non-regression Pareto Lock secara otomatis terpicu untuk mengunci probabilitas puncak Cell 27 (0.9468) sebagai deliverable final demi mencegah degradasi kinerja di leaderboard.
 * **Visualisasi Terkait:** Tidak menghasilkan figur grafis (Modul perakitan arsitektur terintegrasi dan Pareto Lock).
 
 ```text
