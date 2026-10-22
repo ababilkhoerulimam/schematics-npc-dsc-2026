@@ -4,7 +4,6 @@
 **Standar:** Zero Data Leakage · Full Retrain from Raw FLAC · Zero LB-Probing Quota · Inline Visualization  
 **Total Sel:** 31 | **Estimasi Runtime:** ~5–6 jam (T4 GPU)
 
----
 
 ## Peta 10 Fase × 31 Sel
 
@@ -22,7 +21,6 @@
 | **10. Delivery** | 31 | Ablation table, archiving, hash | 1 figur |
 | | | | **~26 figur total** |
 
----
 
 ## FASE 1: Environment
 
@@ -36,7 +34,6 @@
   6. **Tanpa saklar cache.** Seluruh pipeline dari raw `.flac`.
 * **Output:** Tabel versi library + status GPU di stdout.
 
----
 
 ## FASE 2: Comprehensive Bioacoustic EDA
 
@@ -105,7 +102,6 @@
      * Panel B: Heatmap biner 15×4 (group × fold), highlight Cendrawasih.
 * **Artefak:** `metadata_with_folds.csv`.
 
----
 
 ## FASE 3: Preprocessing, Feature Engineering & Interpretabilitas
 
@@ -143,7 +139,6 @@
      * Panel B: Per-class mean $|\text{SHAP}|$ bar chart (top-15).
      * Panel C: Dependence plot untuk 2 fitur teratas.
 
----
 
 ## FASE 4: Model Grand Prix & Learning Dynamics
 
@@ -196,7 +191,6 @@
   3. Two-Way Cendrawasih Shield.
 * **Hasil:** OOF $0.9380$ - ceiling konvensional. External LB $0.59462$ membuktikan kerentanan domain shift. **→ Transisi ke Fase 5.**
 
----
 
 ## FASE 5: Bioacoustic Foundation Models & Grounding Taksonomi
 
@@ -244,7 +238,6 @@
      * Panel D: Confidence histogram diwarnai benar/salah.
 * **Hasil:** Pure $0.9239$, Hybrid $0.9314$ (+0.0075). ECE $0.0241$.
 
----
 
 ## FASE 6: Forensic Shielding & Error Analysis
 
@@ -271,7 +264,6 @@
      * Panel C: 3 mel-spectrogram specimen error yang di-reassign.
 * **Hasil:** 12/15 FP Cendrawasih dieliminasi. Presisi OOF Cendrawasih $77.8\% \to 89.6\%$. OOF F1 $0.9314 \to 0.9504$.
 
----
 
 ## FASE 7: Adaptasi Domain Transduktif
 
@@ -312,7 +304,6 @@
      * Panel D: Mel-spectrogram 3 spesimen Cicadidae yang menyusup di R3.
 * **Keputusan:** Round 2 = Pareto-optimal. R3 turun ke $0.9488$ (-0.0054). **Bobot R2 dikunci.**
 
----
 
 ## FASE 8: Architecture Optimization (Last Experiments)
 
@@ -385,7 +376,6 @@
      * Panel C: Overlay posisi optimal kedua boundary.
   6. **Gate E:** Lock `BEST_GEO_P` dan `BEST_TAX_CONFIG`.
 
----
 
 ## FASE 9: Grand Synthesis & Submission
 
@@ -445,7 +435,6 @@
      * Sub 1–2 disimpan sebagai diagnostik, tidak perlu di-submit kecuali kuota sisa.
 * **Artefak:** 5 CSV files + `submission_comparison_report.txt`.
 
----
 
 ## FASE 10: Delivery & Reproduksibilitas
 
@@ -472,7 +461,6 @@
   3. Zip ke `schematics_master_pipeline_artifacts.zip`.
   4. Cetak ringkasan keputusan Gate A–E (adopted/rejected + alasan).
 
----
 
 ## Estimasi Waktu Eksekusi (T4 GPU)
 
@@ -496,7 +484,6 @@
 | Delivery | 31 | ~3 menit |
 | **Total** | | **~6 jam** |
 
----
 
 ## Pemetaan ~12 Figur Terbaik ke Laporan 10 Halaman
 
