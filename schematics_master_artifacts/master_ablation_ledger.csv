@@ -9,4 +9,4 @@ Shield (Cell 21),Dual Forensic Shield,0.9371507272369528,Shield Boost (+0.0166)
 Self-Train R1 (Cell 23),4-Gate Inliers (lambda=1.0),0.9313207005198567,Domain Adaptation
 Self-Train R2 (Cell 23),Re-curated Inliers (lambda=0.85),0.9381383979230442,Optimal Saturation
 Self-Train R3 (Cell 24),Marginal Inliers (lambda=0.80),0.9307551956592505,Saturated Proof
-FINAL (Cell 29),Optimal A-E Pipeline,0.9467699196841912,Champion Architecture
+FINAL (Cell 29),Optimal A-E Pipeline (Pareto Locked),0.9467699196841912,Champion Architecture

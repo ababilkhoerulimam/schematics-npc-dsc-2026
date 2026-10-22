@@ -236,3 +236,5 @@ papers/*.pdf
 checkpoints_*/
 catboost_info/
 
+
+kaggle_working_all_3rev/

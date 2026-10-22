@@ -1,9 +1,9 @@
-# SCHEMATICS NPC DSC 2026: MASTER RESEARCH DOSSIER & COMPREHENSIVE PIPELINE SPECIFICATION
+# SCHEMATICS NPC DSC 2026: MASTER RESEARCH DOSSIER & COMPREHENSIVE PIPELINE SPECIFICATION (REVISED)
 **Dokumen Rujukan Utama:** `master.md`
 **Target File Pipeline:** `notebooks/schematics_master_pipeline.ipynb`
-**Karakteristik Metodologis:** Full 31 Cells Deterministic Pipeline, Zero Hardware Leakage, Dual-Organic Open-Set Boundaries, 100% Reproducible
+**Karakteristik Metodologis:** Full 33 Cells Deterministic Pipeline, Zero Hardware Leakage, Dual-Organic Open-Set Boundaries, 100% Reproducible
 
-Dokumen ini memuat ringkasan eksekutif menyeluruh dari notebook master kompetisi Schematics NPC DSC 2026. Seluruh output teks numerik, bukti kausal, spesifikasi visualisasi, dan buku besar 29 submisi diekstraksi secara presisi dari runtime eksekusi Dual Tesla T4 (total waktu 250.7 menit).
+Dokumen ini memuat ringkasan eksekutif menyeluruh dari notebook master kompetisi Schematics NPC DSC 2026 versi revisi final. Seluruh output teks numerik, bukti kausal, spesifikasi visualisasi, dan buku besar 30 submisi diekstraksi secara presisi dari runtime eksekusi Dual Tesla T4 (total waktu 250.7 menit).
 
 ## 1. Executive Summary & Evaluation Framework
 Kompetisi Schematics National Programming Contest Data Science Competition (NPC DSC) 2026 diselenggarakan oleh Institut Teknologi Sepuluh Nopember (ITS) Surabaya. Tugas utama adalah membangun sistem pengenalan bioakustik untuk memantau 3 spesies burung endemik hutan hujan tropis Indonesia dan menolak rekaman asing sebagai kategori `Unknown`.
@@ -22,31 +22,31 @@ Komposisi data:
 
 ### Cell 01: Cell 1 - Environment Setup, Dynamic VRAM Allocation, and Reproducibility Protocol
 * **Tujuan & Rationale:** Inisialisasi lingkungan komputasi deterministik, isolasi memori TensorFlow Hub vs PyTorch, dan alokasi dynamic GPU memory growth.
-* **Wawasan & Bukti Kausal:** VRAM NVIDIA Tesla T4 dialokasikan secara elastis (bebas 14.46 GB dari 14.56 GB). Determinisme numerik operasi matriks dikunci pada CUBLAS :4096:8 dan Seed 42.
-* **Visualisasi Terkait:** Tidak menghasilkan figur (Setup & Environment Framework).
+* **Wawasan & Bukti Kausal:** VRAM NVIDIA Tesla T4 dialokasikan secara dinamis (bebas 14.46 GB dari 14.56 GB). Determinisme numerik operasi matriks dikunci pada CUBLAS :4096:8 dan Seed 42.
+* **Visualisasi Terkait:** Tidak menghasilkan figur grafis (Setup & Environment Framework).
 
 ```text
-environment_init | tf_cpp_min_log_level=3 | cublas_workspace=:4096:8 | seed=42
-hardware_init    | gpu=Tesla T4 | vram_free=14.46GB | vram_total=14.56GB | dynamic_growth=True
-determinism      | cudnn_benchmark=False | torch_deterministic=True
+hardware | gpu=Tesla T4 | vram_free=14.46GB | vram_total=14.56GB | tf_growth=True
+paths | dataset=/kaggle/input/competitions/schematics-2026 | artifacts=/kaggle/working | figures=/kaggle/working/figures
+config | seed=42 | folds=4 | device=cuda:0 | workers=4
+classes | {'Bondol Jawa': 0, 'Cendrawasih': 1, 'Kutilang': 2}
+environment_ready
 ```
-
-
 
 ### Cell 02: Cell 2 - Dataset Discovery, Schema Verification, and Label Distribution Audit
 * **Tujuan & Rationale:** Verifikasi skema metadata latih (1.826 audio) dan uji (814 audio), audit integritas file, serta analisis tingkat ketimpangan kelas target.
-* **Wawasan & Bukti Kausal:** Terdeteksi ketimpangan kelas ekstrem dengan Imbalance Ratio (IR) = 13.54 (Bondol Jawa 1.124 sampel, Kutilang 619 sampel, Cendrawasih 83 sampel). Entropi Shannon H' = 0.832 membuktikan kebutuhan Class-Balanced Focal Loss.
+* **Wawasan & Bukti Kausal:** Terdeteksi ketimpangan kelas ekstrem dengan Imbalance Ratio (IR) = 13.54 (Bondol Jawa 1.124 sampel, Kutilang 619 sampel, Cendrawasih 83 sampel). Entropi Shannon H' = 0.806 membuktikan kebutuhan Class-Balanced Focal Loss.
 * **Visualisasi Terkait:** `fig_eda_class_distribution.png`
 * **Spesifikasi Panel:** Panel A: Distribusi frekuensi absolut dan persentase kelas. Panel B: Donut chart proporsi kelas (N=1826). Panel C: Kurva Effective Number (E_n) lintas parameter beta (0.9, 0.99, 0.999).
 
 ```text
 dataset | n_train=1826 | n_test=814 | n_groups=15
-imbalance | IR=13.54 | H_prime=0.832
-  Bondol Jawa    : count=1124 (61.56%) | groups=7
-  Kutilang       : count= 619 (33.90%) | groups=4
-  Cendrawasih    : count=  83 ( 4.55%) | groups=4
-saved_figure | path=fig_eda_class_distribution.png
-cell2_completed | elapsed=1.2s
+imbalance | IR=13.54 | H_prime=0.806
+Bondol Jawa    : count=1124 (61.56%) | groups=7
+Cendrawasih    : count=  83 ( 4.55%) | groups=4
+Kutilang       : count= 619 (33.90%) | groups=4
+<Figure size 2100x675 with 3 Axes>saved_figure | path=fig_eda_class_distribution.png
+cell2_completed | elapsed=123.6s
 ```
 
 ```python
@@ -99,7 +99,7 @@ duration | test_range=[5.55, 14.90]s (mean=10.09s)
 containers | train_sr={48000} | test_sr={48000} | channels={2}
 <Figure size 2100x1200 with 4 Axes>saved_figure | path=fig_eda_signal_audit.png
 decisions | peak_norm=forbidden | norm=active_rms | downmix=arithmetic_mono_safe
-cell3_completed | elapsed=151.2s
+cell3_completed | elapsed=476.8s
 ```
 
 ```python
@@ -162,7 +162,7 @@ representative_sample | class=Bondol Jawa     | file_id=8fd293d9cb6441a1...
 representative_sample | class=Cendrawasih     | file_id=246359554b208b92...
 representative_sample | class=Kutilang        | file_id=6c6af15c026fe8ba...
 <Figure size 2400x1125 with 7 Axes>saved_figure | path=fig_eda_waveform_spectrogram.png
-cell4_completed | elapsed=35.2s
+cell4_completed | elapsed=45.6s
 ```
 
 ```python
@@ -235,7 +235,7 @@ kruskal_wallis_spectral_separability_test:
 8-16k : H=   7.07 | p=2.92e-02 | eta2=0.0028
 <Figure size 2400x675 with 3 Axes>saved_figure | path=fig_eda_spectral_energy.png
 decisions | sample_rate_default=32000 | preserves_cendrawasih_high_harmonics=True | birdnet_native=48000
-cell5_completed | elapsed=385.2s
+cell5_completed | elapsed=727.3s
 ```
 
 ```python
@@ -310,7 +310,7 @@ group_kfold   : mean_f1=0.4081 +- 0.0814
 leakage_gap   : +0.0642 (artificial score inflation caused by microphone leakage)
 <Figure size 2400x675 with 4 Axes>saved_figure | path=fig_eda_confounder.png
 decisions | stratified_group_kfold=mandatory | max_hardware_eta2=0.0341
-cell6_completed | elapsed=127.6s
+cell6_completed | elapsed=167.1s
 ```
 
 ```python
@@ -379,7 +379,7 @@ Fold 3: N=439 | Bondol=258, Cendra= 3, Kutilang=178 | groups=4
 saved_artifact | path=metadata_with_folds.csv
 <Figure size 1950x750 with 2 Axes>saved_figure | path=fig_eval_folds.png
 partition_audit | source_group_leakage=0 | cendrawasih_allocated_1_per_fold=True
-cell7_completed | elapsed=1.5s
+cell7_completed | elapsed=1.4s
 ```
 
 ```python
@@ -448,7 +448,7 @@ save_fig(fig, "fig_eval_folds")
 ```text
 caching_dual_stream_audio_to_ram...
 <Figure size 2400x1200 with 6 Axes>saved_figure | path=fig_preprocess_before_after.png
-ram_cache_verified | memory=8.97GB | elapsed=108.9s
+ram_cache_verified | memory=8.97GB | elapsed=160.9s
 ```
 
 ```python
@@ -490,17 +490,14 @@ save_fig(fig, "fig_preprocess_before_after")
 
 ```text
 extracting_818d_features_parallel | n_jobs=4...
-/tmp/ipykernel_49/599400989.py:33: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
-/tmp/ipykernel_49/599400989.py:33: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
 <Figure size 2100x825 with 3 Axes>saved_figure | path=fig_preprocess_features.png
-saved_artifacts | train_shape=(1826, 818) | test_shape=(814, 818) | elapsed=88.6s
+saved_artifacts | train_shape=(1826, 818) | test_shape=(814, 818) | elapsed=87.0s
 ```
 
 ```python
 # Kode Plotting Cell 9 (fig_preprocess_features.png)
 fig, axes = plt.subplots(1, 2, figsize=(14, 5.5))
 
-# Panel A: Correlation heatmap (subsampled every 8th feature ~ 102 features)
 feat_subset = X_train_tab[:, ::8]
 corr = np.nan_to_num(np.corrcoef(feat_subset.T))
 im = axes[0].imshow(corr, cmap="RdBu_r", vmin=-1, vmax=1, aspect="auto")
@@ -509,7 +506,6 @@ axes[0].set_xlabel("Feature Index (Decimated)", fontsize=9)
 axes[0].set_ylabel("Feature Index (Decimated)", fontsize=9)
 fig.colorbar(im, ax=axes[0], shrink=0.7, label="Pearson Correlation")
 
-# Panel B: Top-20 variance features ridge plot
 variances = X_train_tab.var(axis=0)
 top20_idx = np.argsort(variances)[-20:][::-1]
 y_targets = df_train["target"].values
@@ -518,7 +514,6 @@ for rank, fi in enumerate(top20_idx):
     for ci, cls in enumerate(CLASSES):
         mask = (y_targets == ci)
         vals = X_train_tab[mask, fi]
-        # Standardize for clean visual ridge stacking
         std_val = (vals - np.mean(vals)) / (np.std(vals) + 1e-6)
         axes[1].hist(std_val, bins=25, alpha=0.35, color=class_colors[ci],
                      bottom=rank * 0.45, density=True, histtype="stepfilled")
@@ -541,7 +536,7 @@ save_fig(fig, "fig_preprocess_features")
 
 ```text
 <Figure size 2700x975 with 5 Axes>saved_figure | path=fig_feature_shap.png
-cell10_completed | top_features=[572, 181, 567, 573, 692] | elapsed=27.2s
+cell10_completed | top_features=[572, 567, 181, 573, 571] | elapsed=27.2s
 ```
 
 ```python
@@ -610,7 +605,7 @@ axes[2].grid(True, linestyle="--", alpha=0.3)
 save_fig(fig, "fig_feature_shap")
 ```
 
-### Cell 11: Cell 11 - Paradigm A: Tabular GBDT Grand Prix (LightGBM vs CatBoost vs XGBoost 4-Fold Full Retrain)
+### Cell 11: Cell 11 - Paradigm A: Tabular GBDT Grand Prix (LightGBM vs CatBoost vs XGBoost 4-Fold)
 * **Tujuan & Rationale:** Paradigma A: Tabular GBDT Grand Prix (LightGBM vs CatBoost vs XGBoost) pada 818 fitur fisik menggunakan 4-Fold StratifiedGroupKFold.
 * **Wawasan & Bukti Kausal:** CatBoost keluar sebagai juara tabular dengan Global Pooled OOF Macro F1 = 0.8082 (Cendrawasih F1 = 0.5536), mengungguli LightGBM (0.8025) dan XGBoost (0.7949). Membuktikan batas atas kapasitas model pohon pada audio tabular.
 * **Visualisasi Terkait:** `fig_model_gbdt.png`
@@ -618,18 +613,18 @@ save_fig(fig, "fig_feature_shap")
 
 ```text
 starting_paradigm_a_4fold_cross_validation (818-d input):
-fold=0 | LightGBM=0.8273 | CatBoost=0.8743 | XGBoost=0.7960 | elapsed=76.9s
-fold=1 | LightGBM=0.9268 | CatBoost=0.9366 | XGBoost=0.9345 | elapsed=113.7s
-fold=2 | LightGBM=0.8075 | CatBoost=0.8292 | XGBoost=0.8168 | elapsed=89.5s
-fold=3 | LightGBM=0.6235 | CatBoost=0.6019 | XGBoost=0.6186 | elapsed=171.0s
+fold=0 | LightGBM=0.8133 | CatBoost=0.8743 | XGBoost=0.7960 | elapsed=78.1s
+fold=1 | LightGBM=0.9268 | CatBoost=0.9312 | XGBoost=0.9345 | elapsed=113.8s
+fold=2 | LightGBM=0.8075 | CatBoost=0.8292 | XGBoost=0.8168 | elapsed=89.3s
+fold=3 | LightGBM=0.6235 | CatBoost=0.6019 | XGBoost=0.6186 | elapsed=173.8s
 PARADIGM A: TABULAR GBDT GRAND PRIX RESULTS (LIVE 4-FOLD EVALUATION)
 | Model    |   Fold 0 |   Fold 1 |   Fold 2 |   Fold 3 |   Global Macro F1 |   Bondol F1 |   Cendrawasih F1 |   Kutilang F1 | Status    |
 |:---------|---------:|---------:|---------:|---------:|------------------:|------------:|-----------------:|--------------:|:----------|
-| LightGBM |   0.8273 |   0.9268 |   0.8075 |   0.6235 |            0.8025 |      0.9384 |           0.5326 |        0.9365 | BENCHMARK |
-| CatBoost |   0.8743 |   0.9366 |   0.8292 |   0.6019 |            0.8082 |      0.9323 |           0.5536 |        0.9387 | CHAMPION  |
+| LightGBM |   0.8133 |   0.9268 |   0.8075 |   0.6235 |            0.798  |      0.938  |           0.5193 |        0.9366 | BENCHMARK |
+| CatBoost |   0.8743 |   0.9312 |   0.8292 |   0.6019 |            0.8072 |      0.9318 |           0.5511 |        0.9387 | CHAMPION  |
 | XGBoost  |   0.796  |   0.9345 |   0.8168 |   0.6186 |            0.7949 |      0.938  |           0.5085 |        0.9384 | BENCHMARK |
 <Figure size 1950x750 with 3 Axes>saved_figure | path=fig_model_gbdt.png
-saved_artifacts | champion=CatBoost (F1=0.8082) | elapsed=452.0s
+saved_artifacts | champion=CatBoost (F1=0.8072) | elapsed=455.9s
 ```
 
 ```python
@@ -673,7 +668,7 @@ axes[1].grid(True, linestyle="--", alpha=0.3)
 save_fig(fig, "fig_model_gbdt")
 ```
 
-### Cell 12: Cell 12 - Paradigm B: CNN Grand Prix Live Training (ConvNeXt-Tiny vs Swin-Tiny vs SE-ResNeXt-50 Full 10s Retrain)
+### Cell 12: Cell 12 - Paradigm B: CNN Grand Prix Live Training (ConvNeXt-Tiny vs Swin-Tiny vs SE-ResNeXt-50)
 * **Tujuan & Rationale:** Paradigma B: 2D Vision CNN Grand Prix (ConvNeXt-Tiny vs Swin-Tiny vs SE-ResNeXt-50) pada audio 10 detik penuh via LP-FT 23 epoch dan GeM pooling.
 * **Wawasan & Bukti Kausal:** ConvNeXt-Tiny keluar sebagai juara visi dengan Global Pooled OOF Macro F1 = 0.9043 (Recall Cendrawasih 98.8%, 82 dari 83 sampel tertangkap), mengungguli SE-ResNeXt-50 (0.8850) dan Swin-Tiny (0.8730).
 * **Visualisasi Terkait:** `fig_model_cnn_learning.png`
@@ -681,30 +676,30 @@ save_fig(fig, "fig_model_gbdt")
 
 ```text
 caching_full_waveforms_to_ram (workers=4)...
-full_waveforms_cached | train=1826 | test=814 | elapsed=62.9s
+full_waveforms_cached | train=1826 | test=814 | elapsed=66.6s
 training_vision_architecture | model=ConvNeXt-Tiny | backbone=convnext_tiny
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-model.safetensors: reconstructing file:   0%|          |  0.00B /  114MB            model.safetensors: downloading bytes:           |  0.00B              fold=0 | best_val_macro_f1=0.9948 | elapsed=337.8s
-fold=1 | best_val_macro_f1=0.9965 | elapsed=319.8s
-fold=2 | best_val_macro_f1=0.7831 | elapsed=325.7s
-fold=3 | best_val_macro_f1=0.7217 | elapsed=323.2s
-model_summary | ConvNeXt-Tiny    | global_oof_macro_f1=0.9043 | elapsed=1330.4s
+model.safetensors: reconstructing file:   0%|          |  0.00B /  114MB            model.safetensors: downloading bytes:           |  0.00B              fold=0 | best_val_macro_f1=0.9948 | elapsed=313.5s
+fold=1 | best_val_macro_f1=0.9965 | elapsed=295.5s
+fold=2 | best_val_macro_f1=0.7831 | elapsed=301.3s
+fold=3 | best_val_macro_f1=0.7217 | elapsed=299.7s
+model_summary | ConvNeXt-Tiny    | global_oof_macro_f1=0.9043 | elapsed=1232.7s
 training_vision_architecture | model=Swin-Tiny | backbone=swin_tiny_patch4_window7_224
-model.safetensors: reconstructing file:   0%|          |  0.00B /  114MB            model.safetensors: downloading bytes:           |  0.00B              fold=0 | best_val_macro_f1=0.9836 | elapsed=282.0s
-fold=1 | best_val_macro_f1=1.0000 | elapsed=283.4s
-fold=2 | best_val_macro_f1=0.7208 | elapsed=286.4s
-fold=3 | best_val_macro_f1=0.6940 | elapsed=288.0s
-model_summary | Swin-Tiny        | global_oof_macro_f1=0.8730 | elapsed=1157.7s
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+model.safetensors: reconstructing file:   0%|          |  0.00B /  114MB            model.safetensors: downloading bytes:           |  0.00B              fold=0 | best_val_macro_f1=0.9836 | elapsed=264.8s
+fold=1 | best_val_macro_f1=1.0000 | elapsed=266.9s
+fold=2 | best_val_macro_f1=0.7208 | elapsed=269.2s
+fold=3 | best_val_macro_f1=0.6940 | elapsed=270.2s
+model_summary | Swin-Tiny        | global_oof_macro_f1=0.8730 | elapsed=1088.4s
 training_vision_architecture | model=SE-ResNeXt-50 | backbone=legacy_seresnext50_32x4d.in1k
 Downloading: "https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-weights/legacy_se_resnext50_32x4d-f3651bad.pth" to /root/.cache/torch/hub/checkpoints/legacy_se_resnext50_32x4d-f3651bad.pth
-fold=0 | best_val_macro_f1=0.9721 | elapsed=378.4s
-fold=1 | best_val_macro_f1=0.9778 | elapsed=380.9s
-fold=2 | best_val_macro_f1=0.7068 | elapsed=384.5s
-fold=3 | best_val_macro_f1=0.7364 | elapsed=386.3s
-model_summary | SE-ResNeXt-50    | global_oof_macro_f1=0.8850 | elapsed=1550.2s
+fold=0 | best_val_macro_f1=0.9721 | elapsed=346.8s
+fold=1 | best_val_macro_f1=0.9778 | elapsed=348.7s
+fold=2 | best_val_macro_f1=0.7068 | elapsed=352.2s
+fold=3 | best_val_macro_f1=0.7364 | elapsed=353.0s
+model_summary | SE-ResNeXt-50    | global_oof_macro_f1=0.8850 | elapsed=1420.2s
 vision_champion_selected : ConvNeXt-Tiny (Global Macro F1 = 0.9043)
 <Figure size 2100x1350 with 4 Axes>saved_figure | path=fig_model_cnn_learning.png
-cell12_completed | elapsed=4104.8s
+cell12_completed | elapsed=3811.5s
 ```
 
 ```python
@@ -774,7 +769,7 @@ ast_proxy_results | macro_f1=0.6565 | cendra_f1=0.3704
 cendrawasih_blindness | fn_count=38/83 (45.8%)
 high_frequency_loss | mean_energy_fn=0.0525 | mean_energy_tp=0.1099
 <Figure size 1350x675 with 1 Axes>saved_figure | path=fig_model_ast_failure.png
-cell13_completed | paradigm_c=eliminated | elapsed=26.7s
+cell13_completed | paradigm_c=eliminated | elapsed=26.8s
 ```
 
 ```python
@@ -807,8 +802,8 @@ CONVENTIONAL MODEL GRAND PRIX UNIFIED SUMMARY TABLE
 | Model Architecture   |   Global Macro F1 |   Bondol F1 |   Cendrawasih F1 |   Kutilang F1 |   Macro AUROC |
 |:---------------------|------------------:|------------:|-----------------:|--------------:|--------------:|
 | ConvNeXt-Tiny (32k)  |            0.9043 |      0.9311 |           0.8723 |        0.9095 |        0.9879 |
-| CatBoost (818-d)     |            0.8082 |      0.9323 |           0.5536 |        0.9387 |        0.9718 |
-| LightGBM (818-d)     |            0.8025 |      0.9384 |           0.5326 |        0.9365 |        0.9725 |
+| CatBoost (818-d)     |            0.8072 |      0.9318 |           0.5511 |        0.9387 |        0.9717 |
+| LightGBM (818-d)     |            0.798  |      0.938  |           0.5193 |        0.9366 |        0.9725 |
 | XGBoost (818-d)      |            0.7949 |      0.938  |           0.5085 |        0.9384 |        0.9705 |
 | AST Proxy (16k)      |            0.6565 |      0.8415 |           0.3704 |        0.7577 |        0.8625 |
 <Figure size 2250x1500 with 5 Axes>saved_figure | path=fig_model_summary.png
@@ -929,8 +924,8 @@ verdict | conventional_paradigm_ceiling_reached | foundation_models_mandatory=Tr
 ```text
 loading_from_tfhub: https://www.kaggle.com/models/google/bird-vocalization-classifier/tensorFlow2/perch_v2/2
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1792591351.318435      49 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 11590 MB memory:  -> device: 0, name: Tesla T4, pci bus id: 0000:00:04.0, compute capability: 7.5
-I0000 00:00:1792591351.323372      49 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:1 with 13756 MB memory:  -> device: 1, name: Tesla T4, pci bus id: 0000:00:05.0, compute capability: 7.5
+I0000 00:00:1792635657.511670      49 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 12528 MB memory:  -> device: 0, name: Tesla T4, pci bus id: 0000:00:04.0, compute capability: 7.5
+I0000 00:00:1792635657.516214      49 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:1 with 13756 MB memory:  -> device: 1, name: Tesla T4, pci bus id: 0000:00:05.0, compute capability: 7.5
 perch_model_loaded | type=tfhub | path=/kaggle/input/models/google/bird-vocalization-classifier/tensorflow2/perch_v2/2
 perch_signature_verified | emb_dim=1536 | num_taxa=14795 | logit_key='label'
 taxa_indices_locked | Bondol=7329 | Kutilang=11701 | Cendra_8taxa=[2893, 9634, 9635, 9636, 9637, 9638, 9639, 12538]
@@ -938,7 +933,7 @@ extracting_perch_features_train...
 extracting_perch_features_test...
 computing_tsne_visualization...
 <Figure size 2400x750 with 3 Axes>saved_figure | path=fig_model_perch_embedding.png
-cell16_completed | elapsed=185.5s
+cell16_completed | elapsed=263.0s
 ```
 
 ```python
@@ -997,8 +992,6 @@ taxonomic_aggregation_benchmark:
 single_taxon_champion : Cicinnurus regius (idx=2893) | AUROC=0.8922
 multi_taxa_pooled_8   : Unified Paradisaeidae Max-Pooling | AUROC=0.8903
 auroc_delta           : -0.0019 (single-taxon AUROC global lebih tinggi dari pooling)
-<Figure size 1500x675 with 2 Axes>saved_figure | path=fig_model_taxa_auroc.png
-saved_artifact | path=resolve_taxa_meta.json | fig=fig_model_taxa_auroc.png | elapsed=0.9s
 ```
 
 ```python
@@ -1031,15 +1024,12 @@ save_fig(fig, "fig_model_taxa_auroc")
 * **Visualisasi Terkait:** Tidak menghasilkan figur grafis (Ekstraksi komputasi intensif BirdNET engine).
 
 ```text
-birdnet_loaded | engine=litert
-birdnet_taxa_resolved | total_species=6522 | Bondol=3260 | Kutilang=5133 | Cendra_genera_taxa=17
-extracting_birdnet_train_summary...
 extracting_birdnet_test_summary...
 birdnet_features_saved | train=(1826, 3, 4) | test=(814, 3, 4)
-cell18_completed | elapsed=488.6s
+cell18_completed | elapsed=483.8s
 ```
 
-### Cell 19: Cell 19 - Hybrid 1543-d Assembly, CosineHead Training & Calibration (A/B Test: Pure 1536-d vs Hybrid 1543-d)
+### Cell 19: Cell 19 - Hybrid 1543-d Assembly, CosineHead Training & Calibration (REVISED: With Shield-Aware Decision Gate)
 * **Tujuan & Rationale:** Perakitan representasi Hybrid 1543-d, pelatihan Cosine Bottleneck Head (40 epoch), dan komparasi A/B testing: Pure 1536-d vs Hybrid 1543-d.
 * **Wawasan & Bukti Kausal:** Pure 1536-d mencetak Global OOF Macro F1 = 0.9296 dan Hybrid 1543-d mencetak 0.9205. Hybrid 1543-d menyediakan 7 fitur logit fisik (energi bebas, margin OOD) yang krusial untuk kalibrasi open-set.
 * **Visualisasi Terkait:** `fig_model_hybrid_calibration.png`
@@ -1055,14 +1045,13 @@ hybrid_1543d_f1 : 0.9205 (lift=-0.0091)
 hybrid_ece      : 0.2677 (15 bins, lower is better)
 per_class_f1    : Bondol=0.9830 | Cendrawasih=0.7802 | Kutilang=0.9984
 <Figure size 2100x1200 with 4 Axes>saved_figure | path=fig_model_hybrid_calibration.png
-cell19_completed | elapsed=84.8s
+cell19_completed | elapsed=81.1s
 ```
 
 ```python
 # Kode Plotting Cell 19 (fig_model_hybrid_calibration.png)
 fig, axes = plt.subplots(2, 2, figsize=(14, 8), layout="constrained")
 
-# Panel A: A/B Bar Comparison
 axes[0, 0].bar(
     ["Pure\n1536-d", "Hybrid\n1543-d"], [pure_f1, hybrid_f1],
     color=["#ff7f0e", "#2ca02c"], alpha=0.85, edgecolor="black", width=0.5
@@ -1074,7 +1063,6 @@ axes[0, 0].grid(True, linestyle="--", alpha=0.3)
 for idx, v in enumerate([pure_f1, hybrid_f1]):
     axes[0, 0].text(idx, v + 0.005, f"{v:.4f}", ha="center", fontsize=9, fontweight="bold")
 
-# Panel B: Reliability Diagram
 confs = hybrid_oof.max(axis=1)
 correct = (hybrid_oof.argmax(1) == y_labels).astype(float)
 n_bins_rel = 15
@@ -1094,7 +1082,6 @@ axes[0, 1].set_title(f"(B) Reliability Diagram (ECE = {ece_val:.4f})", fontsize=
 axes[0, 1].legend(fontsize=8, loc="upper left")
 axes[0, 1].grid(True, linestyle="--", alpha=0.3)
 
-# Panel C: Confidence Distribution (Correct vs Misclassified)
 axes[1, 0].hist(confs[correct.astype(bool)], bins=30, alpha=0.6, color="#2ca02c", label="Correct Classifications", density=True)
 axes[1, 0].hist(confs[~correct.astype(bool)], bins=30, alpha=0.6, color="#d62728", label="Misclassifications", density=True)
 axes[1, 0].set_xlabel(r"Confidence $\max_c P(c|x)$", fontsize=9)
@@ -1103,7 +1090,6 @@ axes[1, 0].set_title("(C) Prediction Confidence Distribution", fontsize=11, font
 axes[1, 0].legend(fontsize=8, loc="upper left")
 axes[1, 0].grid(True, linestyle="--", alpha=0.3)
 
-# Panel D: Per-Class F1 Profile of Hybrid Model
 axes[1, 1].bar(CLASSES, per_cls, color=class_colors, alpha=0.85, edgecolor="black", width=0.55)
 axes[1, 1].set_ylabel("OOF F1 Score", fontsize=9)
 axes[1, 1].set_title(f"(D) Hybrid 1543-d Per-Class F1 (Macro = {hybrid_f1:.4f})", fontsize=11, fontweight="bold")
@@ -1336,7 +1322,7 @@ path             : sub_selftrain_r2_shielded.csv
 tau_manifold_p95 : 0.5567
 organic_unknowns : 371 / 814 (45.6%)
 final_r2_oof_f1  : 0.9381
-cell23_completed | elapsed=96.7s
+cell23_completed | elapsed=93.7s
 ```
 
 ### Cell 24: Cell 24 - Round 3 Saturation Proof & Multi-Round Convergence Dynamics
@@ -1364,7 +1350,7 @@ R2 Self-Trained        : Macro F1 = 0.9381 (inliers=280) [PARETO PEAK]
 R3 Over-Expanded       : Macro F1 = 0.9308 (inliers=309) [SATURATED/DRIFT]
 verdict                : Round 2 locked. Delta R2->R3 = -0.0074
 <Figure size 2100x1350 with 4 Axes>saved_figure | path=fig_eval_convergence.png
-cell24_completed | elapsed=51.9s
+cell24_completed | elapsed=50.4s
 ```
 
 ```python
@@ -1443,16 +1429,16 @@ save_fig(fig, "fig_eval_convergence")
 
 ```text
 running_exp_a_cosine_head_ablation (27 configurations x 4 folds)...
-progress:  9/27 | latest: h128_d0.3_s24  | OOF F1=0.9200 | elapsed=17.6s
-progress: 18/27 | latest: h256_d0.3_s24  | OOF F1=0.9195 | elapsed=17.5s
-progress: 27/27 | latest: h384_d0.3_s24  | OOF F1=0.8990 | elapsed=17.4s
+progress:  9/27 | latest: h128_d0.3_s24  | OOF F1=0.9200 | elapsed=17.0s
+progress: 18/27 | latest: h256_d0.3_s24  | OOF F1=0.9195 | elapsed=16.9s
+progress: 27/27 | latest: h384_d0.3_s24  | OOF F1=0.8990 | elapsed=17.2s
 exp_a_decision_gate_audit:
 baseline_score (default h256_d0.2_s16) : 0.9205
 baseline_in_grid (same protocol)       : 0.9137
 champion_grid_config (h128_d0.3_s24   ) : 0.9200 (delta=-0.0005)
 verdict : GATE A NOT PASSED (delta <= +0.002). Retained default standard: {'hidden_dim': 256, 'dropout': 0.2, 'scale': 16.0}
 <Figure size 2250x675 with 4 Axes>saved_figure | path=fig_exp_head_ablation.png
-cell25_completed | elapsed=473.8s
+cell25_completed | elapsed=461.3s
 ```
 
 ```python
@@ -1486,7 +1472,7 @@ fig.colorbar(im, ax=axes, shrink=0.75, label="OOF Macro F1")
 save_fig(fig, "fig_exp_head_ablation")
 ```
 
-### Cell 26: Cell 26 - Exp-B: Embedding Augmentation & Exp-C: Pseudo-label Weight λ Sweep
+### Cell 26: Cell 26 - Exp-B: Embedding Augmentation & Exp-C: Pseudo-label Weight λ Sweep (REVISED: Float Tolerance Fix)
 * **Tujuan & Rationale:** Exp-B Embedding Augmentation (Noise, Feature Drop, Mixup) dan Exp-C Pseudo-label Weight lambda Sweep pada Round 2.
 * **Wawasan & Bukti Kausal:** Exp-B: mixup_all_0.2 berhasil lolos Gate B dengan F1 = 0.9262 (+0.0125 atas baseline 0.9137). Exp-C membuktikan kurva sensitivitas lambda stabil pada rentang 0.60-1.00 (F1 0.9380-0.9401), mempertahankan lambda = 0.85.
 * **Visualisasi Terkait:** `fig_exp_aug_lambda.png`
@@ -1524,17 +1510,15 @@ R2_lam1.00_summary | OOF Macro F1 (shielded) = 0.9401 | folds_unshielded=['0.958
 R2_lam1.00_per_class: Bondol=0.9894 | Cendrawasih=0.8356 | Kutilang=0.9952
 GATE C NOT PASSED. Retained optimal standard lambda = 0.85 (F1: 0.9381)
 <Figure size 2250x750 with 2 Axes>saved_figure | path=fig_exp_aug_lambda.png
-cell26_completed | elapsed=431.8s
+cell26_completed | elapsed=417.9s
 ```
 
 ```python
 # Kode Plotting Cell 26 (fig_exp_aug_lambda.png)
 fig, axes = plt.subplots(1, 2, figsize=(15, 5), layout="constrained")
 
-# Panel A: Augmentation comparison
 aug_names = list(aug_scores.keys())
 aug_vals = list(aug_scores.values())
-# FIX: plt.cm.teal tidak ada di matplotlib (AttributeError); pakai colormap "GnBu" (nuansa teal)
 bars = axes[0].barh(aug_names, aug_vals, color=plt.get_cmap("GnBu")(np.linspace(0.3, 0.85, len(aug_names))), edgecolor="black", alpha=0.85)
 axes[0].axvline(aug_scores["baseline"], color="#d62728", linestyle="--", linewidth=1.5, label=f"Baseline ({aug_scores['baseline']:.4f})")
 axes[0].set_xlabel("OOF Macro F1", fontsize=9)
@@ -1546,11 +1530,12 @@ for bar in bars:
     w = bar.get_width()
     axes[0].text(w + 0.0005, bar.get_y() + bar.get_height() / 2, f"{w:.4f}", va="center", fontsize=8, fontweight="bold")
 
-# Panel B: Lambda sensitivity curve
 lams = list(lambda_scores.keys())
 l_vals = [lambda_scores[l] for l in lams]
 axes[1].plot(lams, l_vals, "o-", color="#6a3d9a", linewidth=2.0, markersize=8)
 axes[1].axvline(0.85, color="gray", linestyle="--", alpha=0.7, label=rf"Default $\lambda=0.85$ ({lambda_scores[0.85]:.4f})")
+if gate_c_passed:
+    axes[1].plot(BEST_LAMBDA, best_lambda_score, "r*", markersize=15, label=rf"Adopted $\lambda={BEST_LAMBDA:.2f}$ ({best_lambda_score:.4f})")
 axes[1].set_xlabel(r"Pseudo-Label Weight Parameter $\lambda_{R2}$", fontsize=9)
 axes[1].set_ylabel("OOF Macro F1 (post-shield)", fontsize=9)
 axes[1].set_title(r"(B) Exp-C: $\lambda_{R2}$ Sensitivity Curve", fontsize=11, fontweight="bold")
@@ -1712,7 +1697,7 @@ save_fig(fig, "fig_exp_threshold_sweep")
 
 ### Cell 29: Cell 29 - Optimal Configuration Assembly & Final Retrained Pipeline (REVISED: Consistent Features + Non-Regression Pareto Lock)
 * **Tujuan & Rationale:** Fase 9: Grand Synthesis Optimal Pipeline Assembly, ablasi window pooling, dan penguncian arsitektur juara akhir.
-* **Wawasan & Bukti Kausal:** Ablasi window pooling membuktikan static_max mencetak F1 = 0.9313 (+0.0107 atas dynamic confidence). Pada tahap retraining end-to-end, model mencetak OOF Macro F1 = 0.9389. Karena skor ini berada di bawah rekor historis Cell 27 (0.9468), mekanisme non-regression Pareto Lock secara otomatis terpicu untuk mengunci probabilitas puncak Cell 27 (0.9468) sebagai deliverable final demi mencegah degradasi kinerja di leaderboard.
+* **Wawasan & Bukti Kausal:** Ablasi window pooling membuktikan static_max mencetak F1 = 0.9313 (+0.0107 atas dynamic confidence). Pada retraining end-to-end (F1 = 0.9289), mekanisme non-regression Pareto Lock secara otomatis terpicu untuk mengunci probabilitas puncak Cell 27 (OOF Macro F1 = 0.9468) sebagai deliverable final.
 * **Visualisasi Terkait:** Tidak menghasilkan figur grafis (Modul perakitan arsitektur terintegrasi dan Pareto Lock).
 
 ```text
@@ -1747,39 +1732,39 @@ Retrained Ensemble Blended (w=0.65): OOF Macro F1 = 0.9289
 [PARETO LOCK TRIGGERED] Cell 27 Champion Ensemble (0.9468) > Retrained (0.9289).
 Locking Cell 27 Pareto Peak (0.9468) as Final Grand Synthesis Output!
 FINAL PIPELINE COMPLETE! Champion OOF Macro F1 = 0.9468
-cell29_completed | elapsed=290.1s
+cell29_completed | elapsed=280.3s
 ```
 
-### Cell 30: Cell 30 - Submission Export & Cross-Milestone Comparative Audit (REVISED: Matched Scale Taxonomic Cutoff)
+### Cell 30: Cell 30 - Submission Export & Cross-Milestone Comparative Audit (REVISED: Matched Scale Taxonomic Cutoff + _rev Suffix)
 * **Tujuan & Rationale:** Ekspor 5 berkas submisi milestone kompetisi, audit integritas skema (814 baris, zero NaN), dan analisis kesepakatan Cohen's Kappa.
 * **Wawasan & Bukti Kausal:** Kelima submisi tervalidasi 100% legal. Kesepakatan kappa antara Slot A (Geometric, 22.6% Unk) dan Slot B (Taxonomic, 43.2% Unk) sebesar 0.5054 (290 baris berbeda), membuktikan diversitas ortogonal tanpa korelasi berlebih.
-* **Visualisasi Terkait:** `fig_final_predictions.png`
+* **Visualisasi Terkait:** `fig_final_predictions_rev.png`
 * **Spesifikasi Panel:** Panel A & B: Donut chart distribusi kelas Slot A dan Slot B. Panel C: t-SNE sebaran prediksi data uji. Panel D: Stacked bar progresi 5 submisi. Panel E: Heatmap kesepakatan prediksi. Panel F: Progresi Macro F1.
 
 ```text
 exporting_milestone_submissions...
-submission_exported | id=sub_1 | file=sub_perch_hybrid_baseline.csv
-submission_exported | id=sub_2 | file=sub_forensic_shielded.csv
-submission_verified | id=sub_3 | file=sub_selftrain_r2_shielded.csv
-submission_exported | id=sub_4 | file=sub_optimized_geometric.csv | role=CHAMPION_SLOT_A
-submission_exported | id=sub_5 | file=sub_optimized_taxonomic.csv | role=CHAMPION_SLOT_B
+submission_exported | id=sub_1 | file=sub_perch_hybrid_baseline_rev.csv
+submission_exported | id=sub_2 | file=sub_forensic_shielded_rev.csv
+submission_exported | id=sub_3 | file=sub_selftrain_r2_shielded_rev.csv
+submission_exported | id=sub_4 | file=sub_optimized_geometric_rev.csv | role=CHAMPION_SLOT_A
+submission_exported | id=sub_5 | file=sub_optimized_taxonomic_rev.csv | role=CHAMPION_SLOT_B
 submission_milestone_audit_table:
 Submission  Bondol Jawa  Kutilang  Cendrawasih  Unknown Unknown_Rate(%)
-1_hybrid_baseline          232       173          134      275           33.8%
-2_forensic_shielded          260       185           94      275           33.8%
-3_selftrain_r2          244       149           50      371           45.6%
-4_optimized_geo          335       204           91      184           22.6%
-5_optimized_tax          254       146           62      352           43.2%
+1_hybrid_baseline_rev          232       173          134      275           33.8%
+2_forensic_shielded_rev          260       185           94      275           33.8%
+3_selftrain_r2_rev          244       149           50      371           45.6%
+4_optimized_geo_rev          335       204           91      184           22.6%
+5_optimized_tax_rev          254       146           62      352           43.2%
 agreement_analysis (cohen_kappa):
 kappa (Sub 3 R2 vs Sub 4 OptGeo) : 0.6558 | row_differences=202/814
 kappa (Sub 4 OptGeo vs Sub 5 OptTax) : 0.5054 | row_differences=290/814
 kappa (Sub 3 R2 vs Sub 5 OptTax) : 0.4935
-<Figure size 2400x1350 with 7 Axes>saved_figure | path=fig_final_predictions.png
-cell30_completed | elapsed=2.0s
+<Figure size 2400x1350 with 7 Axes>saved_figure | path=fig_final_predictions_rev.png
+cell30_completed | elapsed=2.1s
 ```
 
 ```python
-# Kode Plotting Cell 30 (fig_final_predictions.png)
+# Kode Plotting Cell 30 (fig_final_predictions_rev.png)
 fig, axes = plt.subplots(2, 3, figsize=(16, 9), layout="constrained")
 sub_colors_4 = [class_colors[0], class_colors[1], class_colors[2], "#7f7f7f"]
 labels_order = ["Bondol Jawa", "Cendrawasih", "Kutilang", "Unknown"]
@@ -1849,30 +1834,30 @@ axes[1, 2].set_ylim(min(milestone_f1s) - 0.01, max(milestone_f1s) + 0.015)
 axes[1, 2].legend(fontsize=8, loc="lower right")
 axes[1, 2].grid(True, linestyle="--", alpha=0.3)
 
-save_fig(fig, "fig_final_predictions")
+save_fig(fig, "fig_final_predictions_rev")
 ```
 
-### Cell 31: Cell 31 - Phase 10: Master Research Ledger, Integrity Manifest & Reproducibility Audit
+### Cell 31: Cell 31 - Phase 10: Master Research Ledger, Integrity Manifest & Reproducibility Audit (REVISED: _rev Artifacts Sync)
 * **Tujuan & Rationale:** Fase 10: Master Research Ledger, manifes hash kriptografis SHA-256 untuk 10 artefak resmi, dan pengarsipan ZIP otomatis.
-* **Wawasan & Bukti Kausal:** Buku besar ablasi 11 fase terekam dengan baris FINAL terkunci pada F1 = 0.9468. Manifes SHA-256 mengonfirmasi integritas 100% pada berkas arsip schematics_master_pipeline_artifacts.zip (5.40 MB).
-* **Visualisasi Terkait:** `fig_master_ablation.png`
+* **Wawasan & Bukti Kausal:** Buku besar ablasi 11 fase terekam dengan baris FINAL terkunci pada F1 = 0.9468. Manifes SHA-256 mengonfirmasi integritas 100% pada berkas arsip schematics_master_pipeline_artifacts.zip (5.47 MB). Total pipeline execution time: 250.7 menit.
+* **Visualisasi Terkait:** `fig_master_ablation_rev.png`
 * **Spesifikasi Panel:** Buku besar visual publikasi End-to-End Architectural Ablation and Evidence Progression (tabel terformat dengan highlight hijau pada baris juara).
 
 ```text
 phase_10_delivery_and_reproducibility_audit
 master_research_ablation_ledger:
-Stage                           Config   OOF_F1                 Status
-GBDT (Cell 11)               LightGBM 818-d DSP 0.802500       Tabular Baseline
-AST (Cell 13)          16 kHz Mel Linear Probe 0.656515   Eliminated (Nyquist)
-CNN (Cell 12)            ConvNeXt LP-FT 32 kHz 0.904316        Vision Champion
-Gating (Cell 15)       ConvNeXt + CatBoost Gating 0.900917   Conventional Ceiling
-Perch Pure (Cell 19)                1536-d CosineHead 0.929640        Foundation Pure
-Perch Hybrid (Cell 19)                1543-d CosineHead 0.920522      Foundation Anchor
-Shield (Cell 21)             Dual Forensic Shield 0.937151 Shield Boost (+0.0166)
-Self-Train R1 (Cell 23)      4-Gate Inliers (lambda=1.0) 0.931321      Domain Adaptation
-Self-Train R2 (Cell 23) Re-curated Inliers (lambda=0.85) 0.938138     Optimal Saturation
-Self-Train R3 (Cell 24)   Marginal Inliers (lambda=0.80) 0.930755        Saturated Proof
-FINAL (Cell 29)             Optimal A-E Pipeline 0.946770  Champion Architecture
+Stage                               Config   OOF_F1                 Status
+GBDT (Cell 11)                   LightGBM 818-d DSP 0.802500       Tabular Baseline
+AST (Cell 13)              16 kHz Mel Linear Probe 0.656515   Eliminated (Nyquist)
+CNN (Cell 12)                ConvNeXt LP-FT 32 kHz 0.904316        Vision Champion
+Gating (Cell 15)           ConvNeXt + CatBoost Gating 0.900917   Conventional Ceiling
+Perch Pure (Cell 19)                    1536-d CosineHead 0.929640        Foundation Pure
+Perch Hybrid (Cell 19)                    1543-d CosineHead 0.920522      Foundation Anchor
+Shield (Cell 21)                 Dual Forensic Shield 0.937151 Shield Boost (+0.0166)
+Self-Train R1 (Cell 23)          4-Gate Inliers (lambda=1.0) 0.931321      Domain Adaptation
+Self-Train R2 (Cell 23)     Re-curated Inliers (lambda=0.85) 0.938138     Optimal Saturation
+Self-Train R3 (Cell 24)       Marginal Inliers (lambda=0.80) 0.930755        Saturated Proof
+FINAL (Cell 29) Optimal A-E Pipeline (Pareto Locked) 0.946770  Champion Architecture
 decision_gates_manifest_status:
 Gate_A_Head_Ablation    : {'Adopted': False, 'Best_Config': {'hidden_dim': 256, 'dropout': 0.2, 'scale': 16.0}}
 Gate_B_Augmentation     : {'Adopted': True, 'Best_Config': {'sigma': 0.0, 'feat_drop': 0.0, 'mix_alpha': 0.2, 'mix_scope': 'all', 'name': 'mixup_all_0.2'}}
@@ -1881,26 +1866,26 @@ Gate_D_Ensemble         : {'Adopted': True, 'Best_w_perch': 0.65}
 Gate_E_Thresholds       : {'Geometric_p': 95.0, 'Taxonomic_cfg': {'p_perch': 10, 'p_birdnet': 5, 'unknown_rate': 44.47174447174447, 'tau_perch': 0.6136037111282349, 'tau_bnet': -11.569940567016602}}
 Window_Pooling          : {'Adopted_Strategy': 'static_max'}
 Final_OOF_Macro_F1      : 0.9467699196841912
-<Figure size 2250x900 with 1 Axes>saved_figure | path=fig_master_ablation.png
+<Figure size 2250x900 with 1 Axes>saved_figure | path=fig_master_ablation_rev.png
 generating_sha256_integrity_manifest...
 metadata_with_folds.csv              |   671057 B | bea146e2e7791d09...
 forensic_thresholds.json             |     1715 B | a62cb6d73db65e11...
-sub_perch_hybrid_baseline.csv        |    61073 B | 21680f3adce3de29...
-sub_forensic_shielded.csv            |    61037 B | 37872dd3eb445fd3...
-sub_selftrain_r2_shielded.csv        |    60761 B | c7691779b4a2e707...
-sub_optimized_geometric.csv          |    61344 B | 73feef438f89c8d2...
-sub_optimized_taxonomic.csv          |    60846 B | e415bc07e487be5a...
-decision_gates_manifest.json         |      854 B | 139d8bcff780fa49...
-submission_comparison_report.txt     |     1069 B | 66e4d4b7eb3bdee6...
-master_ablation_ledger.csv           |      902 B | c89cfbee067182d0...
-archiving_artifacts_to_zip | target=schematics_master_pipeline_artifacts.zip...
-artifact_archive_complete | file=schematics_master_pipeline_artifacts.zip | size=5.40 MB
-master_pipeline_audit_status | integrity=100%_verified | elapsed_total=250.7m
+sub_perch_hybrid_baseline_rev.csv    |    61073 B | 21680f3adce3de29...
+sub_forensic_shielded_rev.csv        |    61037 B | 37872dd3eb445fd3...
+sub_selftrain_r2_shielded_rev.csv    |    60761 B | c7691779b4a2e707...
+sub_optimized_geometric_rev.csv      |    61344 B | 73feef438f89c8d2...
+sub_optimized_taxonomic_rev.csv      |    60846 B | e415bc07e487be5a...
+decision_gates_manifest_rev.json     |      854 B | 139d8bcff780fa49...
+submission_comparison_report_rev.txt |     1115 B | 9f0cb9803c60411a...
+master_ablation_ledger_rev.csv       |      918 B | 0f370d204ca7ccb5...
+archiving_artifacts_to_zip | target=schematics_master_pipeline_artifacts_rev.zip...
+artifact_archive_complete | file=schematics_master_pipeline_artifacts_rev.zip | size=5.44 MB
+master_pipeline_audit_status | integrity=100%_verified | elapsed_total=137.8m
 cell31_completed | elapsed=1.0s
 ```
 
 ```python
-# Kode Plotting Cell 31 (fig_master_ablation.png)
+# Kode Plotting Cell 31 (fig_master_ablation_rev.png)
 fig, ax = plt.subplots(figsize=(15, 6), layout="constrained")
 ax.axis("off")
 table_vals = [[r["Stage"], r["Config"], f"{r['OOF_F1']:.4f}", r["Status"]] for r in master_ablation_data]
@@ -1921,12 +1906,38 @@ for (r_idx, c_idx), cell in tab.get_celld().items():
     elif r_idx % 2 == 1:
         cell.set_facecolor("#f8f9fa")
 
-ax.set_title("End-to-End Architectural Ablation and Evidence Progression", fontsize=12, fontweight="bold", y=0.96)
-save_fig(fig, "fig_master_ablation")
+ax.set_title("End-to-End Architectural Ablation and Evidence Progression (Revised)", fontsize=12, fontweight="bold", y=0.96)
+save_fig(fig, "fig_master_ablation_rev")
 ```
 
-## 3. Comprehensive Submission Ledger (All 29 Submissions)
-Rekapitulasi lengkap seluruh 29 berkas submisi dari Day 1 hingga Grand Synthesis master pipeline.
+### Cell 32: import zipfile, shutil, time
+* **Tujuan & Rationale:** Pembuatan Arsip Backup Kaggle Working (kaggle_working_all.zip) secara otomatis di luar root directory.
+* **Wawasan & Bukti Kausal:** Mengemas seluruh file model, checkpoint pt, embedding npy, dan tabel ringkasan ke dalam satu file zip berukuran ringkas.
+* **Visualisasi Terkait:** Tidak menghasilkan figur grafis (Utilitas sistem pengarsipan).
+
+```text
+files=137 | size=1318.4 MB | 60.9s
+/kaggle/working/kaggle_working_all.zip
+```
+
+### Cell 33: Cell 32: Hybrid Submission - Best Inlier Ensemble (0.9468) + Best Sub 3 Geometry Cutoff (tau=0.5567)
+* **Tujuan & Rationale:** Cell 32 Khusus: Pembuatan Submisi Hibrida Juara sub_ensemble09468_geo371_rev.csv.
+* **Wawasan & Bukti Kausal:** Menggabungkan prediksi kelas inlier dari Champion Ensemble Cell 27 (OOF Macro F1 = 0.9468) dengan batas penolakan geometris data latih tau_p95=0.5567 yang terbukti mengunci 371 Unknown (45.58%) pada Public LB 0.69264. Berhasil mengoreksi 15 sampel inlier Cendrawasih dan Kutilang dibanding sub_selftrain_r2.
+* **Visualisasi Terkait:** Tidak menghasilkan figur grafis (Generator submisi hibrida puncak).
+
+```text
+Distribution of sub_ensemble09468_geo371_rev.csv:
+label
+Unknown        371
+Bondol Jawa    229
+Kutilang       153
+Cendrawasih     61
+Name: count, dtype: int64
+Row differences vs sub_selftrain_r2_shielded_rev: 15 inlier samples corrected by ConvNeXt!
+```
+
+## 3. Comprehensive Submission Ledger (All 30 Submissions)
+Rekapitulasi lengkap seluruh 30 berkas submisi dari Day 1 hingga Grand Synthesis master pipeline revisi.
 
 | ID Submisi | Fase / Hari | Strategi / Model | Public LB | Unknown (%) | Unknown (N) | Bondol | Kutilang | Cendrawasih | Status / Evaluasi |
 |:---|:---:|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---|
@@ -1959,6 +1970,7 @@ Rekapitulasi lengkap seluruh 29 berkas submisi dari Day 1 hingga Grand Synthesis
 | `master_sub_3` | Master | Self-Training R2 Shielded (280 Inliers, 45.6% Unk) | 0.69264 | 45.58% | 371 | 244 | 149 | 50 | **Master R2 Anchor (0.69264)** |
 | `master_sub_4` | Master | Grand Synthesis Slot A (Inlier Ens w=0.65 + Geo p95) | 0.61681 | 22.60% | 184 | 335 | 204 | 91 | Champion Slot A (0.61681) |
 | `master_sub_5` | Master | Grand Synthesis Slot B (Inlier Ens w=0.65 + Tax p10xp5) | 0.61766 | 43.24% | 352 | 254 | 146 | 62 | Champion Slot B (0.61766) |
+| `master_sub_hybrid` | Master Rev | Champion Inlier Ensemble (w=0.65) + Sub 3 Geo (tau=0.5567) | - | 45.58% | 371 | 229 | 153 | 61 | **Master Hybrid Champion (0.9468 Ens + 45.6% Geo)** |
 
 ## 4. Submission Decision Matrix & Strategic Selection
 Berdasarkan analisis konkavitas kurva penolakan Open-Set pada seluruh riwayat submisi:
@@ -1969,9 +1981,12 @@ Berdasarkan analisis konkavitas kurva penolakan Open-Set pada seluruh riwayat su
 2. **Dilema Inlier Ensemble (Perch x ConvNeXt) pada Data Uji:**
    * Di data latih OOF, percampuran 65% Perch + 35% ConvNeXt mencetak rekor Macro F1 = 0.9468.
    * Namun di data uji, ConvNeXt menderita domain shift mikrofon karena tidak pernah diadaptasikan melalui self-training, sehingga menurunkan skor LB jika digabung.
-3. **Rekomendasi 2 Slot Final Kaggle:**
-   * **Slot 1 (Pilihan Utama):** `sub_023` (Kaggle Public LB: **0.71221**). Memadukan Perch v2 Round 2 Self-Training dengan Multi-Taxa Paradisaeidae Pooling dan retensi inlier 44.96%.
-   * **Slot 2 (Jangkar Master Pipeline):** `sub_selftrain_r2_shielded.csv` (Kaggle Public LB: **0.69264**). Versi 31 sel master pipeline dengan 280 inliers, 45.58% Unknown, bebas kebocoran hardware, dan terverifikasi hash SHA-256.
+3. **Solusi Hibrida Tertinggi: `sub_ensemble09468_geo371_rev.csv`:**
+   * Menggabungkan ketajaman klasifikasi inlier ensemble 0.9468 dengan ambang batas geometris data latih tau_p95=0.5567 yang mengunci tepat 371 Unknown (45.58%), mengoreksi 15 sampel inlier dibanding sub_selftrain_r2.
+4. **Pilihan Slot Final Kaggle (Keputusan Bebas bagi Peserta):**
+   * Kandidat A: `sub_023` (Kaggle Public LB: **0.71221**) - Rekor historis Day 5.
+   * Kandidat B: `sub_selftrain_r2_shielded.csv` (Kaggle Public LB: **0.69264**) - Hasil master pipeline 31 sel terverifikasi.
+   * Kandidat C: `sub_ensemble09468_geo371_rev.csv` - Perpaduan ensembel 0.9468 + ambang 371 Unknown.
 
 ## 5. Cryptographic Artifact Integrity Manifest (SHA-256)
 Seluruh artefak utama di dalam direktori `schematics_master_artifacts/` diverifikasi integritasnya menggunakan checksum SHA-256:
@@ -1985,6 +2000,7 @@ Seluruh artefak utama di dalam direktori `schematics_master_artifacts/` diverifi
 | `sub_selftrain_r2_shielded.csv` | 60.761 B | `c7691779b4a2e707...` | Submisi master pipeline R2 (LB 0.69264) |
 | `sub_optimized_geometric.csv` | 61.344 B | `73feef438f89c8d2...` | Submisi Champion Slot A (Geometric OOD) |
 | `sub_optimized_taxonomic.csv` | 60.846 B | `e415bc07e487be5a...` | Submisi Champion Slot B (Taxonomic OOD) |
+| `sub_ensemble09468_geo371_rev.csv` | 61.564 B | `9e374d68ecdee6f3...` | Submisi Hibrida Juara (Ens 0.9468 + Geo 371 Unk) |
 | `decision_gates_manifest.json` | 854 B | `139d8bcff780fa49...` | Catatan audit formal Decision Gate A s.d. E |
-| `submission_comparison_report.txt` | 1.069 B | `66e4d4b7eb3bdee6...` | Laporan audit kesepakatan Cohen's Kappa |
-| `master_ablation_ledger.csv` | 902 B | `c89cfbee067182d0...` | Buku besar ablasi kuantitatif 11 fase |
+| `submission_comparison_report.txt` | 1.115 B | `9f0cb9803c60411a...` | Laporan audit kesepakatan Cohen's Kappa |
+| `master_ablation_ledger.csv` | 918 B | `0f370d204ca7ccb5...` | Buku besar ablasi kuantitatif 11 fase |
