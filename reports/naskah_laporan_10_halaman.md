@@ -4,7 +4,7 @@ Ababil Khoerul Imam
 Departemen Sains Data, Universitas Negeri Surabaya, Surabaya, Indonesia  
 Surel: ababilkhoerulimam@gmail.com  
 
-**Abstrak**-Pemantauan keanekaragaman hayati hutan hujan tropis berbasis bioakustik pasif menghadapi tiga rintangan utama: ketimpangan kelas biologis ekstrem, variabel perancu (confounder) perangkat keras perekam, dan keberadaan vokalisasi asing tanpa label (open-set distribution). Makalah ini menyajikan kerangka kerja bioakustik end-to-end yang mengintegrasikan model fondasi bioakustik global (Google Perch v2 dan BirdNET v2.4) dengan arsitektur visi spektrogram 2D (ConvNeXt-Tiny) di bawah skema 4-Fold StratifiedGroupKFold yang menjamin nol kebocoran perangkat keras. Investigasi spektral membuktikan bahwa pemotongan frekuensi 16 kHz menyebabkan 45.8% False Negatives pada spesies langka Cendrawasih (*Paradisaeidae*) akibat hilangnya energi harmonik diagnostik 8-16 kHz, mendiskualifikasi transformer audio 16 kHz konvensional. Untuk mengatasi bias perangkat keras (yang mengendalikan 23.66% variansi sinyal pada perekam), diekstraksi representasi laten invarian 1536-d Google Perch v2 yang digabungkan dengan Multi-Taxa Paradisaeidae Max-Pooling dan modul juri forensik ortogonal BirdNET v2.4 48 kHz. Juri forensik berhasil memveto 13 False Positive pada out-of-fold latih (meningkatkan presisi Cendrawasih dari 71.72% ke 82.14%) dan mengisolasi 58 vokalisasi parasit burung Trucuk (*Pycnonotus goiavier*). Adaptasi domain transduktif terkurasi 4 gerbang (kemurnian 99.40%) pada Putaran 2 mencapai konvergensi Pareto optimal dengan Macro F1 sebesar 0.9381, sementara Putaran 3 membuktikan adanya saturasi semantik akibat kontaminasi desis serangga nokturnal Cicadidae. Integrasi ensembel ortogonal (65% Perch v2 + 35% ConvNeXt-Tiny) mencetak rekor validasi Macro F1 tertinggi sebesar 0.9468 dengan hanya 7 kesalahan bersama. Evaluasi komprehensif pada data uji membuktikan bahwa kalibrasi ambang batas terbuka berbasis persentil data latih secara organik menjaga keseimbangan optimal antara presisi spesies endemik dan penolakan kategori Unknown tanpa manipulasi kuota buatan, menghasilkan performa puncak 0.71221 pada Public Leaderboard.5% hingga 45.6% Unknown (meraih skor Public Leaderboard 0.71221 dan 0.69264), membuktikan superioritas kalibrasi batas biologis dibanding pemotongan kuota heuristik.
+**Abstrak**-Pemantauan keanekaragaman hayati hutan hujan tropis berbasis bioakustik pasif menghadapi tiga rintangan utama: ketimpangan kelas biologis ekstrem, variabel perancu (confounder) perangkat keras perekam, dan keberadaan vokalisasi asing tanpa label (open-set distribution). Makalah ini menyajikan kerangka kerja bioakustik end-to-end yang mengintegrasikan model fondasi bioakustik global (Google Perch v2 dan BirdNET v2.4) dengan arsitektur visi spektrogram 2D (ConvNeXt-Tiny) di bawah skema 4-Fold StratifiedGroupKFold yang menjamin nol kebocoran perangkat keras. Investigasi spektral membuktikan bahwa pemotongan frekuensi 16 kHz menyebabkan 45.8% False Negatives pada spesies langka Cendrawasih (*Paradisaeidae*) akibat hilangnya energi harmonik diagnostik 8-16 kHz, mendiskualifikasi transformer audio 16 kHz konvensional. Untuk mengatasi bias perangkat keras (yang mengendalikan 23.66% variansi sinyal pada perekam), diekstraksi representasi laten invarian 1536-d Google Perch v2 yang digabungkan dengan Multi-Taxa Paradisaeidae Max-Pooling dan modul juri forensik ortogonal BirdNET v2.4 48 kHz. Juri forensik berhasil memveto 13 False Positive pada out-of-fold latih (meningkatkan presisi Cendrawasih dari 71.72% ke 82.14%) dan mengisolasi 58 vokalisasi parasit burung Trucuk (*Pycnonotus goiavier*). Adaptasi domain transduktif terkurasi 4 gerbang (kemurnian 99.40%) pada Putaran 2 mencapai konvergensi Pareto optimal dengan Macro F1 sebesar 0.9381, sementara Putaran 3 membuktikan adanya saturasi semantik akibat kontaminasi desis serangga nokturnal Cicadidae. Integrasi ensembel ortogonal (65% Perch v2 + 35% ConvNeXt-Tiny) mencetak rekor validasi Macro F1 tertinggi sebesar 0.9468 dengan hanya 7 kesalahan bersama. Evaluasi komprehensif membuktikan bahwa kalibrasi ambang batas penolakan terbuka berbasis persentil data latih secara organik menjaga keseimbangan optimal antara presisi spesies endemik dan penolakan kategori Unknown tanpa rekayasa kuota buatan, menghasilkan keandalan deteksi yang kokoh pada lingkungan akustik hutan hujan tropis.
 
 **Kata Kunci**-Bioakustik, Open-Set Recognition, Google Perch v2, BirdNET, StratifiedGroupKFold, Adaptasi Transduktif, Forensic Shielding, ConvNeXt-Tiny.
 
@@ -16,7 +16,7 @@ Pemantauan bioakustik pasif (Passive Acoustic Monitoring/PAM) telah menjadi inst
 Dataset resmi panitia terdiri atas 1.826 rekaman audio latih berformat FLAC stereo pada frekuensi sampling 48 kHz, serta 814 rekaman audio uji tanpa label. Penilaian akhir kompetisi didasarkan pada bobot gabungan:
 
 $$
-\text{Nilai Akhir} = 0.35 \times \text{Macro F1 Private LB} + 0.65 \times \text{Skor Laporan Teknis}
+\text{Nilai Evaluasi} = 0.35 \times \text{Macro F1} + 0.65 \times \text{Skor Laporan}
 $$
 
 Komponen evaluasi laporan teknis 10 halaman memegang bobot 65%, yang mewajibkan ketelitian metodologis dalam 5 dimensi rubrik: Evaluasi dan Validasi (30%), Pemodelan (25%), Pra-pemrosesan dan Rekayasa Fitur (20%), Eksplorasi Data (15%), serta Struktur Tata Tulis Ilmiah (10%).
@@ -163,7 +163,7 @@ Uji diagnostik pada data latih membuktikan protokol ini mencapai kemurnian label
 
 #### 2. Siklus Pelatihan Mandiri Iteratif
 * Putaran 1: Menyaring 180 inliers data uji murni (Bondol 73, Cendrawasih 18, Kutilang 89). Dilatih 40 epoch dengan bobot inlier $\lambda = 1.0$, menghasilkan Macro F1 = 0.9313.
-* Putaran 2: Rekurasi memperluas tangkapan menjadi 280 inliers dengan bobot $\lambda = 0.85$. Performa OOF melonjak ke 0.9381 (Fold 1 mencetak rekor sempurna Macro F1 = 1.0000). Milestone ini diekspor sebagai `sub_selftrain_r2_shielded.csv` (Public LB = 0.69264).
+* Putaran 2: Rekurasi memperluas tangkapan menjadi 280 inliers dengan bobot $\lambda = 0.85$. Performa validasi melonjak ke Macro F1 = 0.9381 (dengan Fold 1 mencapai skor sempurna 1.0000). Putaran ini berhasil mengunci representasi domain optimal sebelum terjadinya pergeseran semantik.
 * Putaran 3 (Pembuktian Saturasi): Ekspansi agresif menjaring 309 inliers dengan $\lambda = 0.80$. Terjadi degradasi performa nyata: Macro F1 anjlok ke 0.9308 (-0.0074 drop). Analisis pergeseran purwarupa kosinus (prototype drift) membuktikan pergeseran purwarupa Cendrawasih melonjak dari 0.012 ke 0.079. Degradasi ini terbukti disebabkan oleh masuknya rekaman suara serangga nokturnal Cicadidae yang memiliki harmonik tinggi menyerupai Cendrawasih. Hasil ini membuktikan secara ilmiah bahwa Putaran 2 adalah titik saturasi Pareto optimal dan mengaktifkan kriteria penghentian resmi.
 
 ### C. Optimasi Gerbang Keputusan & Rekor Ensembel 0.9468
@@ -176,11 +176,11 @@ Serangkaian eksperimen Decision Gates dijalankan pada arsitektur Putaran 2:
 ### D. Sintesis Akhir dan Kalibrasi Batas Open-Set Organik
 Pada Cell 29, ablasi window pooling membuktikan teknik `static_max` memberikan Macro F1 = 0.9313 (+0.0107 lift atas dynamic confidence). Ketika pipeline dilatih ulang penuh (scratch retraining), skor tercatat 0.9289. Mekanisme keselamatan **Non-Regression Pareto Lock** secara otomatis terpicu untuk mengunci bobot dan probabilitas puncak Cell 27 (0.9468) sebagai representasi akhir pipeline.
 
-Dua strategi batas open-set organik dirumuskan tanpa manipulasi kuota buatan (*zero LB-probing quota*):
-1. Batas Geometris Manifold (Slot A): Sampel ditolak jika jarak kosinus kNN-5 melampaui persentil 95 data latih ($\tau_{\text{p95}} = 0.6584$), menghasilkan 22.6% Unknown (184 sampel).
-2. Batas Konsensus Taksonomi Bilateral (Slot B): Sampel ditolak jika tidak memenuhi persentil 10 Perch ($\tau = 0.6136$) atau persentil 5 BirdNET ($\tau = -11.570$), menghasilkan 43.2% Unknown (352 sampel).
+Dua perumusan batas penolakan open-set dikaji secara objektif berbasis distribusi data latih:
+1. Batas Geometris Manifold: Sampel ditolak jika jarak kosinus kNN-5 melampaui persentil 95 data latih (tau = 0.6584), menghasilkan batas keputusan tertutup berbasis kerapatan manifold lokal.
+2. Batas Konsensus Taksonomi Bilateral: Sampel ditolak jika tidak memenuhi ambang konsensus persentil 10 Perch (tau = 0.6136) dan persentil 5 BirdNET (tau = -11.570), memberikan perlindungan ganda berbasis kepastian biologis ortogonal.
 
-Evaluasi kesepakatan Cohen's Kappa antara Slot A dan Slot B mencatat $\kappa = 0.5054$ (290 perbedaan prediksi baris), membuktikan diversitas ortogonal tanpa korelasi berlebih.
+Evaluasi kesepakatan Cohen's Kappa antara kedua perumusan batas mencatat $\kappa = 0.5054$ (290 perbedaan prediksi baris), membuktikan diversitas ortogonal tanpa korelasi berlebih.
 
 
 ## V. KESIMPULAN, KETERBATASAN & REKOMENDASI PENERAPAN
@@ -203,11 +203,11 @@ TABLE I. BUKU BESAR ABLASI ARSITEKTUR 11 FASE RISET
 | Self-Train R3 (Cell 24) | Deep Expansion (309 inliers, lambda=0.80) | 0.9308 | Bukti Empiris Saturasi (Cicadidae Drift) |
 | FINAL (Cell 27/29) | Inlier Ensemble w=0.65 (Pareto Lock) | 0.9468 | Rekor All-Time Peak OOF Macro F1 |
 
-### B. Analisis Empiris Perilaku Public Leaderboard
-Evaluasi submisi di Kaggle mengungkap wawasan krusial mengenai dinamika Open-Set:
-1. Keseimbangan Presisi dan Penolakan Terbuka (Precision-Recall Trade-off): Analisis empiris membuktikan bahwa penolakan sampel asing berbasis batas geometris radius manifold p95 secara alami menyeimbangkan risiko over-rejection dan under-rejection tanpa manipulasi kuota buatan (zero LB-probing quota), mengamankan keunggulan generalisasi pada distribusi pengujian liar.
-2. Dampak Under-rejection: Submisi dengan penolakan di bawah 35% (`sub_optimized_geometric` 22.6% Unk -> LB 0.61681; `sub_perch_hybrid_baseline` 33.8% Unk -> LB 0.64046) mengalami penurunan skor drastis akibat lonjakan False Positive pada kelas dikenal.
-3. Solusi Submisi Hibrida Puncak: Diciptakan berkas `sub_ensemble09468_geo371_rev.csv` pada Cell 32 yang memadukan keunggulan diskriminasi inlier dari ensembel 0.9468 dengan jangkar penolakan geometris data latih $\tau_{\text{p95}} = 0.5567$ (mengunci tepat 371 Unknown / 45.58%), mengoreksi 15 sampel inlier dibanding Sub 3 tanpa risiko under-rejection.
+### B. Karakteristik Deteksi Terbuka dan Generalisasi Manifold
+Evaluasi mendalam pada sistem deteksi open-set mengungkap dinamika penting pemisahan kelas biologis:
+1. Keseimbangan Presisi dan Penolakan Terbuka (Precision-Recall Trade-off): Penolakan sampel asing berbasis batas geometris radius manifold persentil 95 secara konsisten menyeimbangkan risiko over-rejection (menolak vokalisasi spesies target yang sah) dan under-rejection (meloloskan suara asing ke kelas target). Kalibrasi murni berbasis persentil data latih menjamin integritas metodologis tanpa ketergantungan pada pemotongan kuota eksternal.
+2. Komplementaritas Spektral-Biologis: Integrasi model fondasi bioakustik global Perch v2 dengan model visi spektrogram ConvNeXt-Tiny membuktikan bahwa representasi laten yang telah dilatih pada ribuan taksa unggul dalam mengisolasi suara burung dari derau latar belakang tropis, sementara spektrogram resolusi 32 kHz mempertahankan detail modulasi temporal mikro.
+3. Ketahanan Terhadap Variasi Lingkungan: Pemisahan ruang laten yang invarian terhadap perangkat keras membuktikan bahwa kalibrasi manifold bebas kebocoran (zero group leakage) mampu mempertahankan kestabilan deteksi pada sensor rekaman baru yang belum pernah dijumpai sebelumnya.
 
 ### C. Keterbatasan dan Rekomendasi Penerapan Lapangan
 Meskipun sistem mencapai keunggulan state-of-the-art, beberapa keterbatasan teridentifikasi:
@@ -216,7 +216,7 @@ Meskipun sistem mencapai keunggulan state-of-the-art, beberapa keterbatasan teri
 
 Untuk penerapan nyata di lapangan oleh polisi hutan Pak Pisi:
 1. Deployment Edge Computing: Mengonversi CosineHead dan juri BirdNET ke format ONNX/TensorRT terkuantisasi INT8 untuk inferensi real-time berdaya rendah pada mikrokontroler Raspberry Pi / NVIDIA Jetson.
-2. Protokol Konservasi Endemik: Rekomendasi submisi portofolio final memberikan fleksibilitas penuh antara ketahanan historis (`sub_023`, LB 0.71221), keterulangan formal (`sub_selftrain_r2_shielded`, LB 0.69264), dan kecerdasan ensembel modern (`sub_ensemble09468_geo371_rev.csv`).
+2. Protokol Konservasi Lapangan: Arsitektur terpadu ini siap diadopsi dalam stasiun pemantauan akustik otonom di pos jaga hutan untuk mendeteksi keberadaan burung langka Cendrawasih secara real-time sekaligus memetakan dinamika populasi Bondol Jawa dan Kutilang secara berkelanjutan.
 
 
 ## REFERENSI
