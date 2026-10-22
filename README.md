@@ -61,7 +61,7 @@ Exploration and causal validation across 1,826 training audio recordings (48 kHz
 
 ## Master Pipeline Architecture (10 Phases)
 
-The end-to-end framework in `notebooks/schematics_master_pipeline.ipynb` implements 33 deterministic cells across 10 structured phases:
+The end-to-end framework in `notebooks/schematics_master_pipeline_revisi.ipynb` implements 33 deterministic cells across 10 structured phases:
 
 1. Environment and VRAM Optimization: Dynamic GPU growth for TensorFlow Hub alongside CuDNN deterministic execution under Seed 42.
 2. Bioacoustic Exploratory Data Analysis: Statistical distributions, Kolmogorov-Smirnov duration shift tests, and Kruskal-Wallis confounder forensics.
@@ -104,7 +104,7 @@ Candidate options for the two final submission slots on Kaggle:
 ```text
 schematics-npc-dsc-2026/
 ├── notebooks/
-│   ├── schematics_master_pipeline.ipynb  Master end-to-end pipeline (33 cells, OOF F1 = 0.9468)
+│   ├── schematics_master_pipeline_revisi.ipynb  Master end-to-end pipeline (33 cells, OOF F1 = 0.9468)
 │   ├── schematics-day-1.ipynb            Day 1 baseline and feature exploration (Cells 1-23)
 │   ├── schematics-day-2.ipynb            Day 2 2D vision models and dynamic gating (Cells 1-28)
 │   ├── schematics-day-3.ipynb            Day 3 bioacoustic foundation model introduction (Cells 1-32)
@@ -113,6 +113,7 @@ schematics-npc-dsc-2026/
 │   ├── notebook_jere.ipynb               Kruskal-Wallis confounder and Welch PSD notebook
 │   ├── notebook_jere.md                  Markdown transcript of exploratory analysis
 │   └── ANALYSIS_STATE.md                 State ledger for exploratory confounder analysis
+├── schematics_master_all_artifacts/      Full raw execution artifacts and checkpoints (1.44 GB)
 ├── schematics_master_artifacts/          Master 33-cell execution artifacts and deliverables
 │   ├── figures/                          26 publication-grade figures (DPI 150)
 │   ├── metadata_with_folds.csv           Hardware-isolated 4-Fold StratifiedGroupKFold metadata
@@ -153,5 +154,5 @@ pip install torch torchvision timm soundfile librosa lightgbm xgboost catboost s
 
 3. Execute the master pipeline notebook:
 ```bash
-jupyter notebook notebooks/schematics_master_pipeline.ipynb
+jupyter notebook notebooks/schematics_master_pipeline_revisi.ipynb
 ```

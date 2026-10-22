@@ -1,6 +1,6 @@
 # SCHEMATICS NPC DSC 2026: MASTER RESEARCH DOSSIER & COMPREHENSIVE PIPELINE SPECIFICATION (REVISED)
 **Dokumen Rujukan Utama:** `master.md`
-**Target File Pipeline:** `notebooks/schematics_master_pipeline.ipynb`
+**Target File Pipeline:** `notebooks/schematics_master_pipeline_revisi.ipynb`
 **Karakteristik Metodologis:** Full 33 Cells Deterministic Pipeline, Zero Hardware Leakage, Dual-Organic Open-Set Boundaries, 100% Reproducible
 
 Dokumen ini memuat ringkasan eksekutif menyeluruh dari notebook master kompetisi Schematics NPC DSC 2026 versi revisi final. Seluruh output teks numerik, bukti kausal, spesifikasi visualisasi, dan buku besar 30 submisi diekstraksi secara presisi dari runtime eksekusi Dual Tesla T4 (total waktu 250.7 menit).
