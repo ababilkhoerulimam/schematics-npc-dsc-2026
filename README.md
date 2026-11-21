@@ -1,4 +1,6 @@
 <div align="center">
+  <img src="logo.png" alt="Logo" width="128" height="128">
+  
   <h1>schematics-npc-dsc-2026</h1>
   <p><strong>Tropical Rainforest Bird Chirp Open-Set Classification and Novelty Detection</strong></p>
   
@@ -61,7 +63,7 @@ Exploration and causal validation across 1,826 training audio recordings (48 kHz
 
 ## Master Pipeline Architecture (10 Phases)
 
-The end-to-end framework in `notebooks/schematics_master_pipeline_revisi.ipynb` implements 33 deterministic cells across 10 structured phases:
+The end-to-end framework in `notebooks/DatSci_disuruh ryu daftar_Notebook.ipynb` implements 65 structured cells across 10 deterministic phases:
 
 1. Environment and VRAM Optimization: Dynamic GPU growth for TensorFlow Hub alongside CuDNN deterministic execution under Seed 42.
 2. Bioacoustic Exploratory Data Analysis: Statistical distributions, Kolmogorov-Smirnov duration shift tests, and Kruskal-Wallis confounder forensics.
@@ -86,57 +88,48 @@ The end-to-end framework in `notebooks/schematics_master_pipeline_revisi.ipynb` 
 | sub_022 | `experiment 22.csv` | In-Fold Self-Trained (203 Inliers) High Probe @ 45.0% | 44.96% (366) | 0.67701 | Round 1 High Probe |
 | sub_023 | `experiment 23.csv` | Round-2 Self-Trained (274 Inliers) Multi-Taxa Pooled | 44.96% (366) | 0.71221 | Historic All-Time Peak SOTA |
 | sub_024 | `experiment 24.csv` | Round-3 Self-Trained (292 Inliers) Multi-Taxa Pooled | 44.96% (366) | 0.69098 | Round 3 Saturation Proof |
-| sub_r2_shield | `sub_selftrain_r2_shielded.csv` | Master Pipeline Round 2 (280 Inliers) + Shield | 45.58% (371) | 0.69264 | Master Pipeline R2 Anchor |
-| sub_opt_geo | `sub_optimized_geometric.csv` | Inlier Ensemble (w=0.65) + Manifold OOD (p95) | 22.60% (184) | 0.61681 | Champion Slot A (Conservative) |
-| sub_opt_tax | `sub_optimized_taxonomic.csv` | Inlier Ensemble (w=0.65) + Taxonomic OOD (p10xp5) | 43.24% (352) | 0.61766 | Champion Slot B (Consensus) |
-| sub_hybrid_champion | `sub_ensemble09468_geo371_rev.csv` | Inlier Ensemble (w=0.65) + Sub 3 Geometric Cutoff (tau=0.5567) | 45.58% (371) | - | Hybrid Champion (Ens 0.9468 + 45.6% Geo) |
+| sub_r2_shield | `sub_selftrain_r2_shielded_rev.csv` | Master Pipeline Round 2 (280 Inliers) + Shield | 45.58% (371) | 0.69264 | Master Pipeline R2 Anchor |
+| sub_opt_geo | `sub_optimized_geometric_rev.csv` | Inlier Ensemble (w=0.65) + Manifold OOD (p95) | 22.60% (184) | 0.61681 | Champion Slot A (Conservative) |
+| sub_opt_tax | `sub_optimized_taxonomic_rev.csv` | Inlier Ensemble (w=0.65) + Taxonomic OOD (p10xp5) | 43.24% (352) | 0.61766 | Champion Slot B (Consensus) |
+| sub_hybrid_champion | `sub_forensic_shielded_rev.csv` | Inlier Ensemble (w=0.65) + Sub 3 Geometric Cutoff (tau=0.5567) | 45.58% (371) | - | Hybrid Champion (Ens 0.9468 + 45.6% Geo) |
 
 ## Final Submission Selection Strategy
 
 Candidate options for the two final submission slots on Kaggle:
 
 1. Option 1 (Historical SOTA Peak): `sub_023` (Public LB 0.71221). The historical peak submission utilizing Round 2 self-training with 274 curated inliers and Multi-Taxa Paradisaeidae pooling.
-2. Option 2 (Reproducible Master Anchor): `sub_selftrain_r2_shielded.csv` (Public LB 0.69264). Generated from the verified master pipeline with 280 inliers, 45.58% organic unknown proportion, and zero group leakage.
-3. Option 3 (Optimal Hybrid Ensemble): `sub_ensemble09468_geo371_rev.csv`. Combines the superior species discrimination of the Champion Inlier Ensemble (OOF Macro F1 = 0.9468) with the empirically proven 45.58% Unknown geometric cutoff (tau = 0.5567), correcting 15 inlier samples over Sub 3.
+2. Option 2 (Reproducible Master Anchor): `sub_selftrain_r2_shielded_rev.csv` (Public LB 0.69264). Generated from the verified master pipeline with 280 inliers, 45.58% organic unknown proportion, and zero group leakage.
+3. Option 3 (Optimal Hybrid Ensemble): `sub_forensic_shielded_rev.csv`. Combines the superior species discrimination of the Champion Inlier Ensemble (OOF Macro F1 = 0.9468) with the empirically proven 45.58% Unknown geometric cutoff (tau = 0.5567), correcting 15 inlier samples over Sub 3.
 
 ## Repository Structure
 
 ```text
 schematics-npc-dsc-2026/
 ├── notebooks/
-│   ├── schematics_master_pipeline_revisi.ipynb  Master end-to-end pipeline (33 cells, OOF F1 = 0.9468)
-│   ├── schematics-day-1.ipynb            Day 1 baseline and feature exploration (Cells 1-23)
-│   ├── schematics-day-2.ipynb            Day 2 2D vision models and dynamic gating (Cells 1-28)
-│   ├── schematics-day-3.ipynb            Day 3 bioacoustic foundation model introduction (Cells 1-32)
-│   ├── schematics-day-4.ipynb            Day 4 in-fold transductive self-training (Cells 1-19)
-│   ├── schematics-day-5.ipynb            Day 5 multi-taxa pooling and historic peak (Cells 1-19)
-│   ├── notebook_jere.ipynb               Kruskal-Wallis confounder and Welch PSD notebook
-│   ├── notebook_jere.md                  Markdown transcript of exploratory analysis
-│   └── ANALYSIS_STATE.md                 State ledger for exploratory confounder analysis
-├── schematics_master_all_artifacts/      Full raw execution artifacts and checkpoints (1.44 GB)
-├── schematics_master_artifacts/          Master 33-cell execution artifacts and deliverables
-│   ├── figures/                          26 publication-grade figures (DPI 150)
-│   ├── metadata_with_folds.csv           Hardware-isolated 4-Fold StratifiedGroupKFold metadata
-│   ├── decision_gates_manifest.json      Formal audit records for Decision Gates A through E
-│   ├── sha256_manifest.json              Cryptographic SHA-256 integrity hashes for 11 key artifacts
-│   ├── master_ablation_ledger.csv        11-phase quantitative ablation ledger
-│   ├── submission_comparison_report.txt  Cohen's Kappa agreement and distribution report
-│   ├── sub_selftrain_r2_shielded.csv     Master pipeline R2 submission (LB 0.69264)
-│   ├── sub_optimized_geometric.csv       Champion Slot A submission CSV
-│   ├── sub_optimized_taxonomic.csv       Champion Slot B submission CSV
-│   ├── sub_ensemble09468_geo371_rev.csv  Hybrid Champion submission CSV (Ens 0.9468 + 45.6% Geo)
-│   └── schematics_master_pipeline_artifacts.zip  Archived bundle of artifacts and figures (5.47 MB)
-├── schematics_day1_all_artifacts/        Day 1 artifacts, planning dossiers, and submissions 1-4
-├── schematics_day2_all_artifacts/        Day 2 artifacts, decision matrices, and submissions 5-8
-├── schematics_day3_all_artifacts/        Day 3 artifacts, OOD threshold diagnostics, and submissions 9-13
-├── schematics_day4_all_artifacts/        Day 4 artifacts, modular blueprints, and submissions 14-18
-├── schematics_day5_all_artifacts/        Day 5 artifacts, taxa indices, and submissions 19-24
-├── papers/                               Curated open-set bioacoustic literature and references
-├── PROJECT_STATE.md                      Machine-readable empirical evidence ledger (E-001 to E-141)
-├── master.md                             Comprehensive 33-cell research dossier and 30-submission ledger
-├── final planning.md                     Master research blueprint specification
-├── LICENSE                               MIT License
-└── README.md                             Publication-grade repository documentation
+│   └── DatSci_disuruh ryu daftar_Notebook.ipynb  Master end-to-end pipeline (65 cells, fully annotated)
+├── reports/
+│   ├── DatSci_disuruh ryu daftar_Laporan.pdf     Final technical report (10 pages)
+│   └── DatSci_disuruh ryu daftar_Laporan.docx    Editable source technical report
+├── submissions/
+│   ├── sub_selftrain_r2_shielded_rev.csv         Master pipeline R2 submission (LB 0.69264)
+│   ├── sub_forensic_shielded_rev.csv             Forensic shielded submission
+│   ├── sub_optimized_geometric_rev.csv           Champion Slot A submission CSV
+│   ├── sub_optimized_taxonomic_rev.csv           Champion Slot B submission CSV
+│   ├── sub_perch_hybrid_baseline_rev.csv         Baseline hybrid submission CSV
+│   └── submission_comparison_report_rev.txt      Submission distribution report
+├── artifacts/
+│   ├── figures/                                  26 publication-grade figures (DPI 150)
+│   └── metadata/                                 Ablation ledgers, gates, sha256 manifests
+├── models/                                       Local model weights (.pt) and probability arrays (.npy)
+├── docs/
+│   ├── master.md                                 Comprehensive research dossier and pipeline specification
+│   ├── final_planning.md                         Master research blueprint specification
+│   └── PROJECT_STATE.md                          Empirical evidence ledger (E-001 to E-141)
+├── papers/                                       Curated open-set bioacoustic literature
+│   └── README.md
+├── logo.png                                      Project logo
+├── LICENSE                                       MIT License
+└── README.md                                     Repository documentation
 ```
 
 ## How to Run
@@ -154,5 +147,5 @@ pip install torch torchvision timm soundfile librosa lightgbm xgboost catboost s
 
 3. Execute the master pipeline notebook:
 ```bash
-jupyter notebook notebooks/schematics_master_pipeline_revisi.ipynb
+jupyter notebook notebooks/DatSci_disuruh ryu daftar_Notebook.ipynb
 ```

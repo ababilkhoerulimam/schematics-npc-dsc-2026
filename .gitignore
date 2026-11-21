@@ -235,6 +235,7 @@ papers/*.pdf
 .virtual_documents/
 checkpoints_*/
 catboost_info/
+models/
 
 
 schematics_master_all_artifacts/
