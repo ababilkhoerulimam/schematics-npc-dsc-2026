@@ -121,10 +121,6 @@ schematics-npc-dsc-2026/
 │   ├── figures/                                  26 publication-grade figures (DPI 150)
 │   └── metadata/                                 Ablation ledgers, gates, sha256 manifests
 ├── models/                                       Local model weights (.pt) and probability arrays (.npy)
-├── docs/
-│   ├── master.md                                 Comprehensive research dossier and pipeline specification
-│   ├── final_planning.md                         Master research blueprint specification
-│   └── PROJECT_STATE.md                          Empirical evidence ledger (E-001 to E-141)
 ├── papers/                                       Curated open-set bioacoustic literature
 │   └── README.md
 ├── logo.png                                      Project logo
